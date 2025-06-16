@@ -1,0 +1,171 @@
+/* 全般 */
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+}
+a,a:hover,a:visited{
+    color: inherit;
+}
+
+/* ヘッダー */
+#headerArea {
+    position: absolute;
+    top: 0;
+    height: 74px;
+    width: 100%;
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#headerArea > a > img {
+    height: 50px;
+    vertical-align:bottom;
+}
+.header-logo {
+    height: 45px;
+    object-fit: cover;
+}
+.header-logo.right {
+    width: 36px;
+    object-position: left 0px;
+}
+.header-logo.left {
+    width: 140px;
+    object-position: right 0px;
+}
+#headerArea > p {
+    width: 61px;
+    margin-left: 10px;
+    margin-top: 26px;
+    font-family: fantasy;
+    font-size: 20px;
+    letter-spacing: 4px;
+}
+/* /ハンバーガーメニュー\ */
+svg {
+    position: absolute;
+    height: 40px;
+    width: 40px;
+    cursor: pointer;
+    background-color: #fff;
+}
+.plate {
+    position: absolute;
+    top: 18px;
+    right: 10px;
+    z-index: 1000;
+    height: 41px;
+    width: 41px;
+}
+.x {
+    transform: scale(0);
+    transition: transform 400ms;
+}
+.line {
+    fill: none;
+    stroke: red;
+    stroke-width: 6px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transform-origin: 50%;
+    transition: stroke-dasharray 500ms 200ms, stroke-dashoffset 500ms 200ms,
+        transform 500ms 200ms;
+}
+.x .line {
+    stroke-width: 5.5px;
+}
+.plate1 .line2 {
+    stroke-dasharray: 40 200;
+    stroke-dashoffset: 0px;
+}
+.plate1 .line3 {
+    stroke-dasharray: 40 179;
+    stroke-dashoffset: 0px;
+}
+.active .line {
+    transition: stroke-dasharray 500ms, stroke-dashoffset 500ms, transform 500ms;
+}
+.active.plate1 .line1 {
+    transform: scale(0, 1);
+    transition: transform 500ms 100ms;
+}
+.active.plate1 .line2 {
+    stroke-dasharray: 5px 200;
+    stroke-dashoffset: -164px;
+}
+.active.plate1 .line3 {
+    stroke-dasharray: 5px 179;
+    stroke-dashoffset: -142px;
+}
+.active .x {
+    transform: scale(1);
+    transition: transform 400ms 350ms;
+}
+
+/* /ポップアップメニュー\ */
+#popupMenu {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: right 0.3s ease-in-out;
+    z-index: 50;
+}
+#popupMenu.active {
+    right: 0; /* メニューを表示 */
+}
+#popupMenu a {
+    text-decoration: none;
+    font-size: 1.5rem;
+    margin: 10px;
+}
+.before-line::before {
+    content: "";
+    display: block;
+    width: 150px;
+    height: 0;
+    border-bottom: 1px dotted gray;
+}
+/* 小型スマホ向け */
+@media (max-width: 375px) {
+    #headerArea > a > img {
+        height: 40px;
+    }
+    .header-logo {
+        height: 35px;
+    }
+    .header-logo.right {
+        width: 28px;
+    }
+    .header-logo.left {
+        width: 103px;
+    }
+    #headerArea > p {
+        width: 57px;
+        margin-left: 6px;
+        margin-top: 23px;
+        font-family: fantasy;
+        font-size: 17px;
+        letter-spacing: 3px;
+    }
+}
+/* 標準サイズスマホ向け */
+@media (min-width: 376px) and (max-width: 767px) {
+
+}
+/* 大型スマホ向け */
+@media (min-width: 768px) and (max-width: 1024px) {
+    #headerArea {
+        height: 80px;
+    }
+}
+

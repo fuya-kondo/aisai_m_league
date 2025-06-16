@@ -1,0 +1,15 @@
+/* 全般 */
+
+/* 小型スマホ向け */
+@media (max-width: 375px) {
+
+}
+/* 標準サイズスマホ向け */
+@media (min-width: 376px) and (max-width: 767px) {
+
+}
+/* 大型スマホ向け */
+@media (min-width: 768px) and (max-width: 1024px) {
+
+}
+

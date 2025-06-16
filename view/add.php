@@ -1,0 +1,266 @@
+<?php
+// Include necessary files
+require_once dirname(dirname(__FILE__)).'/controller/MahjongController.php';
+// Include header
+include 'common/header.php';
+
+// Handling POST requests
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $require_oncedFields = ['userId', 'groupId', 'game', 'direction', 'rank', 'score', 'year', 'month', 'day'];
+    $missingFields = array_filter($require_oncedFields, fn($field) => !isset($_POST[$field]));
+    if (empty($missingFields)) {
+        $userId   = $_POST['userId'];
+        $groupId  = $_POST['groupId'];
+        $game     = $_POST['game'];
+        $direction= $_POST['direction'];
+        $rank     = $_POST['rank'];
+        $score    = $_POST['score'];
+        $playDate = sprintf(
+            '%04d-%02d-%02d %s',
+            $_POST['year'],
+            $_POST['month'],
+            $_POST['day'],
+            date('H:i:s')
+        );
+        addData($userId, $groupId, $game, $direction, $rank, $score, $playDate);
+        header("Location: history.php?userId=" . urlencode($userId));
+        exit();
+    } else {
+        $error_msg = '登録に失敗しました。以下のフィールドが不足しています: ' . implode(', ', $missingFields);
+    }
+}
+
+// Get data from controller
+$todayStatsData = $mahjongStats->getTodayStatsData();
+
+// Get play count
+$games = array_column($todayStatsData, 'play_count', 'user_id');
+
+// Set title
+$title = '登録';
+?>
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no">
+    <link rel=”icon” type=”image/png” href=“/image/favicon_64-64.png”>
+    <link rel="stylesheet" href="css/master.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/button.css">
+    <link rel="stylesheet" href="css/table.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+    <title><?= $title; ?></title>
+</head>
+<body>
+    <main>
+        <div class="page-title"><?= $title; ?></div>
+        <div class="form-container">
+            <form action="add" method="post" class="registration-form">
+                <div class="form-group">
+                    <label for="userId">ユーザー</label>
+                    <select id="userId" class="input" name="userId" require_onced>
+                        <?php if($dbServerNumber == 1): ?>
+                            <option value="">リストから選択</option>
+                        <?php endif; ?>
+                        <?php foreach($u_mahjong_user_result as $userData): ?>
+                            <?php if($dbServerNumber == 1): ?>
+                                <?php if ($userData['u_mahjong_user_id'] == 0): continue; endif;?>
+                            <?php endif; ?>
+                            <option value="<?=$userData['u_mahjong_user_id']?>"><?=$userData['name']?></option>
+                        <?php endforeach;?>
+                    </select>
+                </div>
+                <div class="form-group" style="display:none;">
+                    <label for="groupId">グループ</label>
+                    <select id="groupId" class="input" name="groupId" require_onced>
+                        <?php foreach($m_mahjong_group_result as $groupData): ?>
+                            <option value="<?=$groupData['m_mahjong_group_id']?>" <?php if ($groupData['m_mahjong_group_id']==1):?>selected<?php endif;?>><?=$groupData['name']?></option>
+                        <?php endforeach;?>
+                    </select>
+                </div>
+                <div class="form-group game">
+                    <div class="date-inputs" >
+                        <input id="game" class="input" type="number" name="game" require_onced value="0" style="width: 70%;">
+                        <label style="margin-bottom:0; font-size:14px;">半荘目</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="direction">自家</label>
+                    <div class="button-container">
+                        <?php foreach($m_direction_result as $directionId => $directionName): ?>
+                            <button class="direction-button" type="button" name="direction" value="<?=$directionId?>" require_onced onclick="selectButton(this)"><?=$directionName?></button>
+                        <?php endforeach;?>
+                        <input type="hidden" id="direction" name="direction" value="">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="rank">順位</label>
+                    <select id="rank" class="input" name="rank" require_onced>
+                        <option value="" selected>-</option>
+                        <?php foreach($rankConfig as $value => $name): ?>
+                            <option value="<?=$value?>"><?=$name?></option>
+                        <?php endforeach;?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="score">点数</label>
+                    <input id="score" class="input" type=”tel” name="score" require_onced>
+                </div>
+                <div class="form-group date-group">
+                    <label>日付</label>
+                    <div class="date-inputs">
+                        <select class="input play_date" name="year" require_onced>
+                            <?php for ($year = 2025; $year <= 2027; $year++): ?>
+                                <option value="<?= $year ?>" <?= $year == 2025 ? 'selected' : '' ?>><?= $year ?></option>
+                            <?php endfor; ?>
+                        </select>
+                        <span>年</span>
+                        <select class="input play_date" name="month" require_onced>
+                            <?php for ($month = 1; $month <= 12; $month++): ?>
+                                <option value="<?= $month ?>" <?= $month == date('n') ? 'selected' : '' ?>><?= $month ?></option>
+                            <?php endfor; ?>
+                        </select>
+                        <span>月</span>
+                        <select class="input play_date" name="day" require_onced>
+                            <?php for ($day = 1; $day <= 31; $day++): ?>
+                                <option value="<?= $day ?>" <?= $day == date('j') ? 'selected' : '' ?>><?= $day ?></option>
+                            <?php endfor; ?>
+                        </select>
+                        <span>日</span>
+                    </div>
+                </div>
+
+                <button class="submit-button" type="submit">登録する</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const buttons = document.querySelectorAll('.direction-button');
+        buttons.forEach(btn => btn.classList.remove('selected'));
+        document.getElementById('direction').value = '';
+    });
+
+    let userId  = document.querySelector('[name="userId"]');
+    let game    = document.querySelector('[name="game"]');
+    let games   = <?=json_encode($games);?>;
+    userId.onchange = event => {
+        const selectedUserId    = userId.value;
+        const currentGameValue  = games[selectedUserId] !== undefined ? games[selectedUserId] : 0;
+        game.value = currentGameValue + 1;
+    };
+
+    function selectButton(button) {
+        const buttons = document.querySelectorAll('.direction-button');
+        buttons.forEach(btn => btn.classList.remove('selected'));
+        button.classList.add('selected');
+        document.getElementById('direction').value = button.value;
+    }
+</script>
+
+<style>
+    .form-container {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 5px 6px rgba(0, 0, 0, 0.2);
+        padding: 30px;
+    }
+    .registration-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+    .form-group label {
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+    .input {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+    .date-group {
+        display: flex;
+        flex-direction: column;
+    }
+    .date-inputs {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .date-inputs select {
+        flex: 1;
+    }
+    .date-inputs span {
+        color: #2c3e50;
+    }
+    .submit-button {
+        background-color: #228b22;
+        color: white;
+        border: none;
+        padding: 15px;
+        font-size: 18px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    .submit-button:hover {
+        background-color: #2980b9;
+    }
+    .button-container {
+        display: flex;
+    }
+    .direction-button {
+        padding: 10px 20px;
+        margin-right: 5px;
+        border: 1px solid #ccc;
+        cursor: pointer;
+    }
+    .direction-button:last-child {
+        margin-right: 0;
+    }
+    .selected {
+        background-color: #1e90ff; /* 薄い青 */
+        color: black; /* 選択時の文字色（見やすさのため） */
+    }
+    @media (max-width: 375px) {
+        .form-container {
+            padding: 10px;
+        }
+        .input, .submit-button {
+            font-size: 14px;
+        }
+        .date-inputs > span{
+            font-size: 12px;
+        }
+    }
+    /* 標準サイズスマホ向け */
+    @media (min-width: 376px) and (max-width: 767px) {
+        .form-container {
+            padding: 20px;
+        }
+        .input, .submit-button {
+            font-size: 16px;
+        }
+    }
+    /* 大型スマホ向け */
+    @media (min-width: 768px) and (max-width: 1024px) {
+        .form-container {
+            padding: 20px;
+        }
+        .input, .submit-button {
+            font-size: 16px;
+        }
+    }
+</style>

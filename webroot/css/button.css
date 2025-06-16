@@ -1,0 +1,41 @@
+/* 全般 */
+/* ユーザー選択ボタン */
+.select-button-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+.select-button {
+    flex: 0 1 auto;
+    min-width: 200px;
+    padding: 15px;
+    font-size: 18px;
+    color: white;
+    background-color: #228b22;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-bottom: 5px;
+}
+.select-button:hover {
+    background-color: #008000;
+    transform: translateY(-2px);
+}
+
+/* 小型スマホ向け */
+@media (max-width: 375px) {
+
+}
+/* 標準サイズスマホ向け */
+@media (min-width: 376px) and (max-width: 767px) {
+
+}
+/* 大型スマホ向け */
+@media (min-width: 768px) and (max-width: 1024px) {
+
+}
+

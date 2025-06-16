@@ -1,0 +1,316 @@
+<?php
+// Include necessary files
+require_once dirname(dirname(__FILE__)) . '/controller/MahjongController.php';
+// Include header
+include 'common/header.php';
+
+// Get data from controller
+$todayStatsData = $mahjongStats->getTodayStatsData();
+$overallStatsData = $mahjongStats->getOverallStatsData();
+$overallChartData = $mahjongStats->getOverallChartData();
+
+// Get parameter
+$selectedYear = isset($_GET['year']) ? $_GET['year'] : date("Y");
+$selectedPlayer = isset($_GET['player']) ? $_GET['player'] : 1;
+
+// Set title
+$title = '成績';
+?>
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no">
+    <link rel=”icon” type=”image/png” href=“/image/favicon_64-64.png”>
+    <link rel="stylesheet" href="css/master.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/button.css">
+    <link rel="stylesheet" href="css/table.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
+    <title><?= $title; ?></title>
+</head>
+<body>
+    <main>
+<?php /* 本日の成績 */?>
+        <?php if(!empty($todayStatsData[0]['play_count'])):?>
+            <div class="page-title">本日の<?= $title; ?></div>
+            <div class="table-container">
+                <div class="table-wrapper">
+                    <table class="score-table">
+                        <tr>
+                            <?php foreach($statsColumnMiniConfig as $k => $v):?>
+                                <th><?=$v?></th>
+                            <?php endforeach; ?>
+                        </tr>
+                        <?php foreach($todayStatsData as $data): ?>
+                            <tr align="center">
+                                <?php foreach($statsColumnMiniConfig as $k => $v):?>
+                                    <td><?=htmlspecialchars($data[$k])?></td>
+                                <?php endforeach; ?>
+                            </tr>
+                        <?php endforeach; ?>
+                    </table>
+                </div>
+            </div>
+        <?php endif;?>
+<?php /* 本日の成績 */?>
+
+<?php /* 総合成績 */?>
+        <div class="page-title"><?= $title; ?></div>
+        <form action="" method="get" class="year-selection-form">
+            <label for="year">年を選択:</label>
+            <select name="year" id="year" onchange="this.form.submit()" class="year-select">
+                <?php foreach($overallStatsData as $year => $displayStatsData): ?>
+                    <option value="<?= $year ?>" <?= ($year == $selectedYear) ? 'selected' : '' ?>><?= $year ?></option>
+                <?php endforeach; ?>
+            </select>
+        </form>
+        <?php foreach($overallStatsData as $year => $displayStatsData): ?>
+            <?php if ($year == $selectedYear): // 選択された年のみ表示 ?>
+                <div class="table-container">
+                    <h3 class="year-title"><?= $year ?></h3>
+                    <div class="table-wrapper">
+                        <table class="score-table">
+                            <tr>
+                                <?php foreach($statsColumnMiniConfig as $k => $v):?>
+                                    <th><?=$v?></th>
+                                <?php endforeach; ?>
+                            </tr>
+                            <?php foreach($displayStatsData as $data): ?>
+                                <tr align="center">
+                                <?php foreach ($statsColumnMiniConfig as $k => $v): ?>
+                                    <td>
+                                        <?php if ($k == 'name'): ?>
+                                            <a href="stats_individual?year=<?= htmlspecialchars($year) ?>&player=<?= htmlspecialchars($data['user_id']) ?>">
+                                        <?php endif; ?>
+                                        <?php
+                                            // 数値の場合は小数点第2位まで表示
+                                            if ($k == 'sum_point' || $k == 'sum_score'):
+                                                echo number_format((float)$data[$k], 1);
+                                            elseif ($k == 'average_rank'):
+                                                echo number_format((float)$data[$k], 2);
+                                            else:
+                                                echo htmlspecialchars($data[$k]);
+                                            endif;
+                                        ?>
+                                        <?php if ($k == 'name'): ?>
+                                            </a>
+                                        <?php endif; ?>
+                                    </td>
+                                <?php endforeach; ?>
+                                </tr>
+                            <?php endforeach; ?>
+                        </table>
+                    </div>
+                </div>
+            <?php endif; ?>
+        <?php endforeach; ?>
+<?php /* 総合成績 */?>
+
+<?php /* グラフ */?>
+        <div style="height: 400px; margin-bottom:150px;">
+        <canvas id="userPointsChart"></canvas>
+        </div>
+        <?php
+            $userData = [];
+            $allDates = [];
+            foreach (GROUP_A_USER_IDS as $userId) {
+                foreach ($overallChartData[$selectedYear][$userId] as $data) {
+                    // 日付形式の厳密なチェックを追加
+                    $playDate = date('Y-m-d', strtotime($data['play_date']));
+                    // ポイントの数値変換を厳密化
+                    $point = filter_var($data['point'], FILTER_VALIDATE_FLOAT);
+                    if ($point === false) {
+                        $point = 0;
+                    }
+                    // ユーザーデータ初期化
+                    if (!isset($userData[$userId])) {
+                        $userData[$userId] = [];
+                    }
+                    // ポイント加算処理（Null合体演算子を使用）
+                    $userData[$userId][$playDate] = ($userData[$userId][$playDate] ?? 0) + $point;
+                    $allDates[$playDate] = true;
+                }
+            }
+
+            // 日付をソート
+            ksort($allDates);
+            $dates = array_keys($allDates);
+
+            // 累積ポイントを計算
+            $datasets = [];
+            $colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'];
+
+            foreach ($userData as $userId => $points) {
+                $dataPoints = [];
+                $total = 0; // 累積ポイントの初期化
+                foreach ($dates as $date) {
+                    if (isset($points[$date])) {
+                        $total += $points[$date]; // 累積計算
+                    }
+                    // データポイントを追加
+                    $dataPoints[] = ['x' => $date, 'y' => $total];
+                }
+                // データセットを作成
+                $datasets[] = [
+                    'label' => htmlspecialchars($u_mahjong_user_result[$userId]['name']),
+                    'data' => $dataPoints,
+                    'borderColor' => $colors[$userId % count($colors)],
+                    'fill' => false
+                ];
+            }
+        ?>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/moment"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+        <script>
+            var datasets = <?php echo json_encode($datasets); ?>;
+            var dates = <?php echo json_encode($dates); ?>;
+
+            var originDate = new Date(dates[0]);
+            originDate.setMonth(originDate.getMonth() - 1);
+            var originDateString = originDate.toISOString().split('T')[0];
+
+            datasets.forEach(dataset => {
+                // 原点のデータポイントを追加（既存のデータポイントより前に挿入）
+                dataset.data.unshift({x: originDateString, y: 0 });
+            });
+            datasets.forEach(dataset => {
+                // 最後の日付の1ヶ月後の日付を計算して追加
+                const lastDate = new Date(dataset.data[dataset.data.length - 1].x);
+                const emptyDate = new Date(lastDate.setMonth(lastDate.getMonth() + 1));
+                dataset.data.push({ x: emptyDate.toISOString().split('T')[0], y: null });
+            });
+            var ctx = document.getElementById('userPointsChart').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'ユーザー別ポイント推移'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'month',
+                                displayFormats: {
+                                    month: 'YYYY-MM'
+                                }
+                            }
+                        },
+                    },
+                    elements: {
+                        line: {
+                            spanGaps: true // null値をスキップしてラインを続ける
+                        }
+                    }
+                }
+            });
+        </script>
+<?php /* グラフ */?>
+
+    </main>
+</body>
+</html>
+
+<style>
+    .table-container {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        overflow: hidden;
+    }
+    .year-title {
+        background-color: #228b22;
+        color: #fff;
+        padding: 15px;
+        margin: 0;
+        font-size: 1.2em;
+    }
+    .table-wrapper {
+        overflow-x: auto;
+        padding: 15px;
+    }
+    .score-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    .score-table th,
+    .score-table td {
+        padding: 12px;
+        text-align: center;
+    }
+    .score-table th {
+        background-color: #228b22;
+        color: white;
+        font-weight: bold;
+        border: none;
+    }
+    .score-table th:first-child {
+        border-top-left-radius: 8px;
+    }
+    .score-table th:last-child {
+        border-top-right-radius: 8px;
+    }
+    .score-table td {
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .score-table tr:last-child td:first-child {
+        border-bottom-left-radius: 8px;
+    }
+    .score-table tr:last-child td:last-child {
+        border-bottom-right-radius: 8px;
+    }
+    .year-selection-form {
+        text-align: center; /* 中央揃え */
+        margin-bottom: 20px; /* 下部マージン */
+    }
+
+    .year-selection-form label {
+        font-size: 1.2em; /* ラベルのフォントサイズ */
+        margin-right: 10px; /* ラベルとプルダウンの間隔 */
+    }
+
+    .year-select {
+        padding: 10px; /* 内側の余白 */
+        font-size: 1em; /* フォントサイズ */
+        border-radius: 4px; /* 角丸 */
+        border: 1px solid #ccc; /* ボーダー */
+        background-color: white; /* 背景色 */
+        transition: border-color 0.3s ease; /* ボーダー色の変化にトランジションを追加 */
+    }
+
+    .year-select:hover,
+    .year-select:focus {
+        border-color: #228b22; /* フォーカス時やホバー時のボーダー色 */
+        outline: none; /* デフォルトのアウトラインを無効化 */
+    }
+    @media screen and (max-width: 768px) {
+        .table-wrapper {
+            padding: 10px;
+        }
+        .score-table th,
+        .score-table td {
+            padding: 10px 8px;
+            font-size: 0.85em;
+        }
+        .score-table th {
+            text-align: center; /* 中央揃え */
+            line-height: 1.5; /* 行間を調整 */
+        }
+    }
+
+</style>
