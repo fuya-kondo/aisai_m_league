@@ -1,13 +1,9 @@
 <?php
-// Include necessary files
-require_once dirname(dirname(__FILE__)) . '/controller/MahjongController.php';
-// Include header
-include 'common/header.php';
 
-// Get data from controller
-$todayStatsData = $mahjongStats->getTodayStatsData();
-$overallStatsData = $mahjongStats->getOverallStatsData();
-$overallChartData = $mahjongStats->getOverallChartData();
+// Include necessary files
+require_once __DIR__ . '/../config/import_file.php';
+// Include header
+include '../webroot/common/header.php';
 
 // Get parameter
 $selectedYear = isset($_GET['year']) ? $_GET['year'] : date("Y");
@@ -23,11 +19,10 @@ $title = '成績';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <link rel=”icon” type=”image/png” href=“/image/favicon_64-64.png”>
-    <link rel="stylesheet" href="css/master.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/button.css">
-    <link rel="stylesheet" href="css/table.css">
+    <link rel="stylesheet" href="../webroot/css/master.css">
+    <link rel="stylesheet" href="../webroot/css/header.css">
+    <link rel="stylesheet" href="../webroot/css/button.css">
+    <link rel="stylesheet" href="../webroot/css/table.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
     <title><?= $title; ?></title>
@@ -84,7 +79,7 @@ $title = '成績';
                                 <?php foreach ($statsColumnMiniConfig as $k => $v): ?>
                                     <td>
                                         <?php if ($k == 'name'): ?>
-                                            <a href="stats_individual?year=<?= htmlspecialchars($year) ?>&player=<?= htmlspecialchars($data['user_id']) ?>">
+                                            <a href="personal_stats?year=<?= htmlspecialchars($year) ?>&player=<?= htmlspecialchars($data['u_user_id']) ?>">
                                         <?php endif; ?>
                                         <?php
                                             // 数値の場合は小数点第2位まで表示
@@ -110,7 +105,7 @@ $title = '成績';
         <?php endforeach; ?>
 <?php /* 総合成績 */?>
 
-<?php /* グラフ */?>
+<!-- <?php /* グラフ */?>
         <div style="height: 400px; margin-bottom:150px;">
         <canvas id="userPointsChart"></canvas>
         </div>
@@ -156,7 +151,7 @@ $title = '成績';
                 }
                 // データセットを作成
                 $datasets[] = [
-                    'label' => htmlspecialchars($u_mahjong_user_result[$userId]['name']),
+                    'label' => htmlspecialchars($uUserList[$userId]['name']),
                     'data' => $dataPoints,
                     'borderColor' => $colors[$userId % count($colors)],
                     'fill' => false
@@ -218,7 +213,7 @@ $title = '成績';
                 }
             });
         </script>
-<?php /* グラフ */?>
+<?php /* グラフ */?> -->
 
     </main>
 </body>

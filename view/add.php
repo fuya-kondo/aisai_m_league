@@ -1,8 +1,8 @@
 <?php
 // Include necessary files
-require_once dirname(dirname(__FILE__)).'/controller/MahjongController.php';
+require_once __DIR__ . '/../config/import_file.php';
 // Include header
-include 'common/header.php';
+include '../webroot/common/header.php';
 
 // Handling POST requests
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 
 // Get data from controller
-$todayStatsData = $mahjongStats->getTodayStatsData();
+$todayStatsData = $statsService->getTodayStatsData();
 
 // Get play count
 $games = array_column($todayStatsData, 'play_count', 'user_id');
@@ -47,10 +47,10 @@ $title = '登録';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
     <link rel=”icon” type=”image/png” href=“/image/favicon_64-64.png”>
-    <link rel="stylesheet" href="css/master.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/button.css">
-    <link rel="stylesheet" href="css/table.css">
+    <link rel="stylesheet" href="../webroot/css/master.css">
+    <link rel="stylesheet" href="../webroot/css/header.css">
+    <link rel="stylesheet" href="../webroot/css/button.css">
+    <link rel="stylesheet" href="../webroot/css/table.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
     <title><?= $title; ?></title>
 </head>
@@ -65,7 +65,7 @@ $title = '登録';
                         <?php if($dbServerNumber == 1): ?>
                             <option value="">リストから選択</option>
                         <?php endif; ?>
-                        <?php foreach($u_mahjong_user_result as $userData): ?>
+                        <?php foreach($uUserList as $userData): ?>
                             <?php if($dbServerNumber == 1): ?>
                                 <?php if ($userData['u_mahjong_user_id'] == 0): continue; endif;?>
                             <?php endif; ?>

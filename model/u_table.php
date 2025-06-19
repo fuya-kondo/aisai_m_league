@@ -6,8 +6,10 @@
 $uTableSql = 'SELECT * FROM `u_table`;';
 
 try {
-    $db = Database::getInstance($dsn, $dbUser, $dbPass)->getConnection();
-    $uTableSth = $db->query($uTableSql);
+    $dbConfig = getDatabaseConfig();
+    $db = Database::getInstance($dbConfig);
+    $pdo = $db->getConnection();
+    $uTableSth = $pdo->query($uTableSql);
     $uTableList = $uTableSth->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     exit($e->getMessage());

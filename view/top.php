@@ -1,12 +1,9 @@
 <?php
-// Include necessary files
-require_once dirname(dirname(__FILE__)) . '/controller/MahjongController.php';
-// Include header
-include 'common/header.php';
 
-// Get data from controller
-$m_game_day_result = array_column($m_game_day_result, 'game_day');
-$formatted_date = $mahjongStats->getNextGameDay($m_game_day_result);
+// Include necessary files
+require_once __DIR__ . '/../config/import_file.php';
+// Include header
+include '../webroot/common/header.php';
 
 // Set title
 $title = 'AISAI.M.LEAGUE';
@@ -18,18 +15,17 @@ $title = 'AISAI.M.LEAGUE';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <link rel=”icon” type=”image/png” href=“/image/favicon_64-64.png”>
-    <link rel="stylesheet" href="css/master.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/button.css">
-    <link rel="stylesheet" href="css/table.css">
+    <link rel="stylesheet" href="../webroot/css/master.css">
+    <link rel="stylesheet" href="../webroot/css/header.css">
+    <link rel="stylesheet" href="../webroot/css/button.css">
+    <link rel="stylesheet" href="../webroot/css/table.css">
     <title><?php echo $title; ?></title>
 </head>
 <body>
     <div class="main">
         <div id="schedule">
             <div class="day-area">
-                <h2 class="day"><?=$formatted_date?></h2>
+                <h2 class="day"><?=$formattedDate?></h2>
                 <ul class="playerImg">
                     <li><img src="https://m-league.jp/wp/wp-content/uploads/2018/10/AR_7-1_hagiwara-1.png"></li>
                     <li><img src="https://m-league.jp/wp/wp-content/uploads/2018/09/AR_3-4_hori-1.png"></li>

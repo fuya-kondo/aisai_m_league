@@ -1,14 +1,13 @@
 <?php
 // Include necessary files
-require_once dirname(dirname(__FILE__)) . '/controller/MahjongController.php';
-require_once dirname(dirname(__FILE__)) . '/vendor/autoload.php';
+require_once __DIR__ . '/../config/import_file.php';
 // Include header
-include 'common/header.php';
+include '../webroot/common/header.php';
 // Include GeminiAPI
 use GeminiAPI\Resources\Parts\TextPart;
 
 // Get data from controller
-$analysisData = $mahjongStats->getAnalysisData();
+$analysisData = $statsService->getAnalysisData();
 
 // 分析メッセージ
 $analysisMsg = <<<EOT
@@ -36,10 +35,10 @@ $selectUser = $_GET['userId'] ?? null;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
     <link rel=”icon” type=”image/png” href=“/image/favicon_64-64.png”>
-    <link rel="stylesheet" href="css/master.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/button.css">
-    <link rel="stylesheet" href="css/table.css">
+    <link rel="stylesheet" href="../webroot/css/master.css">
+    <link rel="stylesheet" href="../webroot/css/header.css">
+    <link rel="stylesheet" href="../webroot/css/button.css">
+    <link rel="stylesheet" href="../webroot/css/table.css">
     <title>麻雀成績分析</title>
 </head>
 <body>
@@ -48,9 +47,9 @@ $selectUser = $_GET['userId'] ?? null;
             <?php if (!isset($selectUser)): ?>
                 <div class="page-title">ユーザーを分析</div>
                 <div class="select-button-container">
-                    <form action="analysis.php" method="get">
-                        <form action="history.php" method="get">
-                            <?php foreach($u_mahjong_user_result as $userData): ?>
+                    <form action="analysis" method="get">
+                        <form action="history" method="get">
+                            <?php foreach($uUserList as $userData): ?>
                                 <?php if ($userData['u_mahjong_user_id'] == 0): continue; endif;?>
                                 <button class="select-button" type="submit" name="userId" value="<?=$userData['u_mahjong_user_id']?>"><?=$userData['name']?></button>
                             <?php endforeach; ?>
@@ -62,7 +61,7 @@ $selectUser = $_GET['userId'] ?? null;
                 </div>
             <?php else: ?>
             <?php
-                $userName = $u_mahjong_user_result[$selectUser]['name'];
+                $userName = $uUserList[$selectUser]['name'];
 
                 // AIへの指示文を作成
                 $set_msg = $analysisMsg;

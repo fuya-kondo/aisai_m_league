@@ -1,11 +1,11 @@
 <?php
 // Include necessary files
-require_once dirname(dirname(__FILE__)).'/controller/MahjongController.php';
+require_once __DIR__ . '/../config/import_file.php';
 // Include header
-include 'common/header.php';
+include '../webroot/common/header.php';
 
 // Get data from controller
-$gameHistoryDataList = $mahjongStats->getGameHistory();
+$gameHistoryDataList = $statsService->getGameHistory();
 
 // Handling POST requests
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -14,7 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($historyId !== null && $userId !== null) {
         try {
             deleteData($historyId);
-            header("Location: history.php?userId=" . urlencode($userId));
+            header("Location: history?userId=" . urlencode($userId));
             exit();
         } catch (Exception $e) {
             $error_msg = '削除処理中にエラーが発生しました: ' . $e->getMessage();
@@ -36,7 +36,7 @@ if (isset($_GET['userId'])) {
     $offset = ($current_page - 1) * $records_per_page; // オフセット計算
     // 対象レコードの合計数を計算
     $total_records = 0;
-    foreach($u_mahjong_history_result[$selectUser] as $data) {
+    foreach($$uGameHistoryList[$selectUser] as $data) {
         if(date('Y', strtotime($data['play_date'])) == $selectYear || date('Y', strtotime($data['play_date'])) == $selectYear - 1) {
             $total_records++;
         }
@@ -45,7 +45,7 @@ if (isset($_GET['userId'])) {
     $total_pages = ceil($total_records / $records_per_page);
     // 表示するレコードをフィルタリングして配列に格納
     $filtered_data = [];
-    foreach($u_mahjong_history_result[$selectUser] as $data) {
+    foreach($$uGameHistoryList[$selectUser] as $data) {
         if(date('Y', strtotime($data['play_date'])) == $selectYear || date('Y', strtotime($data['play_date'])) == $selectYear - 1) {
             $filtered_data[] = $data;
         }
@@ -78,10 +78,10 @@ $title = '履歴';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
     <link rel=”icon” type=”image/png” href=“/image/favicon_64-64.png”>
-    <link rel="stylesheet" href="css/master.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/button.css">
-    <link rel="stylesheet" href="css/table.css">
+    <link rel="stylesheet" href="../webroot/css/master.css">
+    <link rel="stylesheet" href="../webroot/css/header.css">
+    <link rel="stylesheet" href="../webroot/css/button.css">
+    <link rel="stylesheet" href="../webroot/css/table.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
     <title><?= $title; ?></title>
 </head>
@@ -90,8 +90,8 @@ $title = '履歴';
         <?php if (!isset($selectUser)): ?>
             <div class="page-title">個人<?= $title; ?></div>
             <div class="select-button-container">
-                <form action="history.php" method="get">
-                    <?php foreach($u_mahjong_user_result as $userData): ?>
+                <form action="history" method="get">
+                    <?php foreach($uUserList as $userData): ?>
                         <?php if($dbServerNumber == 1): ?>
                             <?php if ($userData['u_mahjong_user_id'] == 0): continue; endif;?>
                         <?php endif; ?>
@@ -164,7 +164,7 @@ $title = '履歴';
                                                     <td class="direction-cell"><?=$m_direction_result[$historyData['m_direction_id']]?></td>
                                                 <?php endif;?>
                                                 <td class="rank-cell"><?=$historyData['rank']?></td>
-                                                <td class="name-cell"><?=$u_mahjong_user_result[$historyData['u_mahjong_user_id']]['name']?></td>
+                                                <td class="name-cell"><?=$uUserList[$historyData['u_mahjong_user_id']]['name']?></td>
                                                 <td class="score-cell"><?=number_format($historyData['score'])?></td>
                                                 <td class="point-cell"><?=$historyData['point']?></td>
                                             </tr>
@@ -210,7 +210,7 @@ $title = '履歴';
                 </div>
             </div>
         <?php else: ?>
-            <div class="page-title"><?=$u_mahjong_user_result[$selectUser]['name']?>の履歴</div>
+            <div class="page-title"><?=$uUserList[$selectUser]['name']?>の履歴</div>
             <div class="pagination">
                 <?php if($total_pages > 1): ?>
                     <div class="pagination-controls">

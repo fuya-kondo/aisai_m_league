@@ -6,11 +6,11 @@
 $mGroupSql = 'SELECT * FROM `m_group`;';
 
 try {
-    $db = Database::getInstance($dsn, $dbUser, $dbPass)->getConnection();
-    $mGroupSth = $db->query($mGroupSql);
+    $dbConfig = getDatabaseConfig();
+    $db = Database::getInstance($dbConfig);
+    $pdo = $db->getConnection();
+    $mGroupSth = $pdo->query($mGroupSql);
     $mGroupList = $mGroupSth->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     exit($e->getMessage());
 }
-
-?>

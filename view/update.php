@@ -1,6 +1,6 @@
 <?php
 // Include necessary files
-require_once dirname(dirname(__FILE__)) . '/controller/MahjongController.php';
+require_once __DIR__ . '/../config/import_file.php';
 
 // Handling POST requests
 $isFix = false;
@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $userId     = $_POST['userId'];
 
         updateData($historyId, $rank, $score, $game, $direction);
-        header("Location: history.php?userId=" . $userId);
+        header("Location: history?userId=" . $userId);
         exit();
     }
 }
@@ -32,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 $title = '修正';
 
 // Include header
-include 'common/header.php';
+include '../webroot/common/header.php';
 ?>
 
 <!DOCTYPE html>
@@ -42,10 +42,10 @@ include 'common/header.php';
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="format-detection" content="telephone=no">
         <link rel=”icon” type=”image/png” href=“/image/favicon_64-64.png”>
-        <link rel="stylesheet" href="css/master.css">
-        <link rel="stylesheet" href="css/header.css">
-        <link rel="stylesheet" href="css/button.css">
-        <link rel="stylesheet" href="css/table.css">
+        <link rel="stylesheet" href="../webroot/css/master.css">
+        <link rel="stylesheet" href="../webroot/css/header.css">
+        <link rel="stylesheet" href="../webroot/css/button.css">
+        <link rel="stylesheet" href="../webroot/css/table.css">
         <title><?= $title; ?></title>
     </head>
     <body>
