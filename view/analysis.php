@@ -49,9 +49,8 @@ $selectUser = $_GET['userId'] ?? null;
                 <div class="select-button-container">
                     <form action="analysis" method="get">
                         <form action="history" method="get">
-                            <?php foreach($uUserList as $userData): ?>
-                                <?php if ($userData['u_mahjong_user_id'] == 0): continue; endif;?>
-                                <button class="select-button" type="submit" name="userId" value="<?=$userData['u_mahjong_user_id']?>"><?=$userData['name']?></button>
+                            <?php foreach($userList as $userId => $userData): ?>
+                                <button class="select-button" type="submit" name="userId" value="<?=$userId?>"><?=$userData[0]['last_name'].$userData[0]['first_name']?></button>
                             <?php endforeach; ?>
                         </form>
                     </form>
@@ -61,7 +60,7 @@ $selectUser = $_GET['userId'] ?? null;
                 </div>
             <?php else: ?>
             <?php
-                $userName = $uUserList[$selectUser]['name'];
+                $userName = $userList[$selectUser][0]['last_name'].$userList[$selectUser][0]['first_name'];
 
                 // AIへの指示文を作成
                 $set_msg = $analysisMsg;

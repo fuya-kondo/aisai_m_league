@@ -7,9 +7,16 @@ $statsService = new StatsService( $uTableList, $mGroupList, $mRuleList, $mDirect
 // 対局日時の取得
 $formattedDate = $statsService->getNextGameDay();
 
+// ユーザーの取得
+$userList = $statsService->getUserList();
+
+$groupData = $statsService->getGroupData();
 // 年毎の総合成績の取得
 $overallStatsData = $statsService->getAllStatsData();
+// グラフ用データの取得
+$overallChartData = $statsService->getAllChartData();
 // 本日の成績の取得
 //$todayStatsData = $statsService->getTodayStatsData();
-// グラフ用データの取得
-//$overallChartData = $statsService->getAllChartData();
+
+// 対局履歴の取得
+$gameHistoryDataList = $statsService->getGameHistory();

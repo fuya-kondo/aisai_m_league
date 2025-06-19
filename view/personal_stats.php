@@ -34,9 +34,8 @@ $title = '個人成績';
             <div class="page-title"><?= $title; ?></div>
             <div class="select-button-container">
                 <form action="personal_stats" method="get">
-                    <?php foreach($uUserList as $userData): ?>
-                        <?php if ($userData['u_mahjong_user_id'] == 0): continue; endif;?>
-                        <button class="select-button" type="submit" name="player" value="<?=$userData['u_mahjong_user_id']?>"><?=$userData['name']?></button>
+                    <?php foreach($userList as $userId => $userData): ?>
+                        <button class="select-button" type="submit" name="player" value="<?=$userId?>"><?=$userData[0]['last_name'].$userData[0]['first_name']?></button>
                     <?php endforeach; ?>
                 </form>
             </div>
@@ -45,7 +44,7 @@ $title = '個人成績';
                 $players = [];
                 if (isset($overallStatsData[$selectedYear])) {
                     foreach ($overallStatsData[$selectedYear] as $playerData) {
-                        $players[$playerData['user_id']] = $playerData['name'];
+                        $players[$playerData['u_user_id']] = $playerData['name'];
                     }
                 }
             ?>
@@ -83,7 +82,7 @@ $title = '個人成績';
                                 // 選択された選手のデータを取得
                                 $playerData = null;
                                 foreach($overallStatsData[$selectedYear] as $data) {
-                                    if ($data['user_id'] == $selectedPlayer) {
+                                    if ($data['u_user_id'] == $selectedPlayer) {
                                         $playerData = $data;
                                         break;
                                     }

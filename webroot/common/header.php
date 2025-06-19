@@ -22,7 +22,7 @@
         <a href="top"><div class="header-button">トップ</div></a>
         <div class="before-line"></div>
         <a href="stats"><div class="header-button">成績</div></a>
-        <a href="stats_individual"><div class="header-button">個人成績</div></a>
+        <a href="personal_stats"><div class="header-button">個人成績</div></a>
         <div class="before-line"></div>
         <a href="add"><div class="header-button">登録</div></a>
         <a href="history"><div class="header-button">履歴</div></a>

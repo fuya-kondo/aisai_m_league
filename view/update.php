@@ -21,8 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $game       = $_POST['new_game'];
         $direction  = $_POST['new_direction'];
         $userId     = $_POST['userId'];
-
-        updateData($historyId, $rank, $score, $game, $direction);
+        updateData((int)$historyId, $rank, (int)$score, (int)$game, (int)$direction);
         header("Location: history?userId=" . $userId);
         exit();
     }
@@ -63,10 +62,10 @@ include '../webroot/common/header.php';
                     <input class="input" type="number" name="new_game" require_onced value="<?= htmlspecialchars($game) ?>" style="width: 80px">半荘目
                     <div class="form-group">
                         <div class="button-containers">
-                            <?php foreach($m_direction_result as $directionId => $directionName): ?>
+                            <?php foreach($mDirectionList as $directionId => $directionName): ?>
                                 <button class="direction-button <?php if($direction==$directionId):?>selected<?php endif;?>" type="button" name="new_direction" value="<?=$directionId?>" require_onced <?php if($direction==$directionId):?>selected<?php endif;?> onclick="selectButton(this)"><?=$directionName?></button>
                             <?php endforeach;?>
-                            <input type="hidden" id="direction" name="new_direction" value="">
+                            <input type="hidden" id="direction" name="new_direction" value="<?=$direction?>">
                         </div>
                     </div>
                     <input name="userId" value="<?= htmlspecialchars($userId) ?>" style="display:none"><br><br>

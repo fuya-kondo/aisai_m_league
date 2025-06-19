@@ -61,6 +61,13 @@ class StatsService {
         $this->baseScore            = $this->ruleData[0]['start_score'];
     }
 
+    public function getUserList() {
+        return $this->tableUserList;
+    }
+    public function getGroupData() {
+        return $this->groupData;
+    }
+
     /**
      * 本日の成績の取得
      * @return array 成績データ
@@ -109,7 +116,7 @@ class StatsService {
      * AI分析用
      */
     public function getAnalysisData() {
-        return $this->_getScore();
+        return $this->_getScore(self::ALL_TERM);
     }
 
     /**
@@ -156,8 +163,8 @@ class StatsService {
      */
     private function _initializeUserStats($userData) {
         return array(
-            'user_id' => $userData['u_user_id'],
-            'name' => $userData['last_name'],
+            'u_user_id' => $userData['u_user_id'],
+            'name' => $userData['last_name'].$userData['first_name'],
             'play_count' => 0,
             'sum_point' => 0,
             'sum_score' => 0,
@@ -223,18 +230,6 @@ class StatsService {
         }
 
         return $stats;
-    }
-
-    /**
-     * ユーザーの統計を計算する
-     *
-     * @return array 計算された統計データ
-     */
-    private function _getGameHistory() {
-        $result = [];
-        foreach ($this->gameHistoryDataList as $gameHistoryData) {
-        }
-        return $result;
     }
 
     /**
@@ -351,8 +346,8 @@ class StatsService {
     */
     public function getGameHistory() {
         $result = [];
-        foreach ($this->groupAUserIds as $userId) {
-            foreach ($this->gameHistoryDataForTable[$userId] as $historyData) {
+        foreach ($this->tableUserList as $userId => $userData) {
+            foreach ($this->gameHistoryDataList[$userId] as $historyData) {
                 if (!empty($historyData['game'])) {
                     $playDate = new DateTime($historyData['play_date']);
                     $dateKey = $playDate->format('Y-m-d');

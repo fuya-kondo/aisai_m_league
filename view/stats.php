@@ -36,14 +36,14 @@ $title = '成績';
                 <div class="table-wrapper">
                     <table class="score-table">
                         <tr>
-                            <?php foreach($statsColumnMiniConfig as $k => $v):?>
+                            <?php foreach($statsColumnMiniConfig as $v):?>
                                 <th><?=$v?></th>
                             <?php endforeach; ?>
                         </tr>
                         <?php foreach($todayStatsData as $data): ?>
                             <tr align="center">
-                                <?php foreach($statsColumnMiniConfig as $k => $v):?>
-                                    <td><?=htmlspecialchars($data[$k])?></td>
+                                <?php foreach($statsColumnMiniConfig as $column => $v):?>
+                                    <td><?=htmlspecialchars($data[$column])?></td>
                                 <?php endforeach; ?>
                             </tr>
                         <?php endforeach; ?>
@@ -70,28 +70,28 @@ $title = '成績';
                     <div class="table-wrapper">
                         <table class="score-table">
                             <tr>
-                                <?php foreach($statsColumnMiniConfig as $k => $v):?>
+                                <?php foreach($statsColumnMiniConfig as $v):?>
                                     <th><?=$v?></th>
                                 <?php endforeach; ?>
                             </tr>
                             <?php foreach($displayStatsData as $data): ?>
                                 <tr align="center">
-                                <?php foreach ($statsColumnMiniConfig as $k => $v): ?>
+                                <?php foreach ($statsColumnMiniConfig as $column => $v): ?>
                                     <td>
-                                        <?php if ($k == 'name'): ?>
+                                        <?php if ($column == 'name'): ?>
                                             <a href="personal_stats?year=<?= htmlspecialchars($year) ?>&player=<?= htmlspecialchars($data['u_user_id']) ?>">
                                         <?php endif; ?>
                                         <?php
                                             // 数値の場合は小数点第2位まで表示
-                                            if ($k == 'sum_point' || $k == 'sum_score'):
-                                                echo number_format((float)$data[$k], 1);
-                                            elseif ($k == 'average_rank'):
-                                                echo number_format((float)$data[$k], 2);
+                                            if ($column == 'sum_point' || $column == 'sum_score'):
+                                                echo number_format((float)$data[$column], 1);
+                                            elseif ($column == 'average_rank'):
+                                                echo number_format((float)$data[$column], 2);
                                             else:
-                                                echo htmlspecialchars($data[$k]);
+                                                echo htmlspecialchars($data[$column]);
                                             endif;
                                         ?>
-                                        <?php if ($k == 'name'): ?>
+                                        <?php if ($column == 'name'): ?>
                                             </a>
                                         <?php endif; ?>
                                     </td>
@@ -105,14 +105,14 @@ $title = '成績';
         <?php endforeach; ?>
 <?php /* 総合成績 */?>
 
-<!-- <?php /* グラフ */?>
+<?php /* グラフ */?>
         <div style="height: 400px; margin-bottom:150px;">
         <canvas id="userPointsChart"></canvas>
         </div>
         <?php
             $userData = [];
             $allDates = [];
-            foreach (GROUP_A_USER_IDS as $userId) {
+            foreach ($userList as $userId => $data) {
                 foreach ($overallChartData[$selectedYear][$userId] as $data) {
                     // 日付形式の厳密なチェックを追加
                     $playDate = date('Y-m-d', strtotime($data['play_date']));
@@ -151,7 +151,7 @@ $title = '成績';
                 }
                 // データセットを作成
                 $datasets[] = [
-                    'label' => htmlspecialchars($uUserList[$userId]['name']),
+                    'label' => htmlspecialchars($uUserList[$userId]['last_name']),
                     'data' => $dataPoints,
                     'borderColor' => $colors[$userId % count($colors)],
                     'fill' => false
@@ -213,7 +213,7 @@ $title = '成績';
                 }
             });
         </script>
-<?php /* グラフ */?> -->
+<?php /* グラフ */?>
 
     </main>
 </body>

@@ -6,11 +6,11 @@ include '../webroot/common/header.php';
 
 // Handling POST requests
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $require_oncedFields = ['userId', 'groupId', 'game', 'direction', 'rank', 'score', 'year', 'month', 'day'];
+    $require_oncedFields = ['userId', 'tableId', 'game', 'direction', 'rank', 'score', 'year', 'month', 'day'];
     $missingFields = array_filter($require_oncedFields, fn($field) => !isset($_POST[$field]));
     if (empty($missingFields)) {
         $userId   = $_POST['userId'];
-        $groupId  = $_POST['groupId'];
+        $tableId  = $_POST['tableId'];
         $game     = $_POST['game'];
         $direction= $_POST['direction'];
         $rank     = $_POST['rank'];
@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $_POST['day'],
             date('H:i:s')
         );
-        addData($userId, $groupId, $game, $direction, $rank, $score, $playDate);
+        addData($userId, $tableId, $game, $direction, $rank, $score, $playDate);
         header("Location: history.php?userId=" . urlencode($userId));
         exit();
     } else {
@@ -61,25 +61,18 @@ $title = '登録';
             <form action="add" method="post" class="registration-form">
                 <div class="form-group">
                     <label for="userId">ユーザー</label>
+
                     <select id="userId" class="input" name="userId" require_onced>
-                        <?php if($dbServerNumber == 1): ?>
-                            <option value="">リストから選択</option>
-                        <?php endif; ?>
-                        <?php foreach($uUserList as $userData): ?>
-                            <?php if($dbServerNumber == 1): ?>
-                                <?php if ($userData['u_mahjong_user_id'] == 0): continue; endif;?>
-                            <?php endif; ?>
-                            <option value="<?=$userData['u_mahjong_user_id']?>"><?=$userData['name']?></option>
+                        <option value="">リストから選択</option>
+                        <?php foreach($userList as $userId => $userData): ?>
+                            <?php var_dump($userData);?>
+                            <option value="<?=$userId?>"><?=$userData[0]['last_name'].$userData[0]['first_name']?></option>
                         <?php endforeach;?>
                     </select>
                 </div>
                 <div class="form-group" style="display:none;">
-                    <label for="groupId">グループ</label>
-                    <select id="groupId" class="input" name="groupId" require_onced>
-                        <?php foreach($m_mahjong_group_result as $groupData): ?>
-                            <option value="<?=$groupData['m_mahjong_group_id']?>" <?php if ($groupData['m_mahjong_group_id']==1):?>selected<?php endif;?>><?=$groupData['name']?></option>
-                        <?php endforeach;?>
-                    </select>
+                    <label for="tableId">卓</label>
+                    <input id="tableId" class="input" type="number" name="tableId" require_onced value="1" style="width: 70%;">
                 </div>
                 <div class="form-group game">
                     <div class="date-inputs" >
@@ -90,7 +83,7 @@ $title = '登録';
                 <div class="form-group">
                     <label for="direction">自家</label>
                     <div class="button-container">
-                        <?php foreach($m_direction_result as $directionId => $directionName): ?>
+                        <?php foreach($mDirectionList as $directionId => $directionName): ?>
                             <button class="direction-button" type="button" name="direction" value="<?=$directionId?>" require_onced onclick="selectButton(this)"><?=$directionName?></button>
                         <?php endforeach;?>
                         <input type="hidden" id="direction" name="direction" value="">

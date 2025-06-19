@@ -3,6 +3,7 @@
 // 必要なファイルの読み込み
 require_once __DIR__ . '/db_connect.php';
 require_once __DIR__ . '/stats_column_config.php';
+require_once __DIR__ . '/google_gemini.php';
 require_once __DIR__ . '/../model/u_user.php';
 require_once __DIR__ . '/../model/m_direction.php';
 require_once __DIR__ . '/../model/m_game_day.php';

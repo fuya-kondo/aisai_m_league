@@ -4,9 +4,6 @@ require_once __DIR__ . '/../config/import_file.php';
 // Include header
 include '../webroot/common/header.php';
 
-// Get data from controller
-$gameHistoryDataList = $statsService->getGameHistory();
-
 // Handling POST requests
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $historyId = $_POST['historyId'] ?? null;
@@ -36,7 +33,7 @@ if (isset($_GET['userId'])) {
     $offset = ($current_page - 1) * $records_per_page; // オフセット計算
     // 対象レコードの合計数を計算
     $total_records = 0;
-    foreach($$uGameHistoryList[$selectUser] as $data) {
+    foreach($uGameHistoryList[$selectUser] as $data) {
         if(date('Y', strtotime($data['play_date'])) == $selectYear || date('Y', strtotime($data['play_date'])) == $selectYear - 1) {
             $total_records++;
         }
@@ -45,7 +42,7 @@ if (isset($_GET['userId'])) {
     $total_pages = ceil($total_records / $records_per_page);
     // 表示するレコードをフィルタリングして配列に格納
     $filtered_data = [];
-    foreach($$uGameHistoryList[$selectUser] as $data) {
+    foreach($uGameHistoryList[$selectUser] as $data) {
         if(date('Y', strtotime($data['play_date'])) == $selectYear || date('Y', strtotime($data['play_date'])) == $selectYear - 1) {
             $filtered_data[] = $data;
         }
@@ -91,11 +88,8 @@ $title = '履歴';
             <div class="page-title">個人<?= $title; ?></div>
             <div class="select-button-container">
                 <form action="history" method="get">
-                    <?php foreach($uUserList as $userData): ?>
-                        <?php if($dbServerNumber == 1): ?>
-                            <?php if ($userData['u_mahjong_user_id'] == 0): continue; endif;?>
-                        <?php endif; ?>
-                        <button class="select-button" type="submit" name="userId" value="<?=$userData['u_mahjong_user_id']?>"><?=$userData['name']?></button>
+                    <?php foreach($userList as $userId => $userData): ?>
+                        <button class="select-button" type="submit" name="userId" value="<?=$userId?>"><?=$userData[0]['last_name'].$userData[0]['first_name']?></button>
                     <?php endforeach; ?>
                 </form>
             </div>
@@ -160,11 +154,11 @@ $title = '履歴';
                                         }
                                         ?>
                                             <tr class="player-row rank-<?=$historyData['rank']?>">
-                                                <?php if(isset($m_direction_result[$historyData['m_direction_id']])): ?>
-                                                    <td class="direction-cell"><?=$m_direction_result[$historyData['m_direction_id']]?></td>
+                                                <?php if(isset($mDirectionList[$historyData['m_direction_id']])): ?>
+                                                    <td class="direction-cell"><?=$mDirectionList[$historyData['m_direction_id']]?></td>
                                                 <?php endif;?>
                                                 <td class="rank-cell"><?=$historyData['rank']?></td>
-                                                <td class="name-cell"><?=$uUserList[$historyData['u_mahjong_user_id']]['name']?></td>
+                                                <td class="name-cell"><?=$userList[$historyData['u_user_id']][0]['last_name']?></td>
                                                 <td class="score-cell"><?=number_format($historyData['score'])?></td>
                                                 <td class="point-cell"><?=$historyData['point']?></td>
                                             </tr>
@@ -210,7 +204,7 @@ $title = '履歴';
                 </div>
             </div>
         <?php else: ?>
-            <div class="page-title"><?=$uUserList[$selectUser]['name']?>の履歴</div>
+            <div class="page-title"><?=$userList[$selectUser][0]['last_name'].$userList[$selectUser][0]['first_name']?>の履歴</div>
             <div class="pagination">
                 <?php if($total_pages > 1): ?>
                     <div class="pagination-controls">
@@ -257,16 +251,16 @@ $title = '履歴';
                                     <td><?=$data['game']?></td>
                                     <td>
                                         <form action="update" method="post" class="inline-form">
-                                            <input type="hidden" name="userId" value="<?=$data['u_mahjong_user_id']?>">
+                                            <input type="hidden" name="userId" value="<?=$data['u_user_id']?>">
                                             <input type="hidden" name="rank" value="<?=$data['rank']?>">
                                             <input type="hidden" name="score" value="<?=$data['score']?>">
                                             <input type="hidden" name="game" value="<?=$data['game']?>">
                                             <input type="hidden" name="direction" value="<?=$data['m_direction_id']?>">
-                                            <button type="submit" name="historyId" value="<?=$data['u_mahjong_history_id']?>" class="action-button edit-button">修正</button>
+                                            <button type="submit" name="historyId" value="<?=$data['u_game_history_id']?>" class="action-button edit-button">修正</button>
                                         </form>
                                         <form action="history" method="post" onSubmit="return check(<?=$data['rank']?>,<?=$data['score']?>,<?=$data['point']?>)" class="inline-form">
-                                            <input type="hidden" name="userId" value="<?=$data['u_mahjong_user_id']?>">
-                                            <button type="submit" name="historyId" value="<?=$data['u_mahjong_history_id']?>" class="action-button delete-button">削除</button>
+                                            <input type="hidden" name="userId" value="<?=$data['u_user_id']?>">
+                                            <button type="submit" name="historyId" value="<?=$data['u_game_history_id']?>" class="action-button delete-button">削除</button>
                                         </form>
                                     </td>
                                 </tr>
