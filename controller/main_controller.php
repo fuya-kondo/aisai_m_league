@@ -16,7 +16,7 @@ $overallStatsData = $statsService->getAllStatsData();
 // グラフ用データの取得
 $overallChartData = $statsService->getAllChartData();
 // 本日の成績の取得
-//$todayStatsData = $statsService->getTodayStatsData();
+$todayStatsData = $statsService->getTodayStatsData();
 
 // 対局履歴の取得
 $gameHistoryDataList = $statsService->getGameHistory();

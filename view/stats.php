@@ -30,7 +30,7 @@ $title = '成績';
 <body>
     <main>
 <?php /* 本日の成績 */?>
-        <?php if(!empty($todayStatsData[0]['play_count'])):?>
+        <?php if(!empty($todayStatsData[1]['play_count'])):?>
             <div class="page-title">本日の<?= $title; ?></div>
             <div class="table-container">
                 <div class="table-wrapper">

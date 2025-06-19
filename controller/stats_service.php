@@ -73,7 +73,7 @@ class StatsService {
      * @return array 成績データ
      */
     public function getTodayStatsData() {
-        $todayScore = $this->_getScore(null, true);
+        $todayScore = $this->_getScore(self::ALL_TERM, true);
         $todayScore = $this->addRankings($todayScore);
         return $todayScore;
     }
