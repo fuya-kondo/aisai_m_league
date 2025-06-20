@@ -9,44 +9,54 @@ class StatsService {
     private $tableId = 1; // 任意の値
     private $tableDataList = [];
     private $tableData = [];
-    private $groupId = 0;
     private $groupDataList = [];
     private $groupData = [];
-    private $ruleId = 0;
     private $ruleDataList = [];
     private $ruleData = [];
+    private $baseScore = 0;
     private $directionDataList = [];
     private $gameDayDataList = [];
     private $userDataList = [];
-    private $tableUserList = [];
     private $gameHistoryDataList = [];
-
-    private $years = [ 2022, 2023, 2024, 2025, 2026, "全期間"];
+    private $tableUserList = [];
+    private $years = [];
+    private const START_YEAR = 2022;
     private const ALL_TERM = '全期間';
-    private $baseScore = 0;
 
     /**
      * コンストラクタ
      */
-    public function __construct( $table, $group, $rule, $direction, $gameday, $user, $history ) {
+    public function __construct( $table, $group, $rule, $direction, $gameDay, $user, $history ) {
         $this->tableDataList        = $table;
         $this->tableData            = array_filter($table, function($item) {
                                         return isset($item['u_table_id']) && $item['u_table_id'] === $this->tableId;
                                     });
-        $this->groupId              = $this->tableData[0]['m_group_id'];
         $this->groupDataList        = $group;
         $this->groupData            = array_filter($this->groupDataList, function($item) {
-                                        return isset($item['m_group_id']) && $item['m_group_id'] === $this->groupId;
+                                        return isset($item['m_group_id']) && $item['m_group_id'] === $this->tableData[0]['m_group_id'];
                                     });
-        $this->ruleId               = $this->groupData[0]['m_rule_id'];
         $this->ruleDataList         = $rule;
         $this->ruleData             = array_filter($this->ruleDataList, function($item) {
-                                        return isset($item['m_rule_id']) && $item['m_rule_id'] === $this->ruleId;
+                                        return isset($item['m_rule_id']) && $item['m_rule_id'] === $this->groupData[0]['m_rule_id'];
                                     });
-        $this->ruleDataList         = $rule;
+        $this->baseScore            = $this->ruleData[0]['start_score'];
         $this->directionDataList    = $direction;
-        $this->gameDayDataList      = $gameday;
+        $this->gameDayDataList      = $gameDay;
         $this->userDataList         = $user;
+        $this->gameHistoryDataList  = $history;
+        $this->_setTableUserList();
+        $this->_setYears();
+    }
+
+    // テーブルユーザーを取得
+    public function getUserList() {
+        return $this->tableUserList;
+    }
+
+    /**
+     * tableに該当するユーザーをセット
+     */
+    private function _setTableUserList(): void {
         for ($i = 1; $i <= 4; $i++) {
             $key = 'u_user_id_' . $i;
             if (isset($this->tableData[0][$key])) {
@@ -57,15 +67,17 @@ class StatsService {
                 $this->tableUserList[$currentUserId] = array_values($filteredUsers);
             }
         }
-        $this->gameHistoryDataList  = $history;
-        $this->baseScore            = $this->ruleData[0]['start_score'];
     }
 
-    public function getUserList() {
-        return $this->tableUserList;
-    }
-    public function getGroupData() {
-        return $this->groupData;
+    /**
+     * START_YEARから現在の年までの期間と、全期間を$yearsプロパティに設定
+     */
+    private function _setYears(): void {
+        $currentYear = (int)date('Y');
+        for ($year = self::START_YEAR; $year <= $currentYear; $year++) {
+            $this->years[] = $year;
+        }
+        $this->years[] = self::ALL_TERM;
     }
 
     /**

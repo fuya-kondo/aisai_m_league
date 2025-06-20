@@ -30,9 +30,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 
-// Get data from controller
-$todayStatsData = $statsService->getTodayStatsData();
-
 // Get play count
 $games = array_column($todayStatsData, 'play_count', 'user_id');
 
@@ -46,7 +43,6 @@ $title = '登録';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <link rel=”icon” type=”image/png” href=“/image/favicon_64-64.png”>
     <link rel="stylesheet" href="../webroot/css/master.css">
     <link rel="stylesheet" href="../webroot/css/header.css">
     <link rel="stylesheet" href="../webroot/css/button.css">
