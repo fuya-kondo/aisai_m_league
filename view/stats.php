@@ -295,7 +295,7 @@ $title = '成績';
     }
     @media screen and (max-width: 768px) {
         .table-wrapper {
-            padding: 10px;
+            padding: 10px 7px;
         }
         .score-table th,
         .score-table td {
