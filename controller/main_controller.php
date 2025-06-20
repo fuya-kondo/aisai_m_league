@@ -9,6 +9,8 @@ $formattedDate = $statsService->getNextGameDay();
 
 // ユーザーの取得
 $userList = $statsService->getUserList();
+
+$years = $statsService->getYears();
 // 年毎の総合成績の取得
 $overallStatsData = $statsService->getAllStatsData();
 // グラフ用データの取得

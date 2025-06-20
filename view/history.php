@@ -313,7 +313,7 @@ $title = '履歴';
 <style>
     .table-container {
         background-color: #fff;
-        border-radius: 8px;
+        border-radius: 4px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         overflow: hidden;
     }
@@ -332,7 +332,7 @@ $title = '履歴';
         text-align: center;
     }
     .history-table th {
-        background-color: #228b22;
+        background-color: #009944;
         color: white;
         font-weight: bold;
     }

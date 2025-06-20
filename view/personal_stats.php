@@ -323,14 +323,14 @@ $title = '個人成績';
 
                     .chart-card {
                         background-color: white;
-                        border-radius: 8px;
+                        border-radius: 4px;
                         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
                         padding: 15px;
                     }
 
                     .chart-card h3 {
                         text-align: center;
-                        color: #228b22;
+                        color: #009944;
                         margin-top: 0;
                         margin-bottom: 15px;
                     }
@@ -386,10 +386,10 @@ $title = '個人成績';
         z-index: 10;
     }
     .score-table th:first-child {
-        border-top-left-radius: 8px;
+        border-top-left-radius: 4px;
     }
     .score-table th:last-child {
-        border-top-right-radius: 8px;
+        border-top-right-radius: 4px;
     }
     .score-table td {
         border-bottom: 1px solid #e0e0e0;
@@ -408,7 +408,7 @@ $title = '個人成績';
 
     .year-select:hover, .player-select:hover
     .year-select:focus, .player-select:focus {
-        border-color: #228b22; /* フォーカス時やホバー時のボーダー色 */
+        border-color: #009944; /* フォーカス時やホバー時のボーダー色 */
         outline: none; /* デフォルトのアウトラインを無効化 */
     }
     @media screen and (max-width: 768px) {

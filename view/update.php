@@ -89,7 +89,7 @@ include '../webroot/common/header.php';
         max-width: 600px;
         margin: auto;
         background-color: white;
-        border-radius: 8px;
+        border-radius: 4px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         padding: 20px;
     }
@@ -113,7 +113,7 @@ include '../webroot/common/header.php';
         padding: 10px 20px;
         font-size: 16px;
         color: white;
-        background-color: #228b22; /* ボタンの背景色 */
+        background-color: #009944; /* ボタンの背景色 */
         border: none; /* ボーダーなし */
         border-radius: 4px; /* ボタンの角丸 */
         cursor: pointer; /* カーソルをポインターに */

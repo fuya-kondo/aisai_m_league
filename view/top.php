@@ -63,58 +63,6 @@ $title = 'AISAI.M.LEAGUE';
 </script>
 
 <style>
-    .table-container {
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin-bottom: 30px;
-        overflow: hidden;
-    }
-    .today-title {
-        background-color: #228b22;
-        color: #fff;
-        padding: 15px;
-        margin: 0;
-        font-size: 1.2em;
-    }
-    .table-wrapper {
-        overflow-x: auto;
-        padding: 15px;
-    }
-    .score-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-    .score-table th,
-    .score-table td {
-        padding: 12px;
-        text-align: center;
-    }
-    .score-table th {
-        background-color: #228b22;
-        color: white;
-        font-weight: bold;
-        border: none;
-        position: sticky;
-        top: 0;
-        z-index: 10;
-    }
-    .score-table th:first-child {
-        border-top-left-radius: 8px;
-    }
-    .score-table th:last-child {
-        border-top-right-radius: 8px;
-    }
-    .score-table td {
-        border-bottom: 1px solid #e0e0e0;
-    }
-    .score-table tr:last-child td:first-child {
-        border-bottom-left-radius: 8px;
-    }
-    .score-table tr:last-child td:last-child {
-        border-bottom-right-radius: 8px;
-    }
     .playerImg img {
         opacity: 0; /* 最初は非表示 */
         transition: opacity 1s ease-in-out; /* フェードイン/アウト効果 */
@@ -127,30 +75,9 @@ $title = 'AISAI.M.LEAGUE';
         to { transform: rotate(360deg); }
     }
     @media screen and (max-width: 768px) {
-        .table-wrapper {
-            padding: 10px;
-        }
-        .score-table th,
-        .score-table td {
-            padding: 10px 8px;
-            font-size: 0.85em;
-        }
-        .score-table th {
-            -webkit-writing-mode: vertical-rl;
-            -ms-writing-mode: tb-rl;
-            writing-mode: vertical-rl;
-            text-align: center; /* 中央揃え */
-            line-height: 1.5; /* 行間を調整 */
-        }
     }
     @media (orientation: portrait) {
-        .score-table th {
-            writing-mode: vertical-rl;
-        }
     }
     @media (orientation: landscape) {
-        .score-table th {
-            writing-mode: horizontal-tb; /* 横書きに変更 */
-        }
     }
 </style>

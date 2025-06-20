@@ -52,6 +52,10 @@ class StatsService {
     public function getUserList() {
         return $this->tableUserList;
     }
+    // テーブルユーザーを取得
+    public function getYears() {
+        return $this->years;
+    }
 
     /**
      * tableに該当するユーザーをセット
@@ -109,12 +113,12 @@ class StatsService {
         $result = [];
         foreach ($this->years as $year) {
             $statsData = []; // 年ごとに初期化
-            foreach ($this->userDataList as $userData) {
-                foreach ($this->gameHistoryDataList[$userData['u_user_id']] as $data) {
+            foreach ($this->tableUserList as $userId => $userData) {
+                foreach ($this->gameHistoryDataList[$userId] as $data) {
                     // 年の条件をチェック
                     if ($year == self::ALL_TERM || date('Y', strtotime($data['play_date'])) == $year) {
                         // 該当する年のデータを追加
-                        $statsData[$userData['u_user_id']][] = $data;
+                        $statsData[$userId][] = $data;
                     }
                 }
             }

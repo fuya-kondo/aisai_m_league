@@ -18,7 +18,7 @@ $statsColumnAllConfig_2 = array(
     'over_second_probability' => '連対率',
     'over_third_probability' => 'ラス回避率',
 );
-$statsColumnConfig = array(
+$statsColumnConfig_1 = array(
     'play_count' => '対局数',
     'sum_point' => '合計点',
     'sum_score' => '素点',
@@ -32,13 +32,22 @@ $statsColumnConfig = array(
     'over_third_probability' => 'ラス回避率',
     'average_score' => '平均点',
 );
-$statsColumnMiniConfig = array(
+$statsColumnConfig_2 = array(
     'ranking' => '順位',
     'name' => '名前',
     'play_count' => '対局数',
     'sum_point' => '合計点',
     'sum_score' => '素点',
     'average_rank' => '平均順位',
+    'first_rank_count' => '1位',
+    'second_rank_count' => '2位',
+    'third_rank_count' => '3位',
+    'fourth_rank_count' => '4位',
+);
+$statsColumnConfig_3 = array(
+    'ranking' => '順位',
+    'name' => '名前',
+    'sum_point' => '合計点',
     'first_rank_count' => '1位',
     'second_rank_count' => '2位',
     'third_rank_count' => '3位',

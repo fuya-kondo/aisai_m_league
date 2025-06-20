@@ -36,13 +36,13 @@ $title = '成績';
                 <div class="table-wrapper">
                     <table class="score-table">
                         <tr>
-                            <?php foreach($statsColumnMiniConfig as $v):?>
+                            <?php foreach($statsColumnConfig_3 as $v):?>
                                 <th><?=$v?></th>
                             <?php endforeach; ?>
                         </tr>
                         <?php foreach($todayStatsData as $data): ?>
                             <tr align="center">
-                                <?php foreach($statsColumnMiniConfig as $column => $v):?>
+                                <?php foreach($statsColumnConfig_3 as $column => $v):?>
                                     <td><?=htmlspecialchars($data[$column])?></td>
                                 <?php endforeach; ?>
                             </tr>
@@ -55,28 +55,27 @@ $title = '成績';
 
 <?php /* 総合成績 */?>
         <div class="page-title"><?= $title; ?></div>
-        <form action="" method="get" class="year-selection-form">
-            <label for="year">年を選択:</label>
-            <select name="year" id="year" onchange="this.form.submit()" class="year-select">
-                <?php foreach($overallStatsData as $year => $displayStatsData): ?>
-                    <option value="<?= $year ?>" <?= ($year == $selectedYear) ? 'selected' : '' ?>><?= $year ?></option>
-                <?php endforeach; ?>
-            </select>
-        </form>
         <?php foreach($overallStatsData as $year => $displayStatsData): ?>
             <?php if ($year == $selectedYear): // 選択された年のみ表示 ?>
                 <div class="table-container">
-                    <h3 class="year-title"><?= $year ?></h3>
+                    <form class="year-title" action="" method="get" class="year-selection-form">
+                        <select name="year" id="year" onchange="this.form.submit()" class="year-select">
+                            <?php foreach($years as $year): ?>
+                                <option value="<?= $year ?>" <?= ($year == $selectedYear) ? 'selected' : '' ?>><?= $year ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <span class="play-count">対局数：<?=$displayStatsData[1]['play_count'] ?><br></span>
+                    </form>
                     <div class="table-wrapper">
                         <table class="score-table">
                             <tr>
-                                <?php foreach($statsColumnMiniConfig as $v):?>
+                                <?php foreach($statsColumnConfig_3 as $v):?>
                                     <th><?=$v?></th>
                                 <?php endforeach; ?>
                             </tr>
                             <?php foreach($displayStatsData as $data): ?>
                                 <tr align="center">
-                                <?php foreach ($statsColumnMiniConfig as $column => $v): ?>
+                                <?php foreach ($statsColumnConfig_3 as $column => $v): ?>
                                     <td>
                                         <?php if ($column == 'name'): ?>
                                             <a href="personal_stats?year=<?= htmlspecialchars($year) ?>&player=<?= htmlspecialchars($data['u_user_id']) ?>">
@@ -151,7 +150,7 @@ $title = '成績';
                 }
                 // データセットを作成
                 $datasets[] = [
-                    'label' => htmlspecialchars($uUserList[$userId]['last_name']),
+                    'label' => htmlspecialchars($userList[$userId][0]['last_name']),
                     'data' => $dataPoints,
                     'borderColor' => $colors[$userId % count($colors)],
                     'fill' => false
@@ -191,7 +190,7 @@ $title = '成績';
                     plugins: {
                         title: {
                             display: true,
-                            text: 'ユーザー別ポイント推移'
+                            text: 'ポイント推移'
                         }
                     },
                     scales: {
@@ -200,7 +199,7 @@ $title = '成績';
                             time: {
                                 unit: 'month',
                                 displayFormats: {
-                                    month: 'YYYY-MM'
+                                    month: 'YY / M'
                                 }
                             }
                         },
@@ -222,13 +221,13 @@ $title = '成績';
 <style>
     .table-container {
         background-color: #fff;
-        border-radius: 8px;
+        border-radius: 4px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         margin-bottom: 30px;
         overflow: hidden;
     }
     .year-title {
-        background-color: #228b22;
+        background-color: #009944;
         color: #fff;
         padding: 15px;
         margin: 0;
@@ -249,49 +248,50 @@ $title = '成績';
         text-align: center;
     }
     .score-table th {
-        background-color: #228b22;
-        color: white;
-        font-weight: bold;
+        background-color: #c9caca;
         border: none;
     }
     .score-table th:first-child {
-        border-top-left-radius: 8px;
+        border-top-left-radius: 4px;
     }
     .score-table th:last-child {
-        border-top-right-radius: 8px;
+        border-top-right-radius: 4px;
     }
     .score-table td {
         border-bottom: 1px solid #e0e0e0;
     }
     .score-table tr:last-child td:first-child {
-        border-bottom-left-radius: 8px;
+        border-bottom-left-radius: 4px;
     }
     .score-table tr:last-child td:last-child {
-        border-bottom-right-radius: 8px;
+        border-bottom-right-radius: 4px;
     }
     .year-selection-form {
         text-align: center; /* 中央揃え */
         margin-bottom: 20px; /* 下部マージン */
     }
-
     .year-selection-form label {
         font-size: 1.2em; /* ラベルのフォントサイズ */
         margin-right: 10px; /* ラベルとプルダウンの間隔 */
     }
-
     .year-select {
-        padding: 10px; /* 内側の余白 */
-        font-size: 1em; /* フォントサイズ */
-        border-radius: 4px; /* 角丸 */
-        border: 1px solid #ccc; /* ボーダー */
-        background-color: white; /* 背景色 */
-        transition: border-color 0.3s ease; /* ボーダー色の変化にトランジションを追加 */
+        padding: 5px 10px;
+        font-size: 1em;
+        border-radius: 4px;
+        border: 0px;
+        background-color: #009944;
+        color: white;
+        font-weight: bold;
     }
-
     .year-select:hover,
     .year-select:focus {
-        border-color: #228b22; /* フォーカス時やホバー時のボーダー色 */
+        border-color: #009944; /* フォーカス時やホバー時のボーダー色 */
         outline: none; /* デフォルトのアウトラインを無効化 */
+    }
+    .play-count {
+        font-size: 0.8em;
+        float: right;
+        margin: 5px;
     }
     @media screen and (max-width: 768px) {
         .table-wrapper {

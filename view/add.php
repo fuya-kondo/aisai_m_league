@@ -59,7 +59,7 @@ $title = '登録';
                     <label for="userId">ユーザー</label>
 
                     <select id="userId" class="input" name="userId" require_onced>
-                        <option value="">リストから選択</option>
+                        <option value="">-</option>
                         <?php foreach($userList as $userId => $userData): ?>
                             <?php var_dump($userData);?>
                             <option value="<?=$userId?>"><?=$userData[0]['last_name'].$userData[0]['first_name']?></option>
@@ -155,7 +155,7 @@ $title = '登録';
 <style>
     .form-container {
         background-color: #fff;
-        border-radius: 8px;
+        border-radius: 4px;
         box-shadow: 0 5px 6px rgba(0, 0, 0, 0.2);
         padding: 30px;
     }
@@ -195,7 +195,7 @@ $title = '登録';
         color: #2c3e50;
     }
     .submit-button {
-        background-color: #228b22;
+        background-color: #009944;
         color: white;
         border: none;
         padding: 15px;
