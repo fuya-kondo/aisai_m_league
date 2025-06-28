@@ -47,7 +47,7 @@ function addData(int $userId, int $tableId, int $game, int $direction, string $r
         $stmt->bindParam(':direction', $direction, PDO::PARAM_INT);
         $stmt->bindParam(':rank', $rank);
         $stmt->bindParam(':score', $score, PDO::PARAM_INT);
-        $stmt->bindParam(':point', $point, PDO::PARAM_INT);
+        $stmt->bindParam(':point', $point);
         $stmt->bindParam(':playDate', $playDate);
         return $stmt->execute();
     } catch (Exception $e) {
@@ -78,7 +78,7 @@ function updateData(int $historyId, string $rank, int $score, int $game, int $di
         $stmt->bindParam(':score', $score, PDO::PARAM_INT);
         $stmt->bindParam(':game', $game, PDO::PARAM_INT);
         $stmt->bindParam(':direction', $direction, PDO::PARAM_INT);
-        $stmt->bindParam(':point', $point, PDO::PARAM_INT);
+        $stmt->bindParam(':point', $point);
         $stmt->bindParam(':u_game_history_id', $historyId, PDO::PARAM_INT);
         return $stmt->execute();
     } catch (Exception $e) {
@@ -113,9 +113,8 @@ function deleteData(int $historyId): bool {
  *
  * @param int|string $rank
  * @param int $score
- * @return int
  */
-function _calculationPoint($rank, int $score): int {
+function _calculationPoint($rank, int $score) {
     $point = 0;
     switch ($rank) {
         case 1:
@@ -140,6 +139,6 @@ function _calculationPoint($rank, int $score): int {
             $point = ($score - 30000) / 1000 - 30;
             break;
     }
-    return round($point); // 明示的に整数型で返す
+    return $point;
 }
 ?>
