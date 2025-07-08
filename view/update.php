@@ -40,6 +40,8 @@ include '../webroot/common/header.php';
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="format-detection" content="telephone=no">
+        <link rel="apple-touch-icon" href="../favicon.png">
+        <link rel="icon" href="../favicon.ico" sizes="64x64" type="image/x-icon">
         <link rel="stylesheet" href="../webroot/css/master.css">
         <link rel="stylesheet" href="../webroot/css/header.css">
         <link rel="stylesheet" href="../webroot/css/button.css">
