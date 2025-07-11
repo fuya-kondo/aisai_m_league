@@ -45,7 +45,32 @@ $title = '成績';
                         <?php foreach($todayStatsData as $data): ?>
                             <tr align="center">
                                 <?php foreach($statsColumnConfig_3 as $column => $v):?>
-                                    <td><?=htmlspecialchars($data[$column])?></td>
+                                    <td <?php if ($column == 'ranking'): ?>class="rank-column"<?php endif; ?>>
+                                        <?php if ($column == 'ranking'): ?>
+                                            <span class="rank-icon rank-<?=$data[$column]?>">
+                                        <?php endif; ?>
+                                        <?php if ($column == 'name'): ?>
+                                            <a href="personal_stats?year=<?= htmlspecialchars($year) ?>&player=<?= htmlspecialchars($data['u_user_id']) ?>">
+                                        <?php endif; ?>
+                                        <span class="stats-value">
+                                        <?php
+                                            // 数値の場合は小数点第2位まで表示
+                                            if ($column == 'sum_point' || $column == 'sum_score'):
+                                                echo number_format((float)$data[$column], 1);
+                                            elseif ($column == 'average_rank'):
+                                                echo number_format((float)$data[$column], 2);
+                                            else:
+                                                echo htmlspecialchars($data[$column]);
+                                            endif;
+                                        ?>
+                                        </span> 
+                                        <?php if ($column == 'ranking'): ?>
+                                            </span>
+                                        <?php endif; ?>
+                                        <?php if ($column == 'name'): ?>
+                                            </a>
+                                        <?php endif; ?>
+                                    </td>
                                 <?php endforeach; ?>
                             </tr>
                         <?php endforeach; ?>
@@ -78,10 +103,14 @@ $title = '成績';
                             <?php foreach($displayStatsData as $data): ?>
                                 <tr align="center">
                                 <?php foreach ($statsColumnConfig_3 as $column => $v): ?>
-                                    <td>
+                                    <td <?php if ($column == 'ranking'): ?>class="rank-column"<?php endif; ?>>
+                                        <?php if ($column == 'ranking'): ?>
+                                            <span class="rank-icon rank-<?=$data[$column]?>">
+                                        <?php endif; ?>
                                         <?php if ($column == 'name'): ?>
                                             <a href="personal_stats?year=<?= htmlspecialchars($year) ?>&player=<?= htmlspecialchars($data['u_user_id']) ?>">
                                         <?php endif; ?>
+                                        <span class="stats-value">
                                         <?php
                                             // 数値の場合は小数点第2位まで表示
                                             if ($column == 'sum_point' || $column == 'sum_score'):
@@ -92,6 +121,10 @@ $title = '成績';
                                                 echo htmlspecialchars($data[$column]);
                                             endif;
                                         ?>
+                                        </span> 
+                                        <?php if ($column == 'ranking'): ?>
+                                            </span>
+                                        <?php endif; ?>
                                         <?php if ($column == 'name'): ?>
                                             </a>
                                         <?php endif; ?>
@@ -294,6 +327,42 @@ $title = '成績';
         font-size: 0.8em;
         float: right;
         margin: 5px;
+    }
+    .rank-column {
+        position: relative;
+    }
+    .rank-icon {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1;
+        border-radius: 50%;
+    }
+    .rank-column .stats-value {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 2;
+    }
+    .rank-1 {
+        background-color: #c1ab05;
+        color: #ffffff;
+    }
+    .rank-2 {
+        background-color: #c9caca;
+        color: #000000;
+    }
+    .rank-3 {
+        background-color: #ac6b25;
+        color: #ffffff;
+    }
+    .rank-4 {
+        background-color: white;
     }
     @media screen and (max-width: 768px) {
         .table-wrapper {

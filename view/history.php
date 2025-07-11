@@ -477,6 +477,9 @@ $title = '履歴';
     .rank-4 {
         background-color: #f6bfbc;
     }
+    .direction-cell, .rank-cell, .name-cell {
+        text-align: center;
+    }
     .score-cell, .point-cell {
         text-align: right;
     }
