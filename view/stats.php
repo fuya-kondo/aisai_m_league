@@ -249,6 +249,29 @@ $title = '成績';
         </script>
 <?php /* グラフ */?>
 
+<?php /* タイトル */ ?>
+    <div class="page-title">🏆 タイトル獲得履歴 🏆</div>
+    <?php if (empty($titleList)): ?>
+        <p style="text-align: center;">表示するデータがありません。</p>
+    <?php else: ?>
+        <?php foreach ($titleList as $year => $titles): ?>
+            <div class="year-section">
+                <h2 class="year-header"><?php echo htmlspecialchars($year); ?>年</h2>
+                <?php foreach ($titles as $item): ?>
+                    <div class="title-item">
+                        <div class="title-name">
+                            <?php echo htmlspecialchars($item['title_name']); ?>
+                        </div>
+                        <div class="user-info">
+                            <span><?php echo htmlspecialchars($item['u_user_id']); ?></span>
+                            <span class="value"><?php echo htmlspecialchars($item['value']); ?></span>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endforeach; ?>
+    <?php endif; ?>
+<?php /* タイトル */ ?>
     </main>
 </body>
 </html>
@@ -379,4 +402,67 @@ $title = '成績';
         }
     }
 
+    .year-section {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        padding: 15px;
+        overflow: hidden; /* Clear floats */
+    }
+    .year-header {
+        font-size: 1.5em;
+        color: #3498db;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 8px;
+    }
+    .title-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px dashed #eee;
+    }
+    .title-item:last-child {
+        border-bottom: none;
+    }
+    .title-name {
+        font-weight: bold;
+        color: #555;
+        flex-grow: 1; /* 名前が長い場合にも対応 */
+    }
+    .user-info {
+        text-align: right;
+        font-size: 0.9em;
+        color: #777;
+    }
+    .user-info span {
+        display: block; /* ユーザーIDと値を縦に表示 */
+    }
+    .user-info .value {
+        font-weight: bold;
+        color: #e74c3c;
+    }
+
+    /* スマートフォン向けレスポンシブデザイン */
+    @media (max-width: 600px) {
+        body {
+            padding: 10px;
+        }
+        h1 {
+            font-size: 1.5em;
+        }
+        .year-header {
+            font-size: 1.3em;
+        }
+        .title-item {
+            flex-direction: column; /* 縦並びにする */
+            align-items: flex-start;
+        }
+        .user-info {
+            text-align: left;
+            margin-top: 5px; /* スペースを追加 */
+        }
+    }
 </style>

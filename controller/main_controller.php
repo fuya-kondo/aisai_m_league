@@ -2,7 +2,7 @@
 <?php
 
 // クラスのインスタンス化
-$statsService = new StatsService( $uTableList, $mGroupList, $mRuleList, $mDirectionList, $mGameDayList, $uUserList, $uGameHistoryList );
+$statsService = new StatsService( $uTableList, $mGroupList, $mRuleList, $mDirectionList, $mGameDayList, $uUserList, $uGameHistoryList, $mTitleList, $uTitleList );
 
 // 対局日時の取得
 $formattedDate = $statsService->getNextGameDay();
@@ -21,3 +21,5 @@ $todayStatsData = $statsService->getTodayStatsData();
 $gameHistoryDataList = $statsService->getGameHistory();
 // AI分析用のデータ取得
 $analysisData = $statsService->getAnalysisData();
+
+$titleList = $statsService->getTitle();

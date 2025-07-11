@@ -13,6 +13,8 @@ class StatsService {
     private $groupData = [];
     private $ruleDataList = [];
     private $ruleData = [];
+    private $mTitle = [];
+    private $uTitle = [];
     private $baseScore = 0;
     private $directionDataList = [];
     private $gameDayDataList = [];
@@ -26,7 +28,7 @@ class StatsService {
     /**
      * コンストラクタ
      */
-    public function __construct( $table, $group, $rule, $direction, $gameDay, $user, $history ) {
+    public function __construct( $table, $group, $rule, $direction, $gameDay, $user, $history, $mTitle, $uTitle ) {
         $this->tableDataList        = $table;
         $this->tableData            = array_filter($table, function($item) {
                                         return isset($item['u_table_id']) && $item['u_table_id'] === $this->tableId;
@@ -39,6 +41,8 @@ class StatsService {
         $this->ruleData             = array_filter($this->ruleDataList, function($item) {
                                         return isset($item['m_rule_id']) && $item['m_rule_id'] === $this->groupData[0]['m_rule_id'];
                                     });
+        $this->mTitle               = $mTitle;
+        $this->uTitle               = $uTitle;
         $this->baseScore            = $this->ruleData[0]['start_score'];
         $this->directionDataList    = $direction;
         $this->gameDayDataList      = $gameDay;
@@ -55,6 +59,47 @@ class StatsService {
     // テーブルユーザーを取得
     public function getYears() {
         return $this->years;
+    }
+
+    // タイトルの取得
+    public function getTitle() {
+        $titleList = [];
+
+        // m_title_id をキーとしてタイトル名をマッピング
+        $mTitleMap = [];
+        foreach ($this->mTitle as $title) {
+            $mTitleMap[$title['m_title_id']] = $title['name'];
+        }
+
+        // u_user_id をキーとしてタイトル名をマッピング
+        $uUserMap = [];
+        foreach ($this->userDataList as $user) {
+            $uUserMap[$user['u_user_id']] = $user['last_name'].$user['first_name'];
+        }
+
+        // uTitle を年でグループ化
+        foreach ($this->uTitle as $uTitleItem) {
+            $year = $uTitleItem['year'];
+            $mTitleId = $uTitleItem['m_title_id'];
+            $uUserId = $uTitleItem['u_user_id'];
+            $titleName = isset($mTitleMap[$mTitleId]) ? $mTitleMap[$mTitleId] : '不明なタイトル';
+            $name = isset($uUserMap[$uUserId]) ? $uUserMap[$uUserId] : '不明なユーザー';
+
+            // 年ごとに配列を初期化
+            if (!isset($groupedTitles[$year])) {
+                $groupedTitles[$year] = [];
+            }
+
+            $groupedTitles[$year][] = [
+                'u_title_id' => $uTitleItem['u_title_id'],
+                'title_name' => $titleName,
+                'u_user_id' => $name,
+                'value' => $uTitleItem['value']
+            ];
+        }
+        krsort($groupedTitles);
+
+        return $groupedTitles;
     }
 
     /**
