@@ -56,7 +56,7 @@ $dates_per_page = 1; // 1ページあたりの表示日数
 $current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 
 // 日付の配列を取得
-$all_dates = array_keys($gameHistoryDataList);
+$all_dates = array_keys($gameHistoryList);
 $total_dates = count($all_dates);
 $total_pages_game = ceil($total_dates / $dates_per_page);
 
@@ -90,7 +90,7 @@ $title = '履歴';
             <div class="select-button-container">
                 <form action="history" method="get">
                     <?php foreach($userList as $userId => $userData): ?>
-                        <button class="select-button" type="submit" name="userId" value="<?=$userId?>"><?=$userData[0]['last_name'].$userData[0]['first_name']?></button>
+                        <button class="select-button" type="submit" name="userId" value="<?=$userId?>"><?=$userData['last_name'].$userData['first_name']?></button>
                     <?php endforeach; ?>
                 </form>
             </div>
@@ -126,7 +126,7 @@ $title = '履歴';
                 <?php foreach($current_dates as $date): ?>
                     <div class="game-date">
                         <h4 class="date-header"><?=$date?></h4>
-                        <?php foreach($gameHistoryDataList[$date] as $game => $gameData): ?>
+                        <?php foreach($gameHistoryList[$date] as $game => $gameData): ?>
                             <div class="game-session">
                                 <h5 class="game-header"><?=$game?>半荘目</h5>
                                 <table class="result-table">
@@ -159,7 +159,7 @@ $title = '履歴';
                                                     <td class="direction-cell"><?=$mDirectionList[$historyData['m_direction_id']]?></td>
                                                 <?php endif;?>
                                                 <td class="rank-cell"><?=$historyData['rank']?></td>
-                                                <td class="name-cell"><?=$userList[$historyData['u_user_id']][0]['last_name']?></td>
+                                                <td class="name-cell"><?=$userList[$historyData['u_user_id']]['last_name']?></td>
                                                 <td class="score-cell"><?=number_format($historyData['score'])?></td>
                                                 <td class="point-cell"><?=$historyData['point']?></td>
                                             </tr>
@@ -205,7 +205,7 @@ $title = '履歴';
                 </div>
             </div>
         <?php else: ?>
-            <div class="page-title"><?=$userList[$selectUser][0]['last_name'].$userList[$selectUser][0]['first_name']?>の履歴</div>
+            <div class="page-title"><?=$userList[$selectUser]['last_name'].$userList[$selectUser]['first_name']?>の履歴</div>
             <div class="pagination">
                 <?php if($total_pages > 1): ?>
                     <div class="pagination-controls">

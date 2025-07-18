@@ -49,7 +49,7 @@ $selectUser = $_GET['userId'] ?? null;
                     <form action="analysis" method="get">
                         <form action="history" method="get">
                             <?php foreach($userList as $userId => $userData): ?>
-                                <button class="select-button" type="submit" name="userId" value="<?=$userId?>"><?=$userData[0]['last_name'].$userData[0]['first_name']?></button>
+                                <button class="select-button" type="submit" name="userId" value="<?=$userId?>"><?=$userData['last_name'].$userData['first_name']?></button>
                             <?php endforeach; ?>
                         </form>
                     </form>
@@ -59,28 +59,28 @@ $selectUser = $_GET['userId'] ?? null;
                 </div>
             <?php else: ?>
             <?php
-                $userName = $userList[$selectUser][0]['last_name'].$userList[$selectUser][0]['first_name'];
+                $userName = $userList[$selectUser]['last_name'].$userList[$selectUser]['first_name'];
 
                 // AIへの指示文を作成
                 $set_msg = $analysisMsg;
                 $set_msg .= "麻雀の成績から{$userName}選手の成績まとめ,特徴,改善点を300文字前後で出力してください。\n他にも気づいたことがあれば追加してもよいです。";
 
-                $score_msg = "以下、{$analysisData[$selectUser]['name']}の成績です。\n";
+                $score_msg = "以下、{$analysisDataList[$selectUser]['name']}の成績です。\n";
                 $score_msg .= "成績まとめ。データは左から選手ID、選手名、対局数、合計点、素点、平均着順、1着、2着、3着、4着、トップ率、連対率、ラス回避率、終了時平均点数の順で並んでいます。\n";
-                $score_msg .= implode(', ', $analysisData[$selectUser]) . "\n";
+                $score_msg .= implode(', ', $analysisDataList[$selectUser]) . "\n";
 
                 $msg = $set_msg . "\n" . $score_msg;
 
                 // 成績表示
                 $statsTable = "<div class='table-container'><table class='score-table'><tr>";
 
-                foreach ($analysisData[$selectUser] as $key => $value) {
+                foreach ($analysisDataList[$selectUser] as $key => $value) {
                     if (!isset($statsColumnConfig[$key])) continue;
                     $statsTable .= "<th>" . htmlspecialchars($statsColumnConfig[$key]) . "</th>";
                 }
                 $statsTable .= "</tr><tr>";
 
-                foreach ($analysisData[$selectUser] as $key => $value) {
+                foreach ($analysisDataList[$selectUser] as $key => $value) {
                     if (!isset($statsColumnConfig[$key])) continue;
                     $statsTable .= "<td>" . htmlspecialchars($value) . "</td>";
                 }

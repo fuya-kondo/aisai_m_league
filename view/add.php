@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 
 // Get play count
-$games = array_column($todayStatsData, 'play_count', 'user_id');
+$games = array_column($todayStatsList, 'play_count', 'user_id');
 
 // Set title
 $title = '登録';

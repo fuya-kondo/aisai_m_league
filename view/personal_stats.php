@@ -36,15 +36,15 @@ $title = '個人成績';
             <div class="select-button-container">
                 <form action="personal_stats" method="get">
                     <?php foreach($userList as $userId => $userData): ?>
-                        <button class="select-button" type="submit" name="player" value="<?=$userId?>"><?=$userData[0]['last_name'].$userData[0]['first_name']?></button>
+                        <button class="select-button" type="submit" name="player" value="<?=$userId?>"><?=$userData['last_name'].$userData['first_name']?></button>
                     <?php endforeach; ?>
                 </form>
             </div>
         <?php else: ?>
             <?php
                 $players = [];
-                if (isset($overallStatsData[$selectedYear])) {
-                    foreach ($overallStatsData[$selectedYear] as $playerData) {
+                if (isset($yearlyStatsList[$selectedYear])) {
+                    foreach ($yearlyStatsList[$selectedYear] as $playerData) {
                         $players[$playerData['u_user_id']] = $playerData['name'];
                     }
                 }
@@ -59,7 +59,7 @@ $title = '個人成績';
                     <div style="margin-bottom:10px">
                         <label for="year">年を選択:</label>
                         <select name="year" id="year" onchange="this.form.submit()" class="year-select">
-                            <?php foreach($overallStatsData as $year => $displayStatsData): ?>
+                            <?php foreach($yearlyStatsList as $year => $displayStatsData): ?>
                                 <option value="<?= $year ?>" <?= ($year == $selectedYear) ? 'selected' : '' ?>><?= $year ?></option>
                             <?php endforeach; ?>
                         </select>
@@ -82,7 +82,7 @@ $title = '個人成績';
                             <?php
                                 // 選択された選手のデータを取得
                                 $playerData = null;
-                                foreach($overallStatsData[$selectedYear] as $data) {
+                                foreach($yearlyStatsList[$selectedYear] as $data) {
                                     if ($data['u_user_id'] == $selectedPlayer) {
                                         $playerData = $data;
                                         break;
@@ -203,7 +203,7 @@ $title = '個人成績';
 
                         // 平均値データ（例として設定、実際のデータに置き換える）
                         const averageData = {
-                            top_probability: 25, // 例: 25%
+                            first_rank_probability: 25, // 例: 25%
                             over_second_probability: 50, // 例: 50%
                             over_third_probability: 75, // 例: 75%
                             average_score: 25000 // 例: 25000点
@@ -220,7 +220,7 @@ $title = '個人成績';
                                     {
                                         label: '平均値',
                                         data: [
-                                            normalizeData(averageData.top_probability, 20, 30),
+                                            normalizeData(averageData.first_rank_probability, 20, 30),
                                             normalizeData(averageData.over_second_probability, 40, 60),
                                             normalizeData(averageData.over_third_probability, 60, 85),
                                             normalizeData(averageData.average_score, 20000, 30000)
@@ -236,7 +236,7 @@ $title = '個人成績';
                                     {
                                         label: playerData.name,
                                         data: [
-                                            normalizeData(parseFloat(playerData.top_probability), 20, 30),
+                                            normalizeData(parseFloat(playerData.first_rank_probability), 20, 30),
                                             normalizeData(parseFloat(playerData.over_second_probability), 42, 58),
                                             normalizeData(parseFloat(playerData.over_third_probability), 62, 82),
                                             normalizeData(parseFloat(playerData.average_score), 22000, 27000)

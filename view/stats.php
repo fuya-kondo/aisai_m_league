@@ -32,7 +32,7 @@ $title = '成績';
 <body>
     <main>
 <?php /* 本日の成績 */?>
-        <?php if(!empty($todayStatsData[1]['play_count'])):?>
+        <?php if(!empty($todayStatsList[1]['play_count'])):?>
             <div class="page-title">本日の<?= $title; ?></div>
             <div class="table-container">
                 <div class="table-wrapper">
@@ -42,25 +42,25 @@ $title = '成績';
                                 <th><?=$v?></th>
                             <?php endforeach; ?>
                         </tr>
-                        <?php foreach($todayStatsData as $data): ?>
+                        <?php foreach($todayStatsList as $todayStatsData): ?>
                             <tr align="center">
                                 <?php foreach($statsColumnConfig_3 as $column => $v):?>
                                     <td <?php if ($column == 'ranking'): ?>class="rank-column"<?php endif; ?>>
                                         <?php if ($column == 'ranking'): ?>
-                                            <span class="rank-icon rank-<?=$data[$column]?>">
+                                            <span class="rank-icon rank-<?=$todayStatsData[$column]?>">
                                         <?php endif; ?>
                                         <?php if ($column == 'name'): ?>
-                                            <a href="personal_stats?year=<?= htmlspecialchars($year) ?>&player=<?= htmlspecialchars($data['u_user_id']) ?>">
+                                            <a href="personal_stats?year=<?= htmlspecialchars($selectedYear) ?>&player=<?= htmlspecialchars($todayStatsData['u_user_id']) ?>">
                                         <?php endif; ?>
                                         <span class="stats-value">
                                         <?php
                                             // 数値の場合は小数点第2位まで表示
                                             if ($column == 'sum_point' || $column == 'sum_score'):
-                                                echo number_format((float)$data[$column], 1);
+                                                echo number_format((float)$todayStatsData[$column], 1);
                                             elseif ($column == 'average_rank'):
-                                                echo number_format((float)$data[$column], 2);
+                                                echo number_format((float)$todayStatsData[$column], 2);
                                             else:
-                                                echo htmlspecialchars($data[$column]);
+                                                echo htmlspecialchars($todayStatsData[$column]);
                                             endif;
                                         ?>
                                         </span> 
@@ -82,7 +82,7 @@ $title = '成績';
 
 <?php /* 総合成績 */?>
         <div class="page-title"><?= $title; ?></div>
-        <?php foreach($overallStatsData as $year => $displayStatsData): ?>
+        <?php foreach($yearlyStatsList as $year => $displayStatsData): ?>
             <?php if ($year == $selectedYear): // 選択された年のみ表示 ?>
                 <div class="table-container">
                     <form class="year-title" action="" method="get" class="year-selection-form">
@@ -108,7 +108,7 @@ $title = '成績';
                                             <span class="rank-icon rank-<?=$data[$column]?>">
                                         <?php endif; ?>
                                         <?php if ($column == 'name'): ?>
-                                            <a href="personal_stats?year=<?= htmlspecialchars($year) ?>&player=<?= htmlspecialchars($data['u_user_id']) ?>">
+                                            <a href="personal_stats?year=<?= htmlspecialchars($selectedYear) ?>&player=<?= htmlspecialchars($data['u_user_id']) ?>">
                                         <?php endif; ?>
                                         <span class="stats-value">
                                         <?php
@@ -147,7 +147,7 @@ $title = '成績';
             $userData = [];
             $allDates = [];
             foreach ($userList as $userId => $data) {
-                foreach ($overallChartData[$selectedYear][$userId] as $data) {
+                foreach ($yearlyChartList[$selectedYear][$userId] as $data) {
                     // 日付形式の厳密なチェックを追加
                     $playDate = date('Y-m-d', strtotime($data['play_date']));
                     // ポイントの数値変換を厳密化
@@ -185,7 +185,7 @@ $title = '成績';
                 }
                 // データセットを作成
                 $datasets[] = [
-                    'label' => htmlspecialchars($userList[$userId][0]['last_name']),
+                    'label' => htmlspecialchars($userList[$userId]['last_name']),
                     'data' => $dataPoints,
                     'borderColor' => $colors[$userId % count($colors)],
                     'fill' => false
@@ -250,11 +250,10 @@ $title = '成績';
 <?php /* グラフ */?>
 
 <?php /* タイトル */ ?>
+    <?php if( isset($titleHolderList[$selectedYear]) ):?>
     <div class="page-title">🏆 タイトル獲得履歴 🏆</div>
-    <?php if (empty($titleList)): ?>
-        <p style="text-align: center;">表示するデータがありません。</p>
-    <?php else: ?>
-        <?php foreach ($titleList as $year => $titles): ?>
+        <?php foreach ($titleHolderList as $year => $titles): ?>
+            <?php if ($year == $selectedYear): // 選択された年のみ表示 ?>
             <div class="year-section">
                 <h2 class="year-header"><?php echo htmlspecialchars($year); ?>年</h2>
                 <?php foreach ($titles as $item): ?>
@@ -269,9 +268,11 @@ $title = '成績';
                     </div>
                 <?php endforeach; ?>
             </div>
+            <?php endif; ?>
         <?php endforeach; ?>
     <?php endif; ?>
 <?php /* タイトル */ ?>
+
     </main>
 </body>
 </html>
@@ -447,12 +448,6 @@ $title = '成績';
 
     /* スマートフォン向けレスポンシブデザイン */
     @media (max-width: 600px) {
-        body {
-            padding: 10px;
-        }
-        h1 {
-            font-size: 1.5em;
-        }
         .year-header {
             font-size: 1.3em;
         }

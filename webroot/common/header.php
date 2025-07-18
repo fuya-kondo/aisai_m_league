@@ -26,8 +26,8 @@
         <div class="before-line"></div>
         <a href="add"><div class="header-button">登録</div></a>
         <a href="history"><div class="header-button">履歴</div></a>
-        <div class="before-line"></div>
-        <a href="analysis"><div class="header-button">AI分析</div></a>
+        <!-- <div class="before-line"></div>
+        <a href="analysis"><div class="header-button">AI分析</div></a> -->
         <div class="before-line"></div>
         <a href="sound"><div class="header-button">音声</div></a>
     </div>
