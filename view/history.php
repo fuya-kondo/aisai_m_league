@@ -81,12 +81,12 @@ $title = '履歴';
     <link rel="stylesheet" href="../webroot/css/button.css">
     <link rel="stylesheet" href="../webroot/css/table.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
-    <title><?= $title; ?></title>
+    <title><?= $title ?></title>
 </head>
 <body>
     <main>
         <?php if (!isset($selectUser)): ?>
-            <div class="page-title">個人<?= $title; ?></div>
+            <div class="page-title">個人<?= $title ?></div>
             <div class="select-button-container">
                 <form action="history" method="get">
                     <?php foreach($userList as $userId => $userData): ?>

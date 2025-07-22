@@ -46,12 +46,12 @@ include '../webroot/common/header.php';
         <link rel="stylesheet" href="../webroot/css/header.css">
         <link rel="stylesheet" href="../webroot/css/button.css">
         <link rel="stylesheet" href="../webroot/css/table.css">
-        <title><?= $title; ?></title>
+        <title><?= $title ?></title>
     </head>
     <body>
         <main>
         <?php if ($isFix): ?>
-            <div class="page-title"><?= $title; ?></div>
+            <div class="page-title"><?= $title ?></div>
             <div class="button-container" style="text-align: center;">
                 <form action="update" method="post">
                     <select class="input" name="new_rank" require_onced style="width: 100px">
@@ -59,8 +59,8 @@ include '../webroot/common/header.php';
                             <option value="<?=$value?>" <?php if($value==$rank):?>selected<?php endif;?>><?=$name?></option>
                         <?php endforeach;?>
                     </select><br>
-                    <input class="input" type="number" name="new_score" require_onced value="<?= htmlspecialchars($score) ?>" style="width: 80px"><br>
-                    <input class="input" type="number" name="new_game" require_onced value="<?= htmlspecialchars($game) ?>" style="width: 80px">半荘目
+                    <input class="input" type="number" name="new_score" require_onced value="<?= $score ?>" style="width: 80px"><br>
+                    <input class="input" type="number" name="new_game" require_onced value="<?= $game ?>" style="width: 80px">半荘目
                     <div class="form-group">
                         <div class="button-containers">
                             <?php foreach($mDirectionList as $directionId => $directionName): ?>
@@ -69,8 +69,8 @@ include '../webroot/common/header.php';
                             <input type="hidden" id="direction" name="new_direction" value="<?=$direction?>">
                         </div>
                     </div>
-                    <input name="userId" value="<?= htmlspecialchars($userId) ?>" style="display:none"><br><br>
-                    <button class="submit-button"type="submit" name="historyId" value="<?= htmlspecialchars($historyId) ?>">修正する</button>
+                    <input name="userId" value="<?= $userId ?>" style="display:none"><br><br>
+                    <button class="submit-button"type="submit" name="historyId" value="<?= $historyId ?>">修正する</button>
                 </form>
             </div>
         <?php endif; ?>

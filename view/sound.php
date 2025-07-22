@@ -20,7 +20,7 @@ $title = '';
     <link rel="stylesheet" href="../webroot/css/header.css">
     <link rel="stylesheet" href="../webroot/css/button.css">
     <link rel="stylesheet" href="../webroot/css/table.css">
-    <title><?php echo $title; ?></title>
+    <title><?= $title ?></title>
 </head>
 <body>
     <main>

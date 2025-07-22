@@ -27,61 +27,64 @@ $title = '成績';
     <link rel="stylesheet" href="../webroot/css/table.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
-    <title><?= $title; ?></title>
+    <title><?= $title ?></title>
 </head>
 <body>
     <main>
 <?php /* 本日の成績 */?>
         <?php if(!empty($todayStatsList[1]['play_count'])):?>
-            <div class="page-title">本日の<?= $title; ?></div>
+            <div class="page-title">本日の<?= $title ?></div>
             <div class="table-container">
                 <div class="table-wrapper">
-                    <table class="score-table">
-                        <tr>
-                            <?php foreach($statsColumnConfig_3 as $v):?>
-                                <th><?=$v?></th>
-                            <?php endforeach; ?>
-                        </tr>
-                        <?php foreach($todayStatsList as $todayStatsData): ?>
-                            <tr align="center">
-                                <?php foreach($statsColumnConfig_3 as $column => $v):?>
-                                    <td <?php if ($column == 'ranking'): ?>class="rank-column"<?php endif; ?>>
-                                        <?php if ($column == 'ranking'): ?>
-                                            <span class="rank-icon rank-<?=$todayStatsData[$column]?>">
-                                        <?php endif; ?>
-                                        <?php if ($column == 'name'): ?>
-                                            <a href="personal_stats?year=<?= htmlspecialchars($selectedYear) ?>&player=<?= htmlspecialchars($todayStatsData['u_user_id']) ?>">
-                                        <?php endif; ?>
-                                        <span class="stats-value">
-                                        <?php
-                                            // 数値の場合は小数点第2位まで表示
-                                            if ($column == 'sum_point' || $column == 'sum_score'):
-                                                echo number_format((float)$todayStatsData[$column], 1);
-                                            elseif ($column == 'average_rank'):
-                                                echo number_format((float)$todayStatsData[$column], 2);
-                                            else:
-                                                echo htmlspecialchars($todayStatsData[$column]);
-                                            endif;
-                                        ?>
-                                        </span> 
-                                        <?php if ($column == 'ranking'): ?>
-                                            </span>
-                                        <?php endif; ?>
-                                        <?php if ($column == 'name'): ?>
-                                            </a>
-                                        <?php endif; ?>
-                                    </td>
+                        <table class="score-table">
+                            <tr>
+                                <?php foreach($displayStatsColumn_1 as $column => $data):?>
+                                    <?php if (is_array($data)): ?>
+                                        <?php foreach($data as $key => $value):?>
+                                            <th><?=$value?></th>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <th><?=$data?></th>
+                                    <?php endif; ?>
                                 <?php endforeach; ?>
                             </tr>
-                        <?php endforeach; ?>
-                    </table>
-                </div>
+                            <?php foreach($todayStatsList as $todayStatsData): ?>
+                                <tr align="center">
+                                    <?php foreach ($displayStatsColumn_1 as $column => $data): ?>
+                                        <?php if ($column == 'ranking'): ?>
+                                            <td>
+                                                <span class="rank-column">
+                                                    <span class="rank-icon rank-<?= $todayStatsData[$column] ?>">
+                                                        <span class="stats-value"><?= $todayStatsData[$column] ?></span>
+                                                    </span>
+                                                </span>
+                                            </td>
+                                        <?php elseif ($column == 'name'): ?>
+                                            <td>
+                                                <a href="personal_stats?year=<?= $selectedYear ?>&player=<?= $todayStatsData['u_user_id'] ?>">
+                                                    <span class="stats-value"><?= $todayStatsData[$column] ?></span>
+                                                </a>
+                                            </td>
+                                        <?php else: // その他のカラムの場合 ?>
+                                            <?php if (is_array($data) && isset($todayStatsData[$column]) && is_array($todayStatsData[$column])): ?>
+                                                <?php foreach ($todayStatsData[$column] as $key => $value): ?>
+                                                    <td><span class="stats-value"><?= $value ?></span></td>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <td><span class="stats-value"><?= $todayStatsData[$column] ?></span></td>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
+                                </tr>
+                            <?php endforeach; ?>
+                        </table>
+                    </div>
             </div>
         <?php endif;?>
 <?php /* 本日の成績 */?>
 
 <?php /* 総合成績 */?>
-        <div class="page-title"><?= $title; ?></div>
+        <div class="page-title"><?= $title ?></div>
         <?php foreach($yearlyStatsList as $year => $displayStatsData): ?>
             <?php if ($year == $selectedYear): // 選択された年のみ表示 ?>
                 <div class="table-container">
@@ -96,40 +99,43 @@ $title = '成績';
                     <div class="table-wrapper">
                         <table class="score-table">
                             <tr>
-                                <?php foreach($statsColumnConfig_3 as $v):?>
-                                    <th><?=$v?></th>
+                                <?php foreach($displayStatsColumn_1 as $column => $data):?>
+                                    <?php if (is_array($data)): ?>
+                                        <?php foreach($data as $key => $value):?>
+                                            <th><?=$value?></th>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <th><?=$data?></th>
+                                    <?php endif; ?>
                                 <?php endforeach; ?>
                             </tr>
-                            <?php foreach($displayStatsData as $data): ?>
+                            <?php foreach($displayStatsData as $statusData): ?>
                                 <tr align="center">
-                                <?php foreach ($statsColumnConfig_3 as $column => $v): ?>
-                                    <td <?php if ($column == 'ranking'): ?>class="rank-column"<?php endif; ?>>
+                                    <?php foreach ($displayStatsColumn_1 as $column => $data): ?>
                                         <?php if ($column == 'ranking'): ?>
-                                            <span class="rank-icon rank-<?=$data[$column]?>">
+                                            <td>
+                                                <span class="rank-column">
+                                                    <span class="rank-icon rank-<?= $statusData[$column] ?>">
+                                                        <span class="stats-value"><?= $statusData[$column] ?></span>
+                                                    </span>
+                                                </span>
+                                            </td>
+                                        <?php elseif ($column == 'name'): ?>
+                                            <td>
+                                                <a href="personal_stats?year=<?= $selectedYear ?>&player=<?= $statusData['u_user_id'] ?>">
+                                                    <span class="stats-value"><?= $statusData[$column] ?></span>
+                                                </a>
+                                            </td>
+                                        <?php else: // その他のカラムの場合 ?>
+                                            <?php if (is_array($data) && isset($statusData[$column]) && is_array($statusData[$column])): ?>
+                                                <?php foreach ($statusData[$column] as $key => $value): ?>
+                                                    <td><span class="stats-value"><?= $value ?></span></td>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <td><span class="stats-value"><?= $statusData[$column] ?></span></td>
+                                            <?php endif; ?>
                                         <?php endif; ?>
-                                        <?php if ($column == 'name'): ?>
-                                            <a href="personal_stats?year=<?= htmlspecialchars($selectedYear) ?>&player=<?= htmlspecialchars($data['u_user_id']) ?>">
-                                        <?php endif; ?>
-                                        <span class="stats-value">
-                                        <?php
-                                            // 数値の場合は小数点第2位まで表示
-                                            if ($column == 'sum_point' || $column == 'sum_score'):
-                                                echo number_format((float)$data[$column], 1);
-                                            elseif ($column == 'average_rank'):
-                                                echo number_format((float)$data[$column], 2);
-                                            else:
-                                                echo htmlspecialchars($data[$column]);
-                                            endif;
-                                        ?>
-                                        </span> 
-                                        <?php if ($column == 'ranking'): ?>
-                                            </span>
-                                        <?php endif; ?>
-                                        <?php if ($column == 'name'): ?>
-                                            </a>
-                                        <?php endif; ?>
-                                    </td>
-                                <?php endforeach; ?>
+                                    <?php endforeach; ?>
                                 </tr>
                             <?php endforeach; ?>
                         </table>
@@ -185,7 +191,7 @@ $title = '成績';
                 }
                 // データセットを作成
                 $datasets[] = [
-                    'label' => htmlspecialchars($userList[$userId]['last_name']),
+                    'label' => $userList[$userId]['last_name'],
                     'data' => $dataPoints,
                     'borderColor' => $colors[$userId % count($colors)],
                     'fill' => false
@@ -255,15 +261,15 @@ $title = '成績';
         <?php foreach ($titleHolderList as $year => $titles): ?>
             <?php if ($year == $selectedYear): // 選択された年のみ表示 ?>
             <div class="year-section">
-                <h2 class="year-header"><?php echo htmlspecialchars($year); ?>年</h2>
+                <h2 class="year-header"><?= $year ?>年</h2>
                 <?php foreach ($titles as $item): ?>
                     <div class="title-item">
                         <div class="title-name">
-                            <?php echo htmlspecialchars($item['title_name']); ?>
+                            <?= $item['title_name'] ?>
                         </div>
                         <div class="user-info">
-                            <span><?php echo htmlspecialchars($item['u_user_id']); ?></span>
-                            <span class="value"><?php echo htmlspecialchars($item['value']); ?></span>
+                            <span><?= $item['u_user_id'] ?></span>
+                            <span class="value"><?= $item['value'] ?></span>
                         </div>
                     </div>
                 <?php endforeach; ?>

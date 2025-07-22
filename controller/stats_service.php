@@ -236,9 +236,11 @@ class StatsService {
     private function _getScore( $year, $today = false ): array
     {
         $result = [];
+        $userGameHistoryData = [];
         foreach ( $this->userList as $userId => $userData ) {
             $result[$userId] = $this->_initializeUserStats($userData);
-            $result[$userId] = $this->_calculateUserStats($result[$userId], $this->uGameHistoryDataList[$userId], $year, $today);
+            $userGameHistoryData = $this->_getGameHistory($this->uGameHistoryDataList[$userId], $year, $today);
+            $result[$userId] = $this->_calculateUserStats($result[$userId], $userGameHistoryData);
         }
         return $this->_formatUserStats($result);
     }
@@ -255,33 +257,24 @@ class StatsService {
             'u_user_id'                 => $userData['u_user_id'],
             'name'                      => $userData['last_name'].$userData['first_name'],
             'play_count'                => 0, // 対局数
-            'sum_point'                 => 0, // 合計ポイント
-            'sum_score'                 => 0, // 合計スコア
+            'rank_count'                => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 順位カウント
+            'rank_probability'          => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 順位率
             'average_rank'              => 0, // 平均順位
-            'first_rank_count'          => 0, // 1位数
-            'second_rank_count'         => 0, // 2位数
-            'third_rank_count'          => 0, // 3位数
-            'fourth_rank_count'         => 0, // 4位数
-            'first_rank_probability'    => 0, // 1位率
-            'second_rank_probability'   => 0, // 2位率
-            'third_rank_probability'    => 0, // 3位率
-            'fourth_rank_probability'   => 0, // 4位率
+            'sum_base_score'            => 0, // 素点
+            'average_score'             => 0, // 平均スコア
+            'sum_point'                 => 0, // 合計ポイント
+            'average_point'             => 0, // 平均ポイント
+            'play_count_direction'      => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 対局数(各家)
+            'rank_count_direction'      => [ 1 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], 2 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], 3 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], 4 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ] ], // 順位カウント(各家)
+            'rank_probability_direction'=> [ 1 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], 2 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], 3 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], 4 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ] ], // 順位率(各家)
+            'average_rank_direction'    => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 平均順位(各家)
+            'sum_base_score_direction'  => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 素点(各家)
+            'average_score_direction'   => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 平均スコア(各家)
+            'sum_point_direction'       => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 合計ポイント(各家)
+            'average_point_direction'   => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 平均ポイント(各家)
             'over_second_probability'   => 0, // 連対率
             'over_third_probability'    => 0, // 4着回避率
-            'average_score'             => 0, // 平均スコア
-            'direction_1_count'         => 0, // 東家の数
-            'direction_2_count'         => 0, // 南家の数
-            'direction_3_count'         => 0, // 西家の数
-            'direction_4_count'         => 0, // 北家の数
-            'direction_1_sum_point'     => 0, // 東家の合計ポイント
-            'direction_2_sum_point'     => 0, // 南家の合計ポイント
-            'direction_3_sum_point'     => 0, // 西家の合計ポイント
-            'direction_4_sum_point'     => 0, // 北家の合計ポイント
-            'direction_1_average_point' => 0, // 東家での平均ポイント
-            'direction_2_average_point' => 0, // 南家での平均ポイント
-            'direction_3_average_point' => 0, // 西家での平均ポイント
-            'direction_4_average_point' => 0, // 北家での平均ポイント
-            'mistake_count'             => 0, // ミス数
+            'mistake_count'             => 0, // チョンボ数
         ];
     }
 
@@ -294,9 +287,9 @@ class StatsService {
      * @param boolean $today 本日のデータを取得するかどうか
      * @return array 計算された統計データ
      */
-    private function _calculateUserStats( $stats, $uGameHistoryDataList, $year, $today = false ): array
+    private function _getGameHistory( $uGameHistoryDataList, $year, $today = false ): array
     {
-        $sum_rank = 0;
+        $result = [];
         foreach ($uGameHistoryDataList as $uGameHistoryData) {
             $isGet = false;
             if ( $today && date('Y-m-d', strtotime($uGameHistoryData['play_date'])) == date('Y-m-d') ) {
@@ -307,39 +300,80 @@ class StatsService {
                 $isGet = true;
             }
             if ($isGet) {
-                $stats['play_count']++;
-                $stats['sum_point'] += $uGameHistoryData['point'];
-                $stats['sum_score'] += $uGameHistoryData['score'];
-                // チョンボの統計
-                $stats['mistake_count'] += $uGameHistoryData['mistake_count'];
-                $mistake_count = $uGameHistoryData['mistake_count'];
-                for ($i = 1; $i <= $mistake_count; $i++) {
-                    $stats['sum_point'] -= 20;
+                $result[] = $uGameHistoryData;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * ユーザーの統計を計算する
+     *
+     * @param array $uGameHistoryDataList ユーザーの対局履歴
+     * @return array 計算された統計データ
+     */
+    private function _calculateUserStats( $stats, $uGameHistoryDataList ): array
+    {
+        $sum_rank = 0; // 平均順位の算出に使用
+        $sum_score = 0; // 平均スコアの算出に使用
+        $sum_rank_direction = [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ]; // 各家の平均順位の算出に使用
+        $sum_score_direction = [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ]; // 各家の平均スコアの算出に使用
+        foreach ($uGameHistoryDataList as $uGameHistoryData) {
+            $stats['play_count']        ++;
+            $stats['sum_point']         += $uGameHistoryData['point'];
+            $sum_score                  += $uGameHistoryData['score'];
+            $stats['sum_base_score']    += ($uGameHistoryData['score'] - $this->baseScore) / 1000;
+            $stats['mistake_count']     += $uGameHistoryData['mistake_count'];
+            // 順位の統計
+            $rank       = substr($uGameHistoryData['rank'], 0, 1); // 同率の場合は上位でカウントする
+            $sum_rank   += $rank;
+            $stats['rank_count'][$rank] ++;
+            // 各家の統計
+            if ( !empty($uGameHistoryData['m_direction_id']) ) {
+                $stats['play_count_direction'][$uGameHistoryData['m_direction_id']]         ++; // 対局数(各家)
+                $stats['rank_count_direction'][$uGameHistoryData['m_direction_id']][$rank]  ++; // 順位(各家)
+                $sum_rank_direction[$uGameHistoryData['m_direction_id']]                    += $rank; // 順位(各家)
+                $stats['sum_base_score_direction'][$uGameHistoryData['m_direction_id']]     += ($uGameHistoryData['score'] - $this->baseScore) / 1000; // 素点(各家)
+                $sum_score_direction[$uGameHistoryData['m_direction_id']]                   += $uGameHistoryData['score']; // 平均スコア(各家)
+                $stats['sum_point_direction'][$uGameHistoryData['m_direction_id']]          += $uGameHistoryData['point']; // 合計ポイント(各家)
+            }
+        }
+        if ( isset($stats['play_count']) && $stats['play_count'] > 0 ) {
+             // 各順位率
+            foreach ($stats['rank_count'] as $rank => $count) {
+                $stats['rank_probability'][$rank] = !empty($count) ? $count / $stats['play_count'] * 100 : 0;
+            }
+            $stats['average_rank']                  = !empty($sum_rank)                                         ? $sum_rank / $stats['play_count'] : 0; // 平均順位
+            $stats['average_score']                 = !empty($sum_score)                                        ? $sum_score / $stats['play_count'] : 0; // 平均スコア
+            $stats['average_point']                 = !empty($stats['sum_point'])                               ? $stats['sum_point'] / $stats['play_count'] : 0; // 平均ポイント
+            $stats['over_second_probability']       = !empty($stats['rank_count'][1] + $stats['rank_count'][2]) ? ($stats['rank_count'][1] + $stats['rank_count'][2]) / $stats['play_count'] * 100 : 0; // 連対率
+            $stats['over_third_probability']        = !empty($stats['rank_count'][4])                           ? 100 - ($stats['rank_count'][4] / $stats['play_count'] * 100) : 0; // 4着回避率
+        }
+        // 各家の統計がある場合
+        if ( isset($stats['play_count_direction']) && $stats['play_count_direction'][1] > 0 ) {
+            // 平均順位(各家)
+            foreach ($sum_rank_direction as $directionId => $data) {
+                $stats['average_rank_direction'][$directionId] = !empty($data) ? $data / $stats['play_count_direction'][$directionId] : 0;
+            }
+            // 順位率(各家)
+            foreach ($stats['rank_count_direction'] as $directionId => $data) {
+                foreach ($data as $rank => $value) {
+                    $stats['rank_probability_direction'][$directionId][$rank] = !empty($value) ? $value / $stats['play_count_direction'][$directionId] * 100 : 0;
                 }
-                // 順位の統計
-                $rank = substr($uGameHistoryData['rank'], 0, 1); // 同率の場合は上位でカウントする
-                $sum_rank += $rank;
-                $stats[$this->_getRankCountKey($rank)]++;
-                // 家の統計
-                if ( !empty($uGameHistoryData['m_direction_id']) ) {
-                    $stats['direction_'.$uGameHistoryData['m_direction_id'].'_count']++;
-                    $stats['direction_'.$uGameHistoryData['m_direction_id'].'_sum_point'] += $uGameHistoryData['point'];
-                }
+            }
+            // 平均スコア(各家)
+            foreach ($sum_score_direction as $directionId => $data) {
+                $stats['average_score_direction'][$directionId] = !empty($data) ? $data / $stats['play_count_direction'][$directionId] : 0;
+            }
+            // 平均ポイント(各家)
+            foreach ($stats['sum_point_direction'] as $directionId => $data) {
+                $stats['average_point_direction'][$directionId] = !empty($data) ? $data / $stats['play_count_direction'][$directionId] : 0;
             }
         }
 
-        if ( isset($stats['play_count']) && $stats['play_count'] > 0 ) {
-            $stats['average_rank']              = $sum_rank / $stats['play_count'];
-            $stats['first_rank_probability']    = !empty($stats['first_rank_count'])  ? $stats['first_rank_count']  / $stats['play_count'] * 100 : 0;
-            $stats['second_rank_probability']   = !empty($stats['second_rank_count']) ? $stats['second_rank_count'] / $stats['play_count'] * 100 : 0;
-            $stats['third_rank_probability']    = !empty($stats['third_rank_count'])  ? $stats['third_rank_count']  / $stats['play_count'] * 100 : 0;
-            $stats['fourth_rank_probability']   = !empty($stats['fourth_rank_count']) ? $stats['fourth_rank_count'] / $stats['play_count'] * 100 : 0;
-            $stats['over_second_probability']   = !empty($stats['first_rank_count'])  ? ($stats['first_rank_count'] + $stats['second_rank_count']) / $stats['play_count'] * 100 : 0;
-            $stats['over_third_probability']    = !empty($stats['fourth_rank_count']) ? 100 - ($stats['fourth_rank_count'] / $stats['play_count'] * 100) : 0;
-            $stats['direction_1_average_point']    = !empty($stats['direction_1_sum_point']) ? $stats['direction_1_sum_point'] / $stats['direction_1_count'] : 0;
-            $stats['direction_2_average_point']    = !empty($stats['direction_2_sum_point']) ? $stats['direction_2_sum_point'] / $stats['direction_2_count'] : 0;
-            $stats['direction_3_average_point']    = !empty($stats['direction_3_sum_point']) ? $stats['direction_3_sum_point'] / $stats['direction_3_count'] : 0;
-            $stats['direction_4_average_point']    = !empty($stats['direction_4_sum_point']) ? $stats['direction_4_sum_point'] / $stats['direction_4_count'] : 0;
+        // チョンボの精算
+        for ($i = 1; $i <= $stats['mistake_count']; $i++) {
+            $stats['sum_point'] -= 20;
         }
 
         return $stats;
@@ -355,35 +389,41 @@ class StatsService {
     {
         foreach ($statsData as &$userData) {
             if ( isset($userData['play_count']) && $userData['play_count'] > 0 ) {
-                $userData['sum_score']                  = number_format(($userData['sum_score'] - ($userData['play_count'] * $this->baseScore)) / 1000, 1);
+                $userData['sum_point']                  = number_format($userData['sum_point'], 1);
+                foreach ($userData['rank_probability'] as $rank => $probability) {
+                    $userData['rank_probability'][$rank]= number_format($probability, 2).'%';
+                }
+                $userData['average_point']              = number_format($userData['average_point'], 1);
+                $userData['sum_base_score']             = number_format($userData['sum_base_score'], 1);
+                $userData['average_score']              = number_format($userData['average_score'], 0);
                 $userData['average_rank']               = number_format($userData['average_rank'], 2);
-                $userData['first_rank_probability']     = number_format($userData['first_rank_probability'], 2).'%';
-                $userData['second_rank_probability']    = number_format($userData['second_rank_probability'], 2).'%';
-                $userData['third_rank_probability']     = number_format($userData['third_rank_probability'], 2).'%';
-                $userData['fourth_rank_probability']    = number_format($userData['fourth_rank_probability'], 2).'%';
                 $userData['over_second_probability']    = number_format($userData['over_second_probability'], 2).'%';
                 $userData['over_third_probability']     = number_format($userData['over_third_probability'], 2).'%';
-                $userData['average_score']              = number_format($userData['average_score'], 0);
-                $userData['direction_1_average_point']  = number_format($userData['direction_1_average_point'], 2);
-                $userData['direction_2_average_point']  = number_format($userData['direction_2_average_point'], 2);
-                $userData['direction_3_average_point']  = number_format($userData['direction_3_average_point'], 2);
-                $userData['direction_4_average_point']  = number_format($userData['direction_4_average_point'], 2);
+            }
+            // 各家の統計がある場合
+            if ( isset($userData['play_count']) && $userData['play_count'] > 0 ) {
+                // 平均順位(各家)
+                foreach ($userData['average_rank_direction'] as $directionId => $value) {
+                    $userData['average_rank_direction'][$directionId] = number_format($value, 2);
+                }
+                // 順位率(各家)
+                foreach ($userData['rank_probability_direction'] as $directionId => $data) {
+                    foreach ($data as $rank => $value) {
+                        $userData['rank_probability_direction'][$directionId][$rank] = number_format($value, 2).'%';
+                    }
+                }
+                // 平均スコア(各家)
+                foreach ($userData['average_score_direction'] as $directionId => $value) {
+                    $userData['average_score_direction'][$directionId] = number_format($value, 0);
+                }
+                // 平均順位(各家)
+                foreach ($userData['average_point_direction'] as $directionId => $value) {
+                    $userData['average_point_direction'][$directionId] = number_format($value, 1);
+                }
             }
         }
         unset($userData);
         return $statsData;
-    }
-
-    /**
-     * 順位に対応するカウントキーを取得する
-     *
-     * @param int $rank 順位
-     * @return string カウントキー
-     */
-    private function _getRankCountKey( $rank ): string
-    {
-        $rankMap = array(1 => 'first', 2 => 'second', 3 => 'third', 4 => 'fourth');
-        return $rankMap[$rank] . '_rank_count';
     }
 
     /**

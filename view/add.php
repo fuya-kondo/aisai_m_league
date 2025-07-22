@@ -50,11 +50,11 @@ $title = '登録';
     <link rel="stylesheet" href="../webroot/css/button.css">
     <link rel="stylesheet" href="../webroot/css/table.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
-    <title><?= $title; ?></title>
+    <title><?= $title ?></title>
 </head>
 <body>
     <main>
-        <div class="page-title"><?= $title; ?></div>
+        <div class="page-title"><?= $title ?></div>
         <div class="form-container">
             <form action="add" method="post" class="registration-form">
                 <div class="form-group">
@@ -63,8 +63,7 @@ $title = '登録';
                     <select id="userId" class="input" name="userId" require_onced>
                         <option value="">-</option>
                         <?php foreach($userList as $userId => $userData): ?>
-                            <?php var_dump($userData);?>
-                            <option value="<?=$userId?>"><?=$userData[0]['last_name'].$userData[0]['first_name']?></option>
+                            <option value="<?=$userId?>"><?=$userData['last_name'].$userData['first_name']?></option>
                         <?php endforeach;?>
                     </select>
                 </div>
