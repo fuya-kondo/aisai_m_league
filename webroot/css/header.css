@@ -11,7 +11,7 @@ a,a:hover,a:visited{
 #headerArea {
     position: absolute;
     top: 0;
-    height: 74px;
+    height: 70px;
     width: 100%;
     background-color: #ffffff;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -20,21 +20,17 @@ a,a:hover,a:visited{
     justify-content: center;
     align-items: center;
 }
+.header_area {
+    position: fixed; /* 要素をビューポートに対して固定します */
+    top: 0;          /* 要素をビューポートの最上部に配置します */
+    left: 0;         /* 要素をビューポートの左端に配置します */
+    width: 100%;     /* ヘッダーがビューポートの全幅に広がるようにします */
+    z-index: 1000;   /* ヘッダーが他のコンテンツの上に表示されるようにします */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* オプション: わずかな影を追加します */
+}
 #headerArea > a > img {
-    height: 50px;
+    height: 40px;
     vertical-align:bottom;
-}
-.header-logo {
-    height: 45px;
-    object-fit: cover;
-}
-.header-logo.right {
-    width: 36px;
-    object-position: left 0px;
-}
-.header-logo.left {
-    width: 140px;
-    object-position: right 0px;
 }
 #headerArea > p {
     width: 61px;
@@ -66,7 +62,7 @@ svg {
 }
 .line {
     fill: none;
-    stroke: red;
+    stroke: blue;
     stroke-width: 6px;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -128,26 +124,20 @@ svg {
     font-size: 1.5rem;
     margin: 10px;
 }
+.header-button {
+    font-size: 1.3rem;
+}
 .before-line::before {
     content: "";
     display: block;
-    width: 150px;
+    width: 200px;
     height: 0;
     border-bottom: 1px dotted gray;
 }
 /* 小型スマホ向け */
 @media (max-width: 375px) {
     #headerArea > a > img {
-        height: 40px;
-    }
-    .header-logo {
         height: 35px;
-    }
-    .header-logo.right {
-        width: 28px;
-    }
-    .header-logo.left {
-        width: 103px;
     }
     #headerArea > p {
         width: 57px;
@@ -162,10 +152,5 @@ svg {
 @media (min-width: 376px) and (max-width: 767px) {
 
 }
-/* 大型スマホ向け */
-@media (min-width: 768px) and (max-width: 1024px) {
-    #headerArea {
-        height: 80px;
-    }
-}
+
 

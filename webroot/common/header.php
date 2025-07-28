@@ -1,4 +1,4 @@
-<div class="header_area" style="height: 60px;">
+<div class="header_area">
 
     <nav id="headerArea">
         <a href="top"><img src="../image/aisai_m_league.jpg"></a>
@@ -19,19 +19,21 @@
 
     <?php /* メニュー */ ?>
     <div id="popupMenu">
-        <a href="top"><div class="header-button">トップ</div></a>
+        <a href="top"><div class="header-button">AISAI.M.LEAGUE</div></a>
         <div class="before-line"></div>
-        <a href="stats"><div class="header-button">成績</div></a>
+        <a href="stats"><div class="header-button">全体成績</div></a>
         <a href="personal_stats"><div class="header-button">個人成績</div></a>
         <div class="before-line"></div>
-        <a href="add"><div class="header-button">登録</div></a>
-        <a href="history"><div class="header-button">履歴</div></a>
+        <a href="add"><div class="header-button">成績 登録</div></a>
+        <a href="history"><div class="header-button">成績 履歴</div></a>
         <div class="before-line"></div>
         <a href="rule"><div class="header-button">競技ルール規定</div></a>
         <div class="before-line"></div>
-        <a href="analysis"><div class="header-button">AI分析</div></a>
+        <a href="analysis"><div class="header-button">成績AI分析</div></a>
         <div class="before-line"></div>
-        <a href="sound"><div class="header-button">音声</div></a>
+        <a href="sound"><div class="header-button">発声</div></a>
+        <div class="before-line"></div>
+        <a href="setting"><div class="header-button">設定</div></a>
     </div>
 
 </div>

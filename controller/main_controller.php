@@ -46,7 +46,7 @@ $yearlyStatsList    = $statsService->getYearlyStatsList();  // 年毎の成績�
 $yearlyChartList    = $statsService->getYearlyChartList();  // 年毎のグラフ用データの取得
 $gameHistoryList    = $statsService->getGameHistoryList();  // 対局履歴の取得
 $analysisDataList   = $statsService->getAnalysisDataList(); // AI分析用のデータ取得
-
+$scoreHiddenMode    = $mSettingList[1]['enable_flag'];
 
 /* --- ヘルパー関数 -- */
 

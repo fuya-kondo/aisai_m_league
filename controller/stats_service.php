@@ -390,6 +390,7 @@ class StatsService {
         foreach ($statsData as &$userData) {
             if ( isset($userData['play_count']) && $userData['play_count'] > 0 ) {
                 $userData['sum_point']                  = number_format($userData['sum_point'], 1);
+                $userData['sum_point']                  = floatval(str_replace(',', '', $userData['sum_point']));
                 foreach ($userData['rank_probability'] as $rank => $probability) {
                     $userData['rank_probability'][$rank]= number_format($probability, 2).'%';
                 }

@@ -43,168 +43,168 @@ $selectUser = $_GET['userId'] ?? null;
     <title>麻雀成績分析</title>
 </head>
 <body>
-    <main>
-        <div class="container">
-            <?php if (!isset($selectUser)): ?>
-                <div class="page-title">ユーザーを分析</div>
-                <div class="select-button-container">
-                    <form action="analysis" method="get">
-                        <form action="history" method="get">
-                            <?php foreach($userList as $userId => $userData): ?>
-                                <button class="select-button" type="submit" name="userId" value="<?=$userId?>"><?=$userData['last_name'].$userData['first_name']?></button>
-                            <?php endforeach; ?>
-                        </form>
+<main>
+    <div class="container">
+        <?php if (!isset($selectUser)): ?>
+            <div class="page-title">ユーザーを分析</div>
+            <div class="select-button-container">
+                <form action="analysis" method="get">
+                    <form action="history" method="get">
+                        <?php foreach($userList as $userId => $userData): ?>
+                            <button class="select-button" type="submit" name="userId" value="<?=$userId?>"><?=$userData['last_name'].$userData['first_name']?></button>
+                        <?php endforeach; ?>
                     </form>
-                </div>
-                <div class="circle-parent" style="display:none">
-                    <div class="circle-spin-8"></div>
-                </div>
-            <?php else: ?>
-                <?php
-                    $userName = $userList[$selectUser]['last_name'].$userList[$selectUser]['first_name'];
+                </form>
+            </div>
+            <div class="circle-parent" style="display:none">
+                <div class="circle-spin-8"></div>
+            </div>
+        <?php else: ?>
+            <?php
+                $userName = $userList[$selectUser]['last_name'].$userList[$selectUser]['first_name'];
 
-                    // AIへの指示文を作成
-                    $set_msg = $analysisMsg;
-                    $set_msg .= "麻雀の成績データに基づいて、{$userName}選手の成績まとめ、特徴、改善点を300文字前後で出力してください。他にも気づいたことがあれば追加しても構いません。";
+                // AIへの指示文を作成
+                $set_msg = $analysisMsg;
+                $set_msg .= "麻雀の成績データに基づいて、{$userName}選手の成績まとめ、特徴、改善点を300文字前後で出力してください。他にも気づいたことがあれば追加しても構いません。";
 
-                    // --- 成績データを整形してメッセージに追加する部分を改善 ---
-                    $score_msg = "以下に{$userName}選手の麻雀成績の詳細データを示します。\n\n";
+                // --- 成績データを整形してメッセージに追加する部分を改善 ---
+                $score_msg = "以下に{$userName}選手の麻雀成績の詳細データを示します。\n\n";
 
-                    // 主要な個人成績
-                    $score_msg .= "## 個人主要成績\n";
-                    foreach ($analysisDataList[$selectUser] as $key => $value) {
-                        // statsNameConfig に定義されている主要な単一値のみを抽出
-                        // rank_count, rank_probability, direction系の配列はここでは除外
-                        if (isset($statsNameConfig[$key]) && !is_array($value)) {
-                            $score_msg .= htmlspecialchars($statsNameConfig[$key]) . ": " . htmlspecialchars($value) . "\n";
+                // 主要な個人成績
+                $score_msg .= "## 個人主要成績\n";
+                foreach ($analysisDataList[$selectUser] as $key => $value) {
+                    // statsNameConfig に定義されている主要な単一値のみを抽出
+                    // rank_count, rank_probability, direction系の配列はここでは除外
+                    if (isset($statsNameConfig[$key]) && !is_array($value)) {
+                        $score_msg .= htmlspecialchars($statsNameConfig[$key]) . ": " . htmlspecialchars($value) . "\n";
+                    }
+                }
+                $score_msg .= "\n";
+
+                // 順位ごとの回数と確率
+                if (isset($analysisDataList[$selectUser]['rank_count']) && is_array($analysisDataList[$selectUser]['rank_count'])) {
+                    $score_msg .= "## 順位別回数と確率\n";
+                    $rankCounts = [];
+                    $rankProbs = [];
+                    foreach ($analysisDataList[$selectUser]['rank_count'] as $rank => $count) {
+                        $rankCounts[] = "{$rank}着: {$count}回";
+                        // rank_probabilityも同時に取得できるなら
+                        if (isset($analysisDataList[$selectUser]['rank_probability'][$rank])) {
+                            $rankProbs[] = "{$rank}着率: " . htmlspecialchars($analysisDataList[$selectUser]['rank_probability'][$rank]);
                         }
+                    }
+                    $score_msg .= implode(", ", $rankCounts) . "\n";
+                    if (!empty($rankProbs)) {
+                        $score_msg .= implode(", ", $rankProbs) . "\n";
                     }
                     $score_msg .= "\n";
+                }
 
-                    // 順位ごとの回数と確率
-                    if (isset($analysisDataList[$selectUser]['rank_count']) && is_array($analysisDataList[$selectUser]['rank_count'])) {
-                        $score_msg .= "## 順位別回数と確率\n";
-                        $rankCounts = [];
-                        $rankProbs = [];
-                        foreach ($analysisDataList[$selectUser]['rank_count'] as $rank => $count) {
-                            $rankCounts[] = "{$rank}着: {$count}回";
-                            // rank_probabilityも同時に取得できるなら
-                            if (isset($analysisDataList[$selectUser]['rank_probability'][$rank])) {
-                                $rankProbs[] = "{$rank}着率: " . htmlspecialchars($analysisDataList[$selectUser]['rank_probability'][$rank]);
-                            }
-                        }
-                        $score_msg .= implode(", ", $rankCounts) . "\n";
-                        if (!empty($rankProbs)) {
-                            $score_msg .= implode(", ", $rankProbs) . "\n";
-                        }
-                        $score_msg .= "\n";
-                    }
+                // 各家（東・南・西・北）ごとの成績
+                if (isset($analysisDataList[$selectUser]['play_count_direction']) && is_array($analysisDataList[$selectUser]['play_count_direction'])) {
+                    $score_msg .= "## 各家別成績\n";
+                    foreach ($mDirectionList as $directionId => $directionName) {
+                        if (isset($analysisDataList[$selectUser]['play_count_direction'][$directionId])) {
+                            $score_msg .= "### " . htmlspecialchars($directionName) . "\n";
+                            $score_msg .= "対局数: " . htmlspecialchars($analysisDataList[$selectUser]['play_count_direction'][$directionId]) . "\n";
 
-                    // 各家（東・南・西・北）ごとの成績
-                    if (isset($analysisDataList[$selectUser]['play_count_direction']) && is_array($analysisDataList[$selectUser]['play_count_direction'])) {
-                        $score_msg .= "## 各家別成績\n";
-                        foreach ($mDirectionList as $directionId => $directionName) {
-                            if (isset($analysisDataList[$selectUser]['play_count_direction'][$directionId])) {
-                                $score_msg .= "### " . htmlspecialchars($directionName) . "\n";
-                                $score_msg .= "対局数: " . htmlspecialchars($analysisDataList[$selectUser]['play_count_direction'][$directionId]) . "\n";
-
-                                // 各家ごとの順位回数と確率
-                                if (isset($analysisDataList[$selectUser]['rank_count_direction'][$directionId]) && is_array($analysisDataList[$selectUser]['rank_count_direction'][$directionId])) {
-                                    $rankDirectionCounts = [];
-                                    $rankDirectionProbs = [];
-                                    foreach ($analysisDataList[$selectUser]['rank_count_direction'][$directionId] as $rank => $count) {
-                                        $rankDirectionCounts[] = "{$rank}着: {$count}回";
-                                        if (isset($analysisDataList[$selectUser]['rank_probability_direction'][$directionId][$rank])) {
-                                            $rankDirectionProbs[] = "{$rank}着率: " . htmlspecialchars($analysisDataList[$selectUser]['rank_probability_direction'][$directionId][$rank]);
-                                        }
-                                    }
-                                    $score_msg .= "順位別回数: " . implode(", ", $rankDirectionCounts) . "\n";
-                                    if (!empty($rankDirectionProbs)) {
-                                        $score_msg .= "順位別確率: " . implode(", ", $rankDirectionProbs) . "\n";
+                            // 各家ごとの順位回数と確率
+                            if (isset($analysisDataList[$selectUser]['rank_count_direction'][$directionId]) && is_array($analysisDataList[$selectUser]['rank_count_direction'][$directionId])) {
+                                $rankDirectionCounts = [];
+                                $rankDirectionProbs = [];
+                                foreach ($analysisDataList[$selectUser]['rank_count_direction'][$directionId] as $rank => $count) {
+                                    $rankDirectionCounts[] = "{$rank}着: {$count}回";
+                                    if (isset($analysisDataList[$selectUser]['rank_probability_direction'][$directionId][$rank])) {
+                                        $rankDirectionProbs[] = "{$rank}着率: " . htmlspecialchars($analysisDataList[$selectUser]['rank_probability_direction'][$directionId][$rank]);
                                     }
                                 }
-                                // 各家ごとのその他の指標 (平均順位、平均点数など)
-                                $directionStats = [
-                                    'average_rank_direction' => '平均順位',
-                                    'average_score_direction' => '平均点数',
-                                    'average_point_direction' => '平均収支(pt)',
-                                    // 必要に応じて他のキーを追加
-                                ];
-                                foreach ($directionStats as $statKey => $statName) {
-                                    if (isset($analysisDataList[$selectUser][$statKey][$directionId])) {
-                                        $score_msg .= htmlspecialchars($statName) . ": " . htmlspecialchars($analysisDataList[$selectUser][$statKey][$directionId]) . "\n";
-                                    }
-                                }
-                                $score_msg .= "\n"; // 各家の区切り
-                            }
-                        }
-                    }
-                    // --- ここまで改善部分 ---
-
-                    $msg = $set_msg . "\n" . $score_msg;
-
-                    // 成績表示 (HTML部分は以前の提案通りで問題ありません)
-                    // この$statsTableの生成はAPIへの送信とは直接関係ありませんが、表示用として残しておきます
-                    $statsTable = "<div class='table-container'><table class='score-table'><tr>";
-
-                    foreach ($analysisDataList[$selectUser] as $key => $value) {
-                        if (!isset($statsNameConfig[$key])) continue;
-                        $statsTable .= "<th>" . htmlspecialchars($statsNameConfig[$key]) . "</th>"; // サニタイズ
-                    }
-                    $statsTable .= "</tr><tr>";
-
-                    foreach ($analysisDataList[$selectUser] as $key => $value) {
-                        if (!isset($statsNameConfig[$key])) continue;
-                        // 配列の場合は文字列に変換して表示 (API送信とは別の目的)
-                        if (is_array($value)) {
-                            // 例として、配列の中身をシンプルに結合して表示
-                            $displayValue = [];
-                            foreach ($value as $k => $v) {
-                                if (is_array($v)) { // 多次元配列の場合
-                                    $displayValue[] = implode('-', $v); // さらに内部を結合
-                                } else {
-                                    $displayValue[] = $v;
+                                $score_msg .= "順位別回数: " . implode(", ", $rankDirectionCounts) . "\n";
+                                if (!empty($rankDirectionProbs)) {
+                                    $score_msg .= "順位別確率: " . implode(", ", $rankDirectionProbs) . "\n";
                                 }
                             }
-                            $statsTable .= "<td>" . htmlspecialchars(implode(', ', $displayValue)) . "</td>";
-                        } else {
-                            $statsTable .= "<td>" . htmlspecialchars($value) . "</td>"; // サニタイズ
+                            // 各家ごとのその他の指標 (平均順位、平均点数など)
+                            $directionStats = [
+                                'average_rank_direction' => '平均順位',
+                                'average_score_direction' => '平均点数',
+                                'average_point_direction' => '平均収支(pt)',
+                                // 必要に応じて他のキーを追加
+                            ];
+                            foreach ($directionStats as $statKey => $statName) {
+                                if (isset($analysisDataList[$selectUser][$statKey][$directionId])) {
+                                    $score_msg .= htmlspecialchars($statName) . ": " . htmlspecialchars($analysisDataList[$selectUser][$statKey][$directionId]) . "\n";
+                                }
+                            }
+                            $score_msg .= "\n"; // 各家の区切り
                         }
                     }
-                    $statsTable .= "</tr></table></div><br>";
+                }
+                // --- ここまで改善部分 ---
 
-                    try {
-                        $data = [
-                            'contents' => [[
-                                'parts' => [
-                                    ['text' => $msg]
-                                ]
-                            ]]
-                        ];
-                        $options = [
-                            'http' => [
-                                'method'  => 'POST',
-                                'header'  => 'Content-Type: application/json',
-                                'content' => json_encode($data)
+                $msg = $set_msg . "\n" . $score_msg;
+
+                // 成績表示 (HTML部分は以前の提案通りで問題ありません)
+                // この$statsTableの生成はAPIへの送信とは直接関係ありませんが、表示用として残しておきます
+                $statsTable = "<div class='table-container'><table class='score-table'><tr>";
+
+                foreach ($analysisDataList[$selectUser] as $key => $value) {
+                    if (!isset($statsNameConfig[$key])) continue;
+                    $statsTable .= "<th>" . htmlspecialchars($statsNameConfig[$key]) . "</th>"; // サニタイズ
+                }
+                $statsTable .= "</tr><tr>";
+
+                foreach ($analysisDataList[$selectUser] as $key => $value) {
+                    if (!isset($statsNameConfig[$key])) continue;
+                    // 配列の場合は文字列に変換して表示 (API送信とは別の目的)
+                    if (is_array($value)) {
+                        // 例として、配列の中身をシンプルに結合して表示
+                        $displayValue = [];
+                        foreach ($value as $k => $v) {
+                            if (is_array($v)) { // 多次元配列の場合
+                                $displayValue[] = implode('-', $v); // さらに内部を結合
+                            } else {
+                                $displayValue[] = $v;
+                            }
+                        }
+                        $statsTable .= "<td>" . htmlspecialchars(implode(', ', $displayValue)) . "</td>";
+                    } else {
+                        $statsTable .= "<td>" . htmlspecialchars($value) . "</td>"; // サニタイズ
+                    }
+                }
+                $statsTable .= "</tr></table></div><br>";
+
+                try {
+                    $data = [
+                        'contents' => [[
+                            'parts' => [
+                                ['text' => $msg]
                             ]
-                        ];
-                        $context  = stream_context_create($options);
-                        $response = file_get_contents($url, false, $context);
+                        ]]
+                    ];
+                    $options = [
+                        'http' => [
+                            'method'  => 'POST',
+                            'header'  => 'Content-Type: application/json',
+                            'content' => json_encode($data)
+                        ]
+                    ];
+                    $context  = stream_context_create($options);
+                    $response = file_get_contents($url, false, $context);
 
-                        if ($response === FALSE) die('Error occurred while sending request');
-                        $result = json_decode($response, true);
-                        if (isset($result['candidates'][0]['content']['parts'][0]['text'])) {
-                            echo $result['candidates'][0]['content']['parts'][0]['text'];
-                        } else {
-                            echo "No response text found.";
-                        }
-                    } catch (\Exception $e) {
-                        echo "<div class='error'>エラーが発生しました: " . htmlspecialchars($e->getMessage()) . "</div>";
+                    if ($response === FALSE) die('Error occurred while sending request');
+                    $result = json_decode($response, true);
+                    if (isset($result['candidates'][0]['content']['parts'][0]['text'])) {
+                        echo $result['candidates'][0]['content']['parts'][0]['text'];
+                    } else {
+                        echo "No response text found.";
                     }
-                ?>
-            <?php endif; ?>
-        </div>
-    </main>
+                } catch (\Exception $e) {
+                    echo "<div class='error'>エラーが発生しました: " . htmlspecialchars($e->getMessage()) . "</div>";
+                }
+            ?>
+        <?php endif; ?>
+    </div>
+</main>
 </body>
 </html>
 

@@ -24,28 +24,28 @@ $title = 'AISAI.M.LEAGUE';
     <title><?= $title ?></title>
 </head>
 <body>
-    <div class="main">
-        <div id="schedule">
-            <div class="day-area">
-                <h2 class="day"><?=$formattedDate?></h2>
-                <ul class="playerImg">
-                    <li><img src="https://m-league.jp/wp/wp-content/uploads/2018/10/AR_7-1_hagiwara-1.png"></li>
-                    <li><img src="https://m-league.jp/wp/wp-content/uploads/2018/09/AR_3-4_hori-1.png"></li>
-                    <li><img src="https://m-league.jp/wp/wp-content/uploads/2018/10/AR_5-2_shiratori-1.png"></li>
-                    <li><img src="https://m-league.jp/wp/wp-content/uploads/2017/08/AR_8-2_nakabayashi-2.png"></li>
-                </ul>
-            </div>
-        </div>
-        <div id="about">
-            <h1>What is AISAI.M.LEAGUE</h1>
-            <h3>いま、最高の個人競技が、最高の団体競技になる。</h3>
-            <div>
-                <p style="font-weight:700">
-                    麻雀プロリーグ戦、AISAI.Mリーグ開幕。数多の麻雀プレイヤー達の中から、ほんの一握りのトッププロだけが出場できるナショナルリーグが始まる。知性に裏打ちされた采配。洗練されたリーグ空間。企業とプロ契約を結び、ユニフォームを纏ったAISAI.Mリーガー達がチームの威信をかけて知を競い合う。さぁ、麻雀をあたらしい時代へ。
-                </p>
-            </div>
+<main style="padding-left: 0; padding-right: 0;">
+    <div id="schedule">
+        <div class="day-area">
+            <h2 class="day"><?=$formattedDate?></h2>
+            <ul class="playerImg">
+                <li><img src="https://m-league.jp/wp/wp-content/uploads/2018/10/AR_7-1_hagiwara-1.png"></li>
+                <li><img src="https://m-league.jp/wp/wp-content/uploads/2018/09/AR_3-4_hori-1.png"></li>
+                <li><img src="https://m-league.jp/wp/wp-content/uploads/2018/10/AR_5-2_shiratori-1.png"></li>
+                <li><img src="https://m-league.jp/wp/wp-content/uploads/2017/08/AR_8-2_nakabayashi-2.png"></li>
+            </ul>
         </div>
     </div>
+    <div id="about">
+        <h1>What is AISAI.M.LEAGUE</h1>
+        <h3>いま、最高の個人競技が、最高の団体競技になる。</h3>
+        <div>
+            <p style="font-weight:700">
+                麻雀プロリーグ戦、AISAI.Mリーグ開幕。数多の麻雀プレイヤー達の中から、ほんの一握りのトッププロだけが出場できるナショナルリーグが始まる。知性に裏打ちされた采配。洗練されたリーグ空間。企業とプロ契約を結び、ユニフォームを纏ったAISAI.Mリーガー達がチームの威信をかけて知を競い合う。さぁ、麻雀をあたらしい時代へ。
+            </p>
+        </div>
+    </div>
+</main>
 </body>
 </html>
 

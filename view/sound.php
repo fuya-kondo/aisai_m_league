@@ -23,18 +23,18 @@ $title = '';
     <title><?= $title ?></title>
 </head>
 <body>
-    <main>
-        <div class="button-container">
-            <button class="sound-button blue" data-sound="../sound/pon.mp3">ポン</button>
-            <button class="sound-button red" data-sound="../sound/chi.mp3">チー</button>
-            <button class="sound-button green" data-sound="../sound/kan.mp3">カン</button>
-            <button class="sound-button yellow" data-sound="../sound/ri-chi.mp3">リーチ</button>
-            <button class="sound-button purple" data-sound="../sound/ron.mp3">ロン</button>
-            <button class="sound-button orange" data-sound="../sound/tumo.mp3">ツモ</button>
-        </div>
+<main>
+    <div class="button-container">
+        <button class="sound-button blue" data-sound="../sound/pon.mp3">ポン</button>
+        <button class="sound-button red" data-sound="../sound/chi.mp3">チー</button>
+        <button class="sound-button green" data-sound="../sound/kan.mp3">カン</button>
+        <button class="sound-button yellow" data-sound="../sound/ri-chi.mp3">リーチ</button>
+        <button class="sound-button purple" data-sound="../sound/ron.mp3">ロン</button>
+        <button class="sound-button orange" data-sound="../sound/tumo.mp3">ツモ</button>
+    </div>
 
-        <audio id="audioPlayer"></audio>
-    </main>
+    <audio id="audioPlayer"></audio>
+</main>
 </body>
 </html>
 

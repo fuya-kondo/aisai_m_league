@@ -24,7 +24,7 @@ $title = 'AISAI.M.LEAGUE 競技ルール規定';
     <title><?= $title ?></title>
 </head>
 <body>
-    <div class="main">
+<main>
     <div class="p-rule__body">
         <section class="p-rule__group">
         <h3 class="c-title">
@@ -728,7 +728,7 @@ $title = 'AISAI.M.LEAGUE 競技ルール規定';
             </div>
         </section>
     </div>
-    </div>
+</main>
 </body>
 </html>
 

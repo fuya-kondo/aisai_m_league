@@ -36,20 +36,20 @@ include '../webroot/common/header.php';
 
 <!DOCTYPE html>
 <html lang="ja">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="format-detection" content="telephone=no">
-        <link rel="apple-touch-icon" href="../favicon.png">
-        <link rel="icon" href="../favicon.ico" sizes="64x64" type="image/x-icon">
-        <link rel="stylesheet" href="../webroot/css/master.css">
-        <link rel="stylesheet" href="../webroot/css/header.css">
-        <link rel="stylesheet" href="../webroot/css/button.css">
-        <link rel="stylesheet" href="../webroot/css/table.css">
-        <title><?= $title ?></title>
-    </head>
-    <body>
-        <main>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="apple-touch-icon" href="../favicon.png">
+    <link rel="icon" href="../favicon.ico" sizes="64x64" type="image/x-icon">
+    <link rel="stylesheet" href="../webroot/css/master.css">
+    <link rel="stylesheet" href="../webroot/css/header.css">
+    <link rel="stylesheet" href="../webroot/css/button.css">
+    <link rel="stylesheet" href="../webroot/css/table.css">
+    <title><?= $title ?></title>
+</head>
+<body>
+    <main>
         <?php if ($isFix): ?>
             <div class="page-title"><?= $title ?></div>
             <div class="button-container" style="text-align: center;">
@@ -74,8 +74,8 @@ include '../webroot/common/header.php';
                 </form>
             </div>
         <?php endif; ?>
-        </main>
-    </body>
+    </main>
+</body>
 </html>
 <script>
 

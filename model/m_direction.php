@@ -20,5 +20,3 @@ foreach ($mDirectionList as $item) {
     $output[$item["m_direction_id"]] = $item["name"];
 }
 $mDirectionList = $output;
-
-?>

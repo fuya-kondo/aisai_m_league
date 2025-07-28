@@ -53,80 +53,80 @@ $title = '登録';
     <title><?= $title ?></title>
 </head>
 <body>
-    <main>
-        <div class="page-title"><?= $title ?></div>
-        <div class="form-container">
-            <form action="add" method="post" class="registration-form">
-                <div class="form-group">
-                    <label for="userId">ユーザー</label>
+<main>
+    <div class="page-title"><?= $title ?></div>
+    <div class="form-container">
+        <form action="add" method="post" class="registration-form">
+            <div class="form-group">
+                <label for="userId">ユーザー</label>
 
-                    <select id="userId" class="input" name="userId" require_onced>
-                        <option value="">-</option>
-                        <?php foreach($userList as $userId => $userData): ?>
-                            <option value="<?=$userId?>"><?=$userData['last_name'].$userData['first_name']?></option>
-                        <?php endforeach;?>
+                <select id="userId" class="input" name="userId" require_onced>
+                    <option value="">-</option>
+                    <?php foreach($userList as $userId => $userData): ?>
+                        <option value="<?=$userId?>"><?=$userData['last_name'].$userData['first_name']?></option>
+                    <?php endforeach;?>
+                </select>
+            </div>
+            <div class="form-group" style="display:none;">
+                <label for="tableId">卓</label>
+                <input id="tableId" class="input" type="number" name="tableId" require_onced value="1" style="width: 70%;">
+            </div>
+            <div class="form-group game">
+                <div class="date-inputs" >
+                    <input id="game" class="input" type="number" name="game" require_onced value="0" style="width: 70%;">
+                    <label style="margin-bottom:0; font-size:14px;">半荘目</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="direction">自家</label>
+                <div class="button-container">
+                    <?php foreach($mDirectionList as $directionId => $directionName): ?>
+                        <button class="direction-button" type="button" name="direction" value="<?=$directionId?>" require_onced onclick="selectButton(this)"><?=$directionName?></button>
+                    <?php endforeach;?>
+                    <input type="hidden" id="direction" name="direction" value="">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="rank">順位</label>
+                <select id="rank" class="input" name="rank" require_onced>
+                    <option value="" selected>-</option>
+                    <?php foreach($rankConfig as $value => $name): ?>
+                        <option value="<?=$value?>"><?=$name?></option>
+                    <?php endforeach;?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="score">点数</label>
+                <input id="score" class="input" type=”tel” name="score" require_onced>
+            </div>
+            <div class="form-group date-group">
+                <label>日付</label>
+                <div class="date-inputs">
+                    <select class="input play_date" name="year" require_onced>
+                        <?php for ($year = 2025; $year <= 2027; $year++): ?>
+                            <option value="<?= $year ?>" <?= $year == 2025 ? 'selected' : '' ?>><?= $year ?></option>
+                        <?php endfor; ?>
                     </select>
-                </div>
-                <div class="form-group" style="display:none;">
-                    <label for="tableId">卓</label>
-                    <input id="tableId" class="input" type="number" name="tableId" require_onced value="1" style="width: 70%;">
-                </div>
-                <div class="form-group game">
-                    <div class="date-inputs" >
-                        <input id="game" class="input" type="number" name="game" require_onced value="0" style="width: 70%;">
-                        <label style="margin-bottom:0; font-size:14px;">半荘目</label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="direction">自家</label>
-                    <div class="button-container">
-                        <?php foreach($mDirectionList as $directionId => $directionName): ?>
-                            <button class="direction-button" type="button" name="direction" value="<?=$directionId?>" require_onced onclick="selectButton(this)"><?=$directionName?></button>
-                        <?php endforeach;?>
-                        <input type="hidden" id="direction" name="direction" value="">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="rank">順位</label>
-                    <select id="rank" class="input" name="rank" require_onced>
-                        <option value="" selected>-</option>
-                        <?php foreach($rankConfig as $value => $name): ?>
-                            <option value="<?=$value?>"><?=$name?></option>
-                        <?php endforeach;?>
+                    <span>年</span>
+                    <select class="input play_date" name="month" require_onced>
+                        <?php for ($month = 1; $month <= 12; $month++): ?>
+                            <option value="<?= $month ?>" <?= $month == date('n') ? 'selected' : '' ?>><?= $month ?></option>
+                        <?php endfor; ?>
                     </select>
+                    <span>月</span>
+                    <select class="input play_date" name="day" require_onced>
+                        <?php for ($day = 1; $day <= 31; $day++): ?>
+                            <option value="<?= $day ?>" <?= $day == date('j') ? 'selected' : '' ?>><?= $day ?></option>
+                        <?php endfor; ?>
+                    </select>
+                    <span>日</span>
                 </div>
-                <div class="form-group">
-                    <label for="score">点数</label>
-                    <input id="score" class="input" type=”tel” name="score" require_onced>
-                </div>
-                <div class="form-group date-group">
-                    <label>日付</label>
-                    <div class="date-inputs">
-                        <select class="input play_date" name="year" require_onced>
-                            <?php for ($year = 2025; $year <= 2027; $year++): ?>
-                                <option value="<?= $year ?>" <?= $year == 2025 ? 'selected' : '' ?>><?= $year ?></option>
-                            <?php endfor; ?>
-                        </select>
-                        <span>年</span>
-                        <select class="input play_date" name="month" require_onced>
-                            <?php for ($month = 1; $month <= 12; $month++): ?>
-                                <option value="<?= $month ?>" <?= $month == date('n') ? 'selected' : '' ?>><?= $month ?></option>
-                            <?php endfor; ?>
-                        </select>
-                        <span>月</span>
-                        <select class="input play_date" name="day" require_onced>
-                            <?php for ($day = 1; $day <= 31; $day++): ?>
-                                <option value="<?= $day ?>" <?= $day == date('j') ? 'selected' : '' ?>><?= $day ?></option>
-                            <?php endfor; ?>
-                        </select>
-                        <span>日</span>
-                    </div>
-                </div>
+            </div>
 
-                <button class="submit-button" type="submit">登録する</button>
-            </form>
-        </div>
-    </main>
+            <button class="submit-button" type="submit">登録する</button>
+        </form>
+    </div>
+</main>
 </body>
 </html>
 <script>
@@ -157,7 +157,7 @@ $title = '登録';
     .form-container {
         background-color: #fff;
         border-radius: 4px;
-        box-shadow: 0 5px 6px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
         padding: 30px;
     }
     .registration-form {

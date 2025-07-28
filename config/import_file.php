@@ -9,6 +9,7 @@ require_once __DIR__ . '/../model/m_game_day.php';
 require_once __DIR__ . '/../model/m_rule.php';
 require_once __DIR__ . '/../model/m_group.php';
 require_once __DIR__ . '/../model/m_title.php';
+require_once __DIR__ . '/../model/m_setting.php';
 require_once __DIR__ . '/../model/u_game_history.php';
 require_once __DIR__ . '/../model/u_table.php';
 require_once __DIR__ . '/../model/u_title.php';
