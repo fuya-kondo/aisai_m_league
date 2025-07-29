@@ -71,7 +71,6 @@ $title = 'AI成績分析';
                 $set_msg = $analysisMsg;
                 $set_msg .= "麻雀の成績データに基づいて、{$userName}選手の成績まとめ、特徴、改善点を300文字前後で出力してください。各家別成績はまだデータ数が少ないのであまり参考にしないでください。他にも気づいたことがあれば追加しても構いません。";
 
-                // --- 成績データを整形してメッセージに追加する部分を改善 ---
                 $score_msg = "以下に{$userName}選手の麻雀成績の詳細データを示します。\n\n";
 
                 // 主要な個人成績
@@ -143,39 +142,8 @@ $title = 'AI成績分析';
                         }
                     }
                 }
-                // --- ここまで改善部分 ---
 
                 $msg = $set_msg . "\n" . $score_msg;
-
-                // 成績表示 (HTML部分は以前の提案通りで問題ありません)
-                // この$statsTableの生成はAPIへの送信とは直接関係ありませんが、表示用として残しておきます
-                $statsTable = "<div class='table-container'><table class='score-table'><tr>";
-
-                foreach ($analysisDataList[$selectUser] as $key => $value) {
-                    if (!isset($statsNameConfig[$key])) continue;
-                    $statsTable .= "<th>" . htmlspecialchars($statsNameConfig[$key]) . "</th>"; // サニタイズ
-                }
-                $statsTable .= "</tr><tr>";
-
-                foreach ($analysisDataList[$selectUser] as $key => $value) {
-                    if (!isset($statsNameConfig[$key])) continue;
-                    // 配列の場合は文字列に変換して表示 (API送信とは別の目的)
-                    if (is_array($value)) {
-                        // 例として、配列の中身をシンプルに結合して表示
-                        $displayValue = [];
-                        foreach ($value as $k => $v) {
-                            if (is_array($v)) { // 多次元配列の場合
-                                $displayValue[] = implode('-', $v); // さらに内部を結合
-                            } else {
-                                $displayValue[] = $v;
-                            }
-                        }
-                        $statsTable .= "<td>" . htmlspecialchars(implode(', ', $displayValue)) . "</td>";
-                    } else {
-                        $statsTable .= "<td>" . htmlspecialchars($value) . "</td>"; // サニタイズ
-                    }
-                }
-                $statsTable .= "</tr></table></div><br>";
 
                 try {
                     $data = [
@@ -213,6 +181,15 @@ $title = 'AI成績分析';
 </main>
 </body>
 </html>
+
+<script>
+    document.querySelectorAll('.select-button').forEach(button => {
+        button.addEventListener('click', function() {
+            document.querySelector('.select-button-container').style.display = 'none';
+            document.querySelector('.circle-parent').style.display = 'flex';
+        });
+    });
+</script>
 
 <style>
     .container {
@@ -273,11 +250,3 @@ $title = 'AI成績分析';
         }
     }
 </style>
-<script>
-    document.querySelectorAll('.select-button').forEach(button => {
-        button.addEventListener('click', function() {
-            document.querySelector('.select-button-container').style.display = 'none';
-            document.querySelector('.circle-parent').style.display = 'flex';
-        });
-    });
-</script>
