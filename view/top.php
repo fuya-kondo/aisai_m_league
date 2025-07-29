@@ -29,21 +29,25 @@ $title = 'AISAI.M.LEAGUE';
         <div class="day-area">
             <h2 class="day"><?=$formattedDate?></h2>
             <ul class="playerImg">
-                <li><img src="https://m-league.jp/wp/wp-content/uploads/2018/10/AR_7-1_hagiwara-1.png"></li>
-                <li><img src="https://m-league.jp/wp/wp-content/uploads/2018/09/AR_3-4_hori-1.png"></li>
-                <li><img src="https://m-league.jp/wp/wp-content/uploads/2018/10/AR_5-2_shiratori-1.png"></li>
-                <li><img src="https://m-league.jp/wp/wp-content/uploads/2017/08/AR_8-2_nakabayashi-2.png"></li>
+                <li><img src="../image/player_1.png"></li>
+                <li><img src="../image/player_2.png"></li>
+                <li><img src="../image/player_3.png"></li>
+                <li><img src="../image/player_4.png"></li>
             </ul>
         </div>
     </div>
     <div id="about">
         <h1>What is AISAI.M.LEAGUE</h1>
-        <h3>いま、最高の個人競技が、最高の団体競技になる。</h3>
+        <h3>いま、最高の遊びが、最高の競技になる。</h3>
         <div>
             <p style="font-weight:700">
-                麻雀プロリーグ戦、AISAI.Mリーグ開幕。数多の麻雀プレイヤー達の中から、ほんの一握りのトッププロだけが出場できるナショナルリーグが始まる。知性に裏打ちされた采配。洗練されたリーグ空間。企業とプロ契約を結び、ユニフォームを纏ったAISAI.Mリーガー達がチームの威信をかけて知を競い合う。さぁ、麻雀をあたらしい時代へ。
+                麻雀リーグ戦、AISAI.Mリーグ開幕。
+                数多の麻雀プレイヤー達の中から、ほんの一握りの愛西市民だけが出場できるナショナルリーグが始まる。
+                知性に裏打ちされた采配。洗練されたリーグ空間。
+                企業とプロ契約を結ばず、タンクトップを纏ったAISAI.Mリーガー達が威信をかけて知を競い合う。<br><br>
             </p>
         </div>
+        <h3>さぁ、麻雀をあたらしい時代へ。</h3>
     </div>
 </main>
 </body>
@@ -68,6 +72,7 @@ $title = 'AISAI.M.LEAGUE';
     .playerImg img {
         opacity: 0; /* 最初は非表示 */
         transition: opacity 1s ease-in-out; /* フェードイン/アウト効果 */
+        border-radius: 5px;
     }
     .playerImg img.active {
         opacity: 1; /* 表示 */
@@ -75,6 +80,20 @@ $title = 'AISAI.M.LEAGUE';
     @keyframes rotate {
         from { transform: rotate(0deg); }
         to { transform: rotate(360deg); }
+    }
+    #about {
+        text-align: center;
+        margin: 50px 0px;
+    }
+    #about > h1 {
+        margin: 20px 30px 10px 30px;
+    }
+    #about > h3 {
+        margin: 0px 30px 40px 30px;
+    }
+    #about > div > p {
+        line-height: 1.8;
+        margin: 0px 20px;
     }
     @media screen and (max-width: 768px) {
     }

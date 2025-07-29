@@ -128,40 +128,6 @@ h1,h2 {
 }
 /* \対局予定/ */
 
-/* /about\ */
-#about {
-    text-align: center;
-    margin: 50px 0px;
-}
-#about > h1 {
-    margin: 20px 30px 10px 30px;
-}
-#about > h3 {
-    margin: 0px 30px 40px 30px;
-}
-#about > div > p {
-    margin: 10px 250px;
-}
-/* 小型スマホ向け */
-@media (max-width: 375px) {
-    #about > div > p {
-        margin: 0 30px;
-    }
-}
-/* 標準サイズスマホ向け */
-@media (min-width: 376px) and (max-width: 767px) {
-    #about > div > p {
-        margin: 0 40px;
-    }
-}
-/* 大型スマホ向け */
-@media (min-width: 768px) and (max-width: 1024px) {
-    #about > div > p {
-        margin: 0 60px;
-    }
-}
-/* \about/ */
-
 /* /\ */
 /* \/ */
 
