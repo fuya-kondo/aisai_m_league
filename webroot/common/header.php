@@ -27,9 +27,9 @@
         <a href="add"><div class="header-button">成績 登録</div></a>
         <a href="history"><div class="header-button">成績 履歴</div></a>
         <div class="before-line"></div>
-        <a href="rule"><div class="header-button">競技ルール規定</div></a>
+        <a href="rule"><div class="header-button">競技規定</div></a>
         <div class="before-line"></div>
-        <a href="analysis"><div class="header-button">成績AI分析</div></a>
+        <a href="analysis"><div class="header-button">AI成績分析</div></a>
         <div class="before-line"></div>
         <a href="sound"><div class="header-button">発声</div></a>
         <div class="before-line"></div>

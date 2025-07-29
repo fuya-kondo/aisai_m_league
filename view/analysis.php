@@ -14,18 +14,22 @@ $analysisMsg = <<<EOT
 
 Mリーグルールを適用した成績データです。分析の際は以下の指標を参考にしてください。
 
--   **平均着順**: 平均は **2.50** です。数値が低いほど良い成績です。
+-   **平均順位**: 平均は **2.50** です。数値が低いほど良い成績です。
 -   **トップ率**: 平均は **25%** です。数値が高いほど良い成績です。
 -   **ラス回避率**: 平均は **75%** です。数値が高いほど良い成績です。
 -   **合計点 (素点 + 順位点)**: これが最も重要な指標です。高いほど総合的な成績が良いことを示します。素点との開きが大きい場合、順位取りが上手い傾向があります。
 -   **連対率 (1位・2位率)**: 平均は **50%** です。数値が高いほど良い成績です。
 -   **平均点 (対局終了時)**: 25000点から開始し、終了時の平均点数です。数値が高いほど良い成績です。
+-   **チョンボ数**: 対局中に罰則に該当する行為をした回数です。1回で合計ポイントから20ポイント引かれてしまうため影響が大きいです。0回が理想的です。
 
 提供される成績データは、これらの指標を基にしたものです。
 EOT;
 
 // Get parameter
 $selectUser = $_GET['userId'] ?? null;
+
+// Set title
+$title = 'AI成績分析';
 ?>
 
 <!DOCTYPE html>
@@ -40,13 +44,13 @@ $selectUser = $_GET['userId'] ?? null;
     <link rel="stylesheet" href="../webroot/css/header.css">
     <link rel="stylesheet" href="../webroot/css/button.css">
     <link rel="stylesheet" href="../webroot/css/table.css">
-    <title>麻雀成績分析</title>
+    <title><?= $title ?></title>
 </head>
 <body>
 <main>
     <div class="container">
         <?php if (!isset($selectUser)): ?>
-            <div class="page-title">ユーザーを分析</div>
+            <div class="page-title"><?= $title ?></div>
             <div class="select-button-container">
                 <form action="analysis" method="get">
                     <form action="history" method="get">
@@ -65,7 +69,7 @@ $selectUser = $_GET['userId'] ?? null;
 
                 // AIへの指示文を作成
                 $set_msg = $analysisMsg;
-                $set_msg .= "麻雀の成績データに基づいて、{$userName}選手の成績まとめ、特徴、改善点を300文字前後で出力してください。他にも気づいたことがあれば追加しても構いません。";
+                $set_msg .= "麻雀の成績データに基づいて、{$userName}選手の成績まとめ、特徴、改善点を300文字前後で出力してください。各家別成績はまだデータ数が少ないのであまり参考にしないでください。他にも気づいたことがあれば追加しても構いません。";
 
                 // --- 成績データを整形してメッセージに追加する部分を改善 ---
                 $score_msg = "以下に{$userName}選手の麻雀成績の詳細データを示します。\n\n";
@@ -194,7 +198,9 @@ $selectUser = $_GET['userId'] ?? null;
                     if ($response === FALSE) die('Error occurred while sending request');
                     $result = json_decode($response, true);
                     if (isset($result['candidates'][0]['content']['parts'][0]['text'])) {
-                        echo $result['candidates'][0]['content']['parts'][0]['text'];
+                        $search = ['```html', '```'];
+                        $clean_text = str_replace($search, '', $result['candidates'][0]['content']['parts'][0]['text']);
+                        echo $clean_text;
                     } else {
                         echo "No response text found.";
                     }
