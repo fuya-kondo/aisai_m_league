@@ -415,6 +415,7 @@ $title = '成績';
     .rank-4 {
         background-color: white;
     }
+    <?php if ($scoreDisplayFlag): ?>
     .player-name-1-p {
         background: linear-gradient(to right,
                 rgba(0, 153, 68, 0) 0%,
@@ -463,6 +464,7 @@ $title = '成績';
                 rgba(153, 0, 0, 0.05) <?=$rgbaValue[4]?>%,
                 rgba(153, 0, 0, 0) <?=$rgbaValue[4]+10?>%);
     }
+    <?php endif; ?>
     @media screen and (max-width: 768px) {
         .table-wrapper {
             padding: 10px 7px;
