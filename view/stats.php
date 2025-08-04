@@ -9,7 +9,7 @@ include '../webroot/common/header.php';
 $selectedYear = isset($_GET['year']) ? $_GET['year'] : date("Y");
 $selectedPlayer = isset($_GET['player']) ? $_GET['player'] : 1;
 
-$scoreDisplayFlag = !( $scoreHiddenMode && $selectedYear == date("Y") );
+$scoreDisplayFlag = !( $pointHiddenMode && $selectedYear == date("Y") );
 
 // Set title
 $title = '成績';

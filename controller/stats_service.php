@@ -116,6 +116,69 @@ class StatsService {
     }
 
     /**
+     * 各家の対戦結果（上家とのスコア・ポイント差を集計）
+     *
+     * @return array
+     */
+    public function getRelativeScoreByDirection(): array
+    {
+        foreach ($this->uGameHistoryDataList as $userId => $gameHistoryDataList) {
+            foreach ($gameHistoryDataList as $gameHistoryData) {
+                if ($gameHistoryData['m_direction_id'] != 0) {
+                    $playDate = new DateTime($gameHistoryData['play_date']);
+                    $playDateYMD = $playDate->format('Y-m-d');
+                    $uDirectionGameHistoryDataList[$playDateYMD][$gameHistoryData['game']][$gameHistoryData['m_direction_id']] = $gameHistoryData;
+                }
+            }
+        }
+
+        $directionStats = [
+            'upper' => [],
+            'lower' => []
+        ];
+
+        foreach ($uDirectionGameHistoryDataList as $playDate => $directionGameHistoryDataList) {
+            foreach ($directionGameHistoryDataList as $game => $directionGameHistoryData) {
+                if (count($directionGameHistoryData) === 4) {
+                    foreach ($directionGameHistoryData as $directionId => $gameHistoryData) {
+                        $currentUserId = $gameHistoryData['u_user_id'];
+
+                        // --- 上家処理 ---
+                        $upperDirectionId = $this->_getUpperDirection($directionId);
+                        $upperUserId = $directionGameHistoryData[$upperDirectionId]['u_user_id'];
+
+                        if (!isset($directionStats['upper'][$currentUserId][$upperUserId])) {
+                            $directionStats['upper'][$currentUserId][$upperUserId] = ['sub_score' => 0, 'sub_point' => 0];
+                        }
+
+                        $directionStats['upper'][$currentUserId][$upperUserId]['sub_score'] += $gameHistoryData['score'] - $directionGameHistoryData[$upperDirectionId]['score'];
+                        $directionStats['upper'][$currentUserId][$upperUserId]['sub_point'] = round(
+                            $directionStats['upper'][$currentUserId][$upperUserId]['sub_point'] + ($gameHistoryData['point'] - $directionGameHistoryData[$upperDirectionId]['point']),
+                            1
+                        );
+
+                        // --- 下家処理 ---
+                        $lowerDirectionId = $this->_getLowerDirection($directionId);
+                        $lowerUserId = $directionGameHistoryData[$lowerDirectionId]['u_user_id'];
+
+                        if (!isset($directionStats['lower'][$currentUserId][$lowerUserId])) {
+                            $directionStats['lower'][$currentUserId][$lowerUserId] = ['sub_score' => 0, 'sub_point' => 0];
+                        }
+
+                        $directionStats['lower'][$currentUserId][$lowerUserId]['sub_score'] += $gameHistoryData['score'] - $directionGameHistoryData[$lowerDirectionId]['score'];
+                        $directionStats['lower'][$currentUserId][$lowerUserId]['sub_point'] = round(
+                            $directionStats['lower'][$currentUserId][$lowerUserId]['sub_point'] + ($gameHistoryData['point'] - $directionGameHistoryData[$lowerDirectionId]['point']),
+                            1
+                        );
+                    }
+                }
+            }
+        }
+
+        return $directionStats;
+    }
+
+    /**
      * AI分析用データの取得
      *
      * @return array AI分析用データリスト
@@ -261,15 +324,16 @@ class StatsService {
             'rank_probability'          => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 順位率
             'average_rank'              => 0, // 平均順位
             'sum_base_score'            => 0, // 素点
-            'average_score'             => 0, // 平均スコア
+            'average_score'             => 0, // 平均点
             'sum_point'                 => 0, // 合計ポイント
             'average_point'             => 0, // 平均ポイント
+            'hight_score'               => 0, // 最高点
             'play_count_direction'      => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 対局数(各家)
             'rank_count_direction'      => [ 1 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], 2 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], 3 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], 4 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ] ], // 順位カウント(各家)
             'rank_probability_direction'=> [ 1 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], 2 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], 3 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], 4 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ] ], // 順位率(各家)
             'average_rank_direction'    => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 平均順位(各家)
             'sum_base_score_direction'  => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 素点(各家)
-            'average_score_direction'   => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 平均スコア(各家)
+            'average_score_direction'   => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 平均点(各家)
             'sum_point_direction'       => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 合計ポイント(各家)
             'average_point_direction'   => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 平均ポイント(各家)
             'over_second_probability'   => 0, // 連対率
@@ -315,15 +379,16 @@ class StatsService {
     private function _calculateUserStats( $stats, $uGameHistoryDataList ): array
     {
         $sum_rank = 0; // 平均順位の算出に使用
-        $sum_score = 0; // 平均スコアの算出に使用
+        $sum_score = 0; // 平均点の算出に使用
         $sum_rank_direction = [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ]; // 各家の平均順位の算出に使用
-        $sum_score_direction = [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ]; // 各家の平均スコアの算出に使用
+        $sum_score_direction = [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ]; // 各家の平均点の算出に使用
         foreach ($uGameHistoryDataList as $uGameHistoryData) {
             $stats['play_count']        ++;
             $stats['sum_point']         += $uGameHistoryData['point'];
             $sum_score                  += $uGameHistoryData['score'];
             $stats['sum_base_score']    += ($uGameHistoryData['score'] - $this->baseScore) / 1000;
             $stats['mistake_count']     += $uGameHistoryData['mistake_count'];
+            $stats['hight_score']        = max($uGameHistoryData['score'], $stats['hight_score']);
             // 順位の統計
             $rank       = substr($uGameHistoryData['rank'], 0, 1); // 同率の場合は上位でカウントする
             $sum_rank   += $rank;
@@ -334,7 +399,7 @@ class StatsService {
                 $stats['rank_count_direction'][$uGameHistoryData['m_direction_id']][$rank]  ++; // 順位(各家)
                 $sum_rank_direction[$uGameHistoryData['m_direction_id']]                    += $rank; // 順位(各家)
                 $stats['sum_base_score_direction'][$uGameHistoryData['m_direction_id']]     += ($uGameHistoryData['score'] - $this->baseScore) / 1000; // 素点(各家)
-                $sum_score_direction[$uGameHistoryData['m_direction_id']]                   += $uGameHistoryData['score']; // 平均スコア(各家)
+                $sum_score_direction[$uGameHistoryData['m_direction_id']]                   += $uGameHistoryData['score']; // 平均点(各家)
                 $stats['sum_point_direction'][$uGameHistoryData['m_direction_id']]          += $uGameHistoryData['point']; // 合計ポイント(各家)
             }
         }
@@ -344,7 +409,7 @@ class StatsService {
                 $stats['rank_probability'][$rank] = !empty($count) ? $count / $stats['play_count'] * 100 : 0;
             }
             $stats['average_rank']                  = !empty($sum_rank)                                         ? $sum_rank / $stats['play_count'] : 0; // 平均順位
-            $stats['average_score']                 = !empty($sum_score)                                        ? $sum_score / $stats['play_count'] : 0; // 平均スコア
+            $stats['average_score']                 = !empty($sum_score)                                        ? $sum_score / $stats['play_count'] : 0; // 平均点
             $stats['average_point']                 = !empty($stats['sum_point'])                               ? $stats['sum_point'] / $stats['play_count'] : 0; // 平均ポイント
             $stats['over_second_probability']       = !empty($stats['rank_count'][1] + $stats['rank_count'][2]) ? ($stats['rank_count'][1] + $stats['rank_count'][2]) / $stats['play_count'] * 100 : 0; // 連対率
             $stats['over_third_probability']        = !empty($stats['rank_count'][4])                           ? 100 - ($stats['rank_count'][4] / $stats['play_count'] * 100) : 0; // 4着回避率
@@ -361,7 +426,7 @@ class StatsService {
                     $stats['rank_probability_direction'][$directionId][$rank] = !empty($value) ? $value / $stats['play_count_direction'][$directionId] * 100 : 0;
                 }
             }
-            // 平均スコア(各家)
+            // 平均点(各家)
             foreach ($sum_score_direction as $directionId => $data) {
                 $stats['average_score_direction'][$directionId] = !empty($data) ? $data / $stats['play_count_direction'][$directionId] : 0;
             }
@@ -396,7 +461,7 @@ class StatsService {
                 }
                 $userData['average_point']              = number_format($userData['average_point'], 1);
                 $userData['sum_base_score']             = number_format($userData['sum_base_score'], 1);
-                $userData['average_score']              = number_format($userData['average_score'], 0);
+                $userData['average_score']              = str_replace(',', '', number_format($userData['average_score'], 0));
                 $userData['average_rank']               = number_format($userData['average_rank'], 2);
                 $userData['over_second_probability']    = number_format($userData['over_second_probability'], 2).'%';
                 $userData['over_third_probability']     = number_format($userData['over_third_probability'], 2).'%';
@@ -413,7 +478,7 @@ class StatsService {
                         $userData['rank_probability_direction'][$directionId][$rank] = number_format($value, 2).'%';
                     }
                 }
-                // 平均スコア(各家)
+                // 平均点(各家)
                 foreach ($userData['average_score_direction'] as $directionId => $value) {
                     $userData['average_score_direction'][$directionId] = number_format($value, 0);
                 }
@@ -464,6 +529,19 @@ class StatsService {
             $this->years[] = $year;
         }
         $this->years[] = self::ALL_TERM;
+    }
+
+    /**
+     * 上家の方向IDを取得（1のときは4）
+     */
+    private function _getUpperDirection(int $directionId): int
+    {
+        return $directionId === 1 ? 4 : $directionId - 1;
+    }
+
+    private function _getLowerDirection(int $directionId): int
+    {
+        return $directionId === 4 ? 1 : $directionId + 1;
     }
 }
 ?>

@@ -134,6 +134,7 @@ $title = '履歴';
                                     <?php
                                     $sum_score = 0;
                                     $sum_rank = 0;
+                                    $sum_direction = 0;
                                     $check_flag = true;
                                     // rankでソート
                                     usort($gameData, function($a, $b) {
@@ -152,6 +153,7 @@ $title = '履歴';
                                     if ($check_flag) {
                                         $sum_score += ($historyData['score']);
                                         $sum_rank += $historyData['rank'];
+                                        $sum_direction += $historyData['m_direction_id'];
                                     }
                                     ?>
                                         <tr class="player-row rank-<?=$historyData['rank']?>">
@@ -171,6 +173,9 @@ $title = '履歴';
                                     <?php endif; ?>
                                     <?php if($sum_rank != 10): ?>
                                         <span style="background-color: red; color:white; padding:3px">順位が正しくないです</span><br>
+                                    <?php endif; ?>
+                                    <?php if($sum_direction != 10): ?>
+                                        <span style="background-color: red; color:white; padding:3px">席が正しくないです</span><br>
                                     <?php endif; ?>
                                 <?php endif; ?>
                             </table>

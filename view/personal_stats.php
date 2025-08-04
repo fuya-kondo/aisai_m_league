@@ -8,7 +8,7 @@ include '../webroot/common/header.php';
 $selectedYear   = isset( $_GET['year'] ) ? $_GET['year']   : date("Y");
 $selectedPlayer = isset($_GET['player']) ? $_GET['player'] : null;
 
-$scoreDisplayFlag = !( $scoreHiddenMode && $selectedYear == date("Y") );
+$scoreDisplayFlag = !( $pointHiddenMode && $selectedYear == date("Y") );
 
 // Set title
 $title = '個人成績';
@@ -391,6 +391,38 @@ $title = '個人成績';
                 </div>
                 <?php /* 各家の成績 */?>
 
+                <?php /* 各家の成績 */?>
+                <h2>席による関係性</h2>
+                    <div class="relation-section">
+                        <div class="relation-column">
+                            <h3>上家</h3>
+                            <?php foreach( $directionStats['upper'][$selectedPlayer] as $userId => $data ): ?>
+                                <div class="player-card">
+                                    <div class="player-name"><?= htmlspecialchars($userList[$userId]['last_name']) ?></div>
+                                    <ul class="player-stats">
+                                        <?php foreach($data as $key => $value): ?>
+                                            <li><?= htmlspecialchars($displayStatsColumn_4[$key]) ?> ： <?= htmlspecialchars($value) ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <div class="relation-column">
+                            <h3>下家</h3>
+                            <?php foreach( $directionStats['lower'][$selectedPlayer] as $userId => $data ): ?>
+                                <div class="player-card">
+                                    <div class="player-name"><?= htmlspecialchars($userList[$userId]['last_name']) ?></div>
+                                    <ul class="player-stats">
+                                        <?php foreach($data as $key => $value): ?>
+                                            <li><?= htmlspecialchars($displayStatsColumn_4[$key]) ?> ： <?= htmlspecialchars($value) ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php /* 各家の成績 */?>
+
             <?php else: ?>
                 <p class="no-data-message">選択された選手のデータが見つかりません。</p>
             <?php endif; ?>
@@ -460,6 +492,34 @@ $title = '個人成績';
     }
     .stats-column-5 {
         min-width: 90px;
+    }
+    .relation-section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 0 10px;
+    }
+    .relation-column {
+        flex: 1;
+    }
+    .player-card {
+        padding: 6px;
+        margin-bottom: 8px;
+    }
+    .player-name {
+        font-weight: bold;
+        font-size: 1.1em;
+        margin-bottom: 8px;
+    }
+    .player-stats {
+        list-style: none;
+        padding-left: 0;
+        margin: 0;
+    }
+    .player-stats li {
+        padding: 4px 0;
+        font-size: 0.9em;
+        border-bottom: 1px solid #eee;
     }
     @media screen and (max-width: 768px) {
         .table-wrapper {

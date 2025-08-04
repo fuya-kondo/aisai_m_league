@@ -41,9 +41,10 @@ $titleHolderList    = $statsService->getTitleHolder();      // タイトル保�
 $todayStatsList     = $statsService->getTodayStatsList();   // 本日の成績の取得
 $yearlyStatsList    = $statsService->getYearlyStatsList();  // 年毎の成績の取得
 $yearlyChartList    = $statsService->getYearlyChartList();  // 年毎のグラフ用データの取得
+$directionStats     = $statsService->getRelativeScoreByDirection(); // 各家の対戦結果の取得
 $gameHistoryList    = $statsService->getGameHistoryList();  // 対局履歴の取得
 $analysisDataList   = $statsService->getAnalysisDataList(); // AI分析用のデータ取得
-$scoreHiddenMode    = $mSettingList[1]['value'];            // スコア非表示モードの取得
+$pointHiddenMode    = $mSettingList[1]['value'];            // ポイント非表示モードの状態取得
 
 /* --- ヘルパー関数 -- */
 
