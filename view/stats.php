@@ -381,15 +381,17 @@ $title = '成績';
     }
     .rank-column {
         position: relative;
+        display: flex;      /* これが重要！Flexboxコンテナにする */
+        justify-content: center; /* 水平方向の中央寄せ */
+        align-items: center;   /* 垂直方向の中央寄せ */
+        height: 100%;          /* tdの高さ全体を使うようにする */
     }
     .rank-icon {
-        position: absolute;
         width: 20px;
         height: 20px;
-        display: flex;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+        display: flex;         /* アイコン内の数字を中央寄せするために維持 */
+        justify-content: center;
+        align-items: center;
         z-index: 1;
         border-radius: 50%;
     }
