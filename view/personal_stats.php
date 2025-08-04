@@ -398,10 +398,10 @@ $title = '個人成績';
                             <h3>上家</h3>
                             <?php foreach( $directionStats['upper'][$selectedPlayer] as $userId => $data ): ?>
                                 <div class="player-card">
-                                    <div class="player-name"><?= htmlspecialchars($userList[$userId]['last_name']) ?></div>
+                                    <div class="player-name"><?= $userList[$userId]['last_name'] ?></div>
                                     <ul class="player-stats">
                                         <?php foreach($data as $key => $value): ?>
-                                            <li><?= htmlspecialchars($displayStatsColumn_4[$key]) ?> ： <?= htmlspecialchars($value) ?></li>
+                                            <li><?= $displayStatsColumn_4[$key] ?> ： <?= $value ?></li>
                                         <?php endforeach; ?>
                                     </ul>
                                 </div>
@@ -411,10 +411,10 @@ $title = '個人成績';
                             <h3>下家</h3>
                             <?php foreach( $directionStats['lower'][$selectedPlayer] as $userId => $data ): ?>
                                 <div class="player-card">
-                                    <div class="player-name"><?= htmlspecialchars($userList[$userId]['last_name']) ?></div>
+                                    <div class="player-name"><?= $userList[$userId]['last_name'] ?></div>
                                     <ul class="player-stats">
                                         <?php foreach($data as $key => $value): ?>
-                                            <li><?= htmlspecialchars($displayStatsColumn_4[$key]) ?> ： <?= htmlspecialchars($value) ?></li>
+                                            <li><?= $displayStatsColumn_4[$key] ?> ： <?= $value ?></li>
                                         <?php endforeach; ?>
                                     </ul>
                                 </div>

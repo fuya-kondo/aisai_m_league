@@ -8,6 +8,8 @@ include '../webroot/common/header.php';
 // Handling POST requests
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $settingId = $_POST['settingId'] ?? null;
+    $newSettingId = $_POST['newSettingId'] ?? null; // 新しいボタンのsettingIdを取得
+
     if ($settingId !== null) {
         try {
             switchMode($settingId);
@@ -15,6 +17,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit();
         } catch (Exception $e) {
             $error_msg = '処理中にエラーが発生しました: ' . $e->getMessage();
+        }
+    } elseif ($newSettingId !== null) { // 新しいボタンが押された場合の処理
+        try {
+            // ここに新しい設定に対応する関数を呼び出す
+            // 例: switchNewMode($newSettingId);
+            // 今回はダミーでswitchModeを呼び出しますが、実際には別の関数を作成してください
+            switchMode($newSettingId);
+            header("Location: setting.php");
+            exit();
+        } catch (Exception $e) {
+            $error_msg = '新しい設定の処理中にエラーが発生しました: ' . $e->getMessage();
         }
     } else {
         $error_msg = '必要なパラメータが不足しています';
@@ -52,11 +65,22 @@ $title = '設定';
         </form>
     </div>
 
+    <!-- <h2>パルプンテ</h2>
+    <div class="toggle-button-container">
+        <form action="setting" method="post">
+            <button id="newToggleButton" type="submit" name="settingId" value="2" class="toggle-button on">
+                <span class="toggle-text">ON</span>
+                <div class="toggle-handle"></div>
+            </button>
+        </form>
+    </div> -->
+
 </main>
 </body>
 </html>
 
 <script>
+    // 既存のトグルボタン
     const toggleButton = document.getElementById('toggleButton');
     const toggleText = toggleButton.querySelector('.toggle-text');
 
@@ -80,15 +104,56 @@ $title = '設定';
         }
     });
 
+    // PHPから渡された初期値でボタンの状態を設定
     <?php
-        if ($scoreHiddenMode == 1) {
-            echo "isToggledOn = true;";
-            echo "toggleButton.classList.add('on');";
-            echo "toggleText.textContent = 'ON';";
+        if (isset($pointHiddenMode)) {
+            if ($pointHiddenMode == 1) {
+                echo "isToggledOn = true;";
+                echo "toggleButton.classList.add('on');";
+                echo "toggleText.textContent = 'ON';";
+                echo "toggleButton.classList.remove('off');"; // 念のためoffクラスを削除
+            } else {
+                echo "isToggledOn = false;";
+                echo "toggleButton.classList.add('off');";
+                echo "toggleText.textContent = 'OFF';";
+                echo "toggleButton.classList.remove('on');"; // 念のためonクラスを削除
+            }
+        }
+    ?>
+
+    // --- 新しいトグルボタンのJavaScript ---
+    const newToggleButton = document.getElementById('newToggleButton');
+    const newToggleText = newToggleButton.querySelector('.toggle-text');
+
+    let isNewToggledOn = true; // 新しいボタンの初期状態
+
+    newToggleButton.addEventListener('click', () => {
+        isNewToggledOn = !isNewToggledOn;
+
+        if (isNewToggledOn) {
+            newToggleButton.classList.remove('off');
+            newToggleButton.classList.add('on');
+            newToggleText.textContent = 'ON';
         } else {
-            echo "isToggledOn = false;";
-            echo "toggleButton.classList.add('off');";
-            echo "toggleText.textContent = 'OFF';";
+            newToggleButton.classList.remove('on');
+            newToggleButton.classList.add('off');
+            newToggleText.textContent = 'OFF';
+        }
+    });
+
+    <?php
+        if (isset($magicMode)) {
+            if ($magicMode == 1) {
+                echo "isNewToggledOn = true;";
+                echo "newToggleButton.classList.add('on');";
+                echo "newToggleText.textContent = 'ON';";
+                echo "newToggleButton.classList.remove('off');";
+            } else {
+                echo "isNewToggledOn = false;";
+                echo "newToggleButton.classList.add('off');";
+                echo "newToggleText.textContent = 'OFF';";
+                echo "newToggleButton.classList.remove('on');";
+            }
         }
     ?>
 </script>
@@ -146,7 +211,7 @@ $title = '設定';
 
     /* OFF時のテキスト位置 */
     .toggle-button.off .toggle-text {
-        right: -30px; /* OFFの文字を右に */
+        right: 10px; /* OFFの文字を右に */
         transform: translateX(0);
     }
 

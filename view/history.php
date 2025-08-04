@@ -126,6 +126,13 @@ $title = '履歴';
             <?php foreach($current_dates as $date): ?>
                 <div class="game-date">
                     <h4 class="date-header"><?=$date?></h4>
+                    <div class="day-stats">
+                        <?php foreach($dayStatsList[$date] as $userId => $data): ?>
+                            <div class="day-stats-item">
+                                <?= $userList[$userId]['last_name']."：".$data ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
                     <?php foreach($gameHistoryList[$date] as $game => $gameData): ?>
                         <div class="game-session">
                             <h5 class="game-header"><?=$game?>半荘目</h5>
@@ -174,7 +181,7 @@ $title = '履歴';
                                     <?php if($sum_rank != 10): ?>
                                         <span style="background-color: red; color:white; padding:3px">順位が正しくないです</span><br>
                                     <?php endif; ?>
-                                    <?php if($sum_direction != 10): ?>
+                                    <?php if($sum_direction != 10 && $sum_direction != 0): ?>
                                         <span style="background-color: red; color:white; padding:3px">席が正しくないです</span><br>
                                     <?php endif; ?>
                                 <?php endif; ?>
@@ -447,6 +454,17 @@ $title = '履歴';
         margin-bottom: 15px;
         font-size: 1.1em;
         color: #333;
+    }
+    .day-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 5px;
+        margin: 5px 0;
+    }
+
+    .day-stats-item {
+        padding: 5px 12px;
+        text-align: center;
     }
     .game-session {
         margin-bottom: 20px;

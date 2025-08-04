@@ -261,6 +261,29 @@ class StatsService {
     }
 
     /**
+     * 日ごとの対局履歴の取得
+     *
+     * @return array 対局履歴リスト
+     */
+    public function getDayStats(): array
+    {
+        $result = [];
+        foreach ($this->userList as $userId => $userData) {
+            foreach ($this->uGameHistoryDataList[$userId] as $uGameHistoryData) {
+                if (!empty($uGameHistoryData['game'])) {
+                    $playDate = new DateTime($uGameHistoryData['play_date']);
+                    $dateKey = $playDate->format('Y-m-d');
+                    if ( !isset($result[$dateKey][$userId]) ) {
+                        $result[$dateKey][$userId] = 0;
+                    }
+                    $result[$dateKey][$userId] += $uGameHistoryData['point'];
+                }
+            }
+        }
+        return $result;
+    }
+
+    /**
      * 対局履歴の取得
      *
      * @return array 対局履歴リスト
