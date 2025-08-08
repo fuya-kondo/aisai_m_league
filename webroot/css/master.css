@@ -11,6 +11,8 @@ main {
     padding: 15px;
     padding-bottom: 100px;
     padding-top: 70px;
+    max-width: 600px;
+    margin: auto;
 }
 .page-title {
     text-align: center;
@@ -29,104 +31,6 @@ h1,h2,h3 {
     text-align: center;
 }
 /* \common/ */
-
-/* /対局予定\ */
-#schedule {
-    background-image: url("https://m-league.jp/assets/media/img/common/bg-pattern_sp.png");
-    background-repeat: repeat;
-    background-origin: padding-box;
-    padding-top: 20px;
-    padding-bottom: 40px;
-    text-align: center;
-}
-#schedule .day-area {
-}
-#schedule .day {
-    font-size: 3.5rem;
-    margin: 10px 0;
-}
-#schedule .playerImg {
-    list-style: none;
-    padding-inline-start: 0px;
-}
-#schedule .playerImg > li{
-    display: inline;
-}
-#schedule .playerImg > li > img {
-    width: 219px;
-    display: inline;
-    margin: 0 10px;
-}
-/* 小型スマホ向け */
-@media (max-width: 375px) {
-    #schedule .day {
-        font-size: 2.5rem;
-    }
-    #schedule .playerImg {
-        list-style: none;
-        padding-inline-start: 0px;
-        display: grid;
-        grid-template-columns: repeat(2, auto);
-        gap: 20px 15px; /* 縦横の隙間を10pxに統一 */
-        justify-content: center; /* 水平方向の中央揃え */
-        align-content: center; /* 垂直方向の中央揃え */
-    }
-    #schedule .playerImg > li {
-        text-align: center;
-    }
-    #schedule .playerImg > li > img {
-        width: 120px;
-        display: block;
-        margin: 0 auto;
-    }
-}
-/* 標準サイズスマホ向け */
-@media (min-width: 376px) and (max-width: 767px) {
-    #schedule .day {
-        font-size: 2.5rem;
-    }
-    #schedule .playerImg {
-        list-style: none;
-        padding-inline-start: 0px;
-        display: grid;
-        grid-template-columns: repeat(2, auto);
-        gap: 20px 15px; /* 縦横の隙間を10pxに統一 */
-        justify-content: center; /* 水平方向の中央揃え */
-        align-content: center; /* 垂直方向の中央揃え */
-    }
-    #schedule .playerImg > li {
-        text-align: center;
-    }
-    #schedule .playerImg > li > img {
-        width: 136px;
-        display: block;
-        margin: 0 auto;
-    }
-}
-/* 大型スマホ向け */
-@media (min-width: 768px) and (max-width: 1024px) {
-    #schedule .day {
-        font-size: 2.5rem;
-    }
-    #schedule .playerImg {
-        list-style: none;
-        padding-inline-start: 0px;
-        display: grid;
-        grid-template-columns: repeat(2, auto);
-        gap: 20px 15px; /* 縦横の隙間を10pxに統一 */
-        justify-content: center; /* 水平方向の中央揃え */
-        align-content: center; /* 垂直方向の中央揃え */
-    }
-    #schedule .playerImg > li {
-        text-align: center;
-    }
-    #schedule .playerImg > li > img {
-        width: 136px;
-        display: block;
-        margin: 0 auto;
-    }
-}
-/* \対局予定/ */
 
 /* /\ */
 /* \/ */

@@ -260,7 +260,7 @@ $title = '成績';
                             time: {
                                 unit: 'month',
                                 displayFormats: {
-                                    month: 'YY / M'
+                                    month: 'YY/M'
                                 }
                             }
                         },

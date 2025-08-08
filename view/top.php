@@ -29,7 +29,12 @@ $title = 'AISAI.M.LEAGUE';
         <div class="day-area">
             <h2 class="day"><?=$formattedDate?></h2>
             <ul class="playerImg">
-                <li><img src="../image/player_1.png"></li>
+                <li>
+                    <video autoplay muted playsinline loop>
+                        <source src="../movie/player_1.mp4" type="video/mp4">
+                        お使いのブラウザは動画タグをサポートしていません。
+                    </video>
+                </li>
                 <li><img src="../image/player_2.png"></li>
                 <li><img src="../image/player_3.png"></li>
                 <li><img src="../image/player_4.png"></li>
@@ -69,18 +74,117 @@ $title = 'AISAI.M.LEAGUE';
 </script>
 
 <style>
-    .playerImg img {
-        opacity: 0; /* 最初は非表示 */
-        transition: opacity 1s ease-in-out; /* フェードイン/アウト効果 */
+    /* /対局予定\ */
+    #schedule {
+        background-image: url("https://m-league.jp/assets/media/img/common/bg-pattern_sp.png");
+        background-repeat: repeat;
+        background-origin: padding-box;
+        padding-top: 20px;
+        padding-bottom: 40px;
+        text-align: center;
+    }
+    #schedule .day {
+        font-size: 3.5rem;
+        margin: 10px 0;
+    }
+    #schedule .playerImg {
+        list-style: none;
+        padding-inline-start: 0px;
+    }
+    #schedule .playerImg > li{
+        display: inline;
+    }
+    #schedule .playerImg > li > img, #schedule .playerImg > li > video {
+        width: 219px;
+        display: inline;
+        margin: 0 10px;
+    }
+    .playerImg img, .playerImg video {
+        /* opacity: 0; */
+        /* transition: opacity 1s ease-in-out; */
         border-radius: 5px;
     }
+    /*
     .playerImg img.active {
-        opacity: 1; /* 表示 */
+        opacity: 1;
     }
-    @keyframes rotate {
+    */
+    /* @keyframes rotate {
         from { transform: rotate(0deg); }
         to { transform: rotate(360deg); }
+    } */
+
+    /* 小型スマホ向け */
+    @media (max-width: 375px) {
+        #schedule .day {
+            font-size: 2.5rem;
+        }
+        #schedule .playerImg {
+            list-style: none;
+            padding-inline-start: 0px;
+            display: grid;
+            grid-template-columns: repeat(2, auto);
+            gap: 20px 15px; /* 縦横の隙間を10pxに統一 */
+            justify-content: center; /* 水平方向の中央揃え */
+            align-content: center; /* 垂直方向の中央揃え */
+        }
+        #schedule .playerImg > li {
+            text-align: center;
+        }
+        #schedule .playerImg > li > img, #schedule .playerImg > li > video {
+            width: 120px;
+            display: block;
+            margin: 0 auto;
+        }
     }
+    /* 標準サイズスマホ向け */
+    @media (min-width: 376px) and (max-width: 767px) {
+        #schedule .day {
+            font-size: 2.5rem;
+        }
+        #schedule .playerImg {
+            list-style: none;
+            padding-inline-start: 0px;
+            display: grid;
+            grid-template-columns: repeat(2, auto);
+            gap: 20px 15px; /* 縦横の隙間を10pxに統一 */
+            justify-content: center; /* 水平方向の中央揃え */
+            align-content: center; /* 垂直方向の中央揃え */
+        }
+        #schedule .playerImg > li {
+            text-align: center;
+        }
+        #schedule .playerImg > li > img, #schedule .playerImg > li > video {
+            width: 136px;
+            display: block;
+            margin: 0 auto;
+        }
+    }
+    /* 大型スマホ向け */
+    @media (min-width: 768px) and (max-width: 1024px) {
+        #schedule .day {
+            font-size: 2.5rem;
+        }
+        #schedule .playerImg {
+            list-style: none;
+            padding-inline-start: 0px;
+            display: grid;
+            grid-template-columns: repeat(2, auto);
+            gap: 20px 15px; /* 縦横の隙間を10pxに統一 */
+            justify-content: center; /* 水平方向の中央揃え */
+            align-content: center; /* 垂直方向の中央揃え */
+        }
+        #schedule .playerImg > li {
+            text-align: center;
+        }
+        #schedule .playerImg > li > img, #schedule .playerImg > li > video {
+            width: 136px;
+            display: block;
+            margin: 0 auto;
+        }
+    }
+    /* \対局予定/ */
+
     #about {
         text-align: center;
         margin: 50px 0px;
@@ -94,11 +198,5 @@ $title = 'AISAI.M.LEAGUE';
     #about > div > p {
         line-height: 1.8;
         margin: 0px 20px;
-    }
-    @media screen and (max-width: 768px) {
-    }
-    @media (orientation: portrait) {
-    }
-    @media (orientation: landscape) {
     }
 </style>
