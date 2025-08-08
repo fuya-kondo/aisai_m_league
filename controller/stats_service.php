@@ -261,6 +261,60 @@ class StatsService {
     }
 
     /**
+     * 次とその次の対局日時を最大2件取得します。
+     *
+     * @return array 次とその次の対局日時。フォーマットは 'n/j(曜日)'。予定がない場合は空の配列を返します。
+     */
+    public function getNextTwoGameDays(): array
+    {
+        $todayStart = (new DateTimeImmutable())->setTime(0, 0, 0);
+        $futureGameDateObjects = [];
+
+        // 未来の対局日時のみを抽出し、DateTimeImmutableオブジェクトの配列を作成
+        foreach ($this->mGameDayDataList as $gameDayData) {
+            if (!isset($gameDayData['game_day']) || !is_string($gameDayData['game_day'])) {
+                error_log("Invalid game_day data structure: " . json_encode($gameDayData));
+                continue;
+            }
+            $dateString = $gameDayData['game_day'];
+            try {
+                $gameDateTime = new DateTimeImmutable($dateString);
+
+                if ($gameDateTime->setTime(0, 0, 0) >= $todayStart) {
+                    $futureGameDateObjects[] = $gameDateTime;
+                }
+            } catch (Exception $e) {
+                error_log("Failed to parse game_day date string: '{$dateString}' - " . $e->getMessage());
+            }
+        }
+
+        // 未来の対局日時が一件もない場合
+        if (empty($futureGameDateObjects)) {
+            return [];
+        }
+
+        // 最も近い対局日時を特定するためにソート
+        usort($futureGameDateObjects, function (DateTimeImmutable $a, DateTimeImmutable $b) {
+            return $a <=> $b;
+        });
+
+        // 曜日を取得するための配列
+        $weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+        $nextTwoGameDays = [];
+
+        // 最初の2件をフォーマットして配列に追加
+        foreach ($futureGameDateObjects as $index => $closestDateTime) {
+            if ($index >= 2) {
+                break; // 2件取得したらループを終了
+            }
+            $weekday = $weekdays[(int)$closestDateTime->format('w')];
+            $nextTwoGameDays[] = $closestDateTime->format('n/j') . "(" . $weekday . ")";
+        }
+
+        return $nextTwoGameDays;
+    }
+
+    /**
      * 日ごとの対局履歴の取得
      *
      * @return array 対局履歴リスト

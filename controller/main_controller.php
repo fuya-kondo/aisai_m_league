@@ -34,7 +34,8 @@ $statsService = new StatsService(
 
 
 /* --- 表示用データの取得 -- */
-$formattedDate      = $statsService->getNextGameDay();      // 対局日時の取得
+$nextGameDay        = $statsService->getNextGameDay();      // 対局日時の取得
+$nextTwoGameDays    = $statsService->getNextTwoGameDays();  // 対局日時の取得
 $userList           = $targetUserData;                      // ユーザーの取得
 $years              = $statsService->getYears();            // 対象の年を取得
 $titleHolderList    = $statsService->getTitleHolder();      // タイトル保持者の取得

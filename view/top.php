@@ -27,7 +27,20 @@ $title = 'AISAI.M.LEAGUE';
 <main style="padding-left: 0; padding-right: 0;">
     <div id="schedule">
         <div class="day-area">
-            <h2 class="day"><?=$formattedDate?></h2>
+            <div class="game-day-container">
+            <?php if (!empty($nextTwoGameDays)): ?>
+                <div class="day">
+                    <?=$nextTwoGameDays[0]?>
+                    <?php if (count($nextTwoGameDays) > 1): ?>
+                    <div class="next-day">
+                        <?=$nextTwoGameDays[1]?>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            <?php else: ?>
+                <div class="day">予定なし</div>
+            <?php endif; ?>
+            </div>
             <ul class="playerImg">
                 <li>
                     <video autoplay muted playsinline loop>
@@ -83,9 +96,22 @@ $title = 'AISAI.M.LEAGUE';
         padding-bottom: 40px;
         text-align: center;
     }
-    #schedule .day {
-        font-size: 3.5rem;
-        margin: 10px 0;
+    .game-day-container {
+        text-align: center;
+    }
+    .day {
+        position: relative;
+        font-size: 2rem;
+        font-weight: bold;
+        display: inline-block;
+        margin-right: 10px;
+    }
+    .next-day {
+        position: absolute;
+        font-size: 0.9rem;
+        color: #555;
+        bottom: 5px;
+        right: -70px;
     }
     #schedule .playerImg {
         list-style: none;
