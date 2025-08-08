@@ -8,7 +8,7 @@ include '../webroot/common/header.php';
 $selectedYear   = isset( $_GET['year'] ) ? $_GET['year']   : date("Y");
 $selectedPlayer = isset($_GET['player']) ? $_GET['player'] : null;
 
-$scoreDisplayFlag = !( $pointHiddenMode && $selectedYear == date("Y") );
+$scoreDisplayFlag = !( $mSettingList[1]['value'] && $selectedYear == date("Y") );
 
 // Set title
 $title = '個人成績';

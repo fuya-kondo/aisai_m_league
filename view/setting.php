@@ -8,7 +8,6 @@ include '../webroot/common/header.php';
 // Handling POST requests
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $settingId = $_POST['settingId'] ?? null;
-    $newSettingId = $_POST['newSettingId'] ?? null; // 新しいボタンのsettingIdを取得
 
     if ($settingId !== null) {
         try {
@@ -17,17 +16,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit();
         } catch (Exception $e) {
             $error_msg = '処理中にエラーが発生しました: ' . $e->getMessage();
-        }
-    } elseif ($newSettingId !== null) { // 新しいボタンが押された場合の処理
-        try {
-            // ここに新しい設定に対応する関数を呼び出す
-            // 例: switchNewMode($newSettingId);
-            // 今回はダミーでswitchModeを呼び出しますが、実際には別の関数を作成してください
-            switchMode($newSettingId);
-            header("Location: setting.php");
-            exit();
-        } catch (Exception $e) {
-            $error_msg = '新しい設定の処理中にエラーが発生しました: ' . $e->getMessage();
         }
     } else {
         $error_msg = '必要なパラメータが不足しています';
@@ -55,107 +43,44 @@ $title = '設定';
 <body>
 <main>
 
-    <h2>点数非表示モード</h2>
-    <div class="toggle-button-container">
-        <form action="setting" method="post">
-            <button id="toggleButton" type="submit" name="settingId" value="1" class="toggle-button on">
-                <span class="toggle-text">ON</span>
-                <div class="toggle-handle"></div>
-            </button>
-        </form>
-    </div>
-
-    <!-- <h2>パルプンテ</h2>
-    <div class="toggle-button-container">
-        <form action="setting" method="post">
-            <button id="newToggleButton" type="submit" name="settingId" value="2" class="toggle-button on">
-                <span class="toggle-text">ON</span>
-                <div class="toggle-handle"></div>
-            </button>
-        </form>
-    </div> -->
+    <?php foreach($mSettingList as $settingId => $data): ?>
+        <h2><?=$data['name']?>モード</h2>
+        <div class="toggle-button-container">
+            <form action="setting.php" method="post">
+                <button type="submit" name="settingId" value="<?=$settingId?>" class="toggle-button <?=$data['value'] == 1 ? 'on' : 'off'?>">
+                    <span class="toggle-text"><?=$data['value'] == 1 ? 'ON' : 'OFF'?></span>
+                    <div class="toggle-handle"></div>
+                </button>
+            </form>
+        </div>
+    <?php endforeach; ?>
 
 </main>
 </body>
 </html>
 
 <script>
-    // 既存のトグルボタン
-    const toggleButton = document.getElementById('toggleButton');
-    const toggleText = toggleButton.querySelector('.toggle-text');
+    // ページ上のすべてのトグルボタンを取得
+    const toggleButtons = document.querySelectorAll('.toggle-button');
 
-    // ボタンの現在の状態（true: ON, false: OFF）
-    let isToggledOn = true; 
+    // それぞれのボタンに対して処理を設定
+    toggleButtons.forEach(button => {
+        const toggleText = button.querySelector('.toggle-text');
 
-    // ボタンがクリックされた時の処理
-    toggleButton.addEventListener('click', () => {
-        isToggledOn = !isToggledOn; // 状態を反転
+        // ボタンがクリックされた時の処理
+        button.addEventListener('click', () => {
+            // 現在のクラスを反転させる
+            button.classList.toggle('on');
+            button.classList.toggle('off');
 
-        if (isToggledOn) {
-            // ONの状態にする
-            toggleButton.classList.remove('off');
-            toggleButton.classList.add('on');
-            toggleText.textContent = 'ON';
-        } else {
-            // OFFの状態にする
-            toggleButton.classList.remove('on');
-            toggleButton.classList.add('off');
-            toggleText.textContent = 'OFF';
-        }
-    });
-
-    // PHPから渡された初期値でボタンの状態を設定
-    <?php
-        if (isset($pointHiddenMode)) {
-            if ($pointHiddenMode == 1) {
-                echo "isToggledOn = true;";
-                echo "toggleButton.classList.add('on');";
-                echo "toggleText.textContent = 'ON';";
-                echo "toggleButton.classList.remove('off');"; // 念のためoffクラスを削除
+            // テキストも反転
+            if (button.classList.contains('on')) {
+                toggleText.textContent = 'ON';
             } else {
-                echo "isToggledOn = false;";
-                echo "toggleButton.classList.add('off');";
-                echo "toggleText.textContent = 'OFF';";
-                echo "toggleButton.classList.remove('on');"; // 念のためonクラスを削除
+                toggleText.textContent = 'OFF';
             }
-        }
-    ?>
-
-    // --- 新しいトグルボタンのJavaScript ---
-    const newToggleButton = document.getElementById('newToggleButton');
-    const newToggleText = newToggleButton.querySelector('.toggle-text');
-
-    let isNewToggledOn = true; // 新しいボタンの初期状態
-
-    newToggleButton.addEventListener('click', () => {
-        isNewToggledOn = !isNewToggledOn;
-
-        if (isNewToggledOn) {
-            newToggleButton.classList.remove('off');
-            newToggleButton.classList.add('on');
-            newToggleText.textContent = 'ON';
-        } else {
-            newToggleButton.classList.remove('on');
-            newToggleButton.classList.add('off');
-            newToggleText.textContent = 'OFF';
-        }
+        });
     });
-
-    <?php
-        if (isset($magicMode)) {
-            if ($magicMode == 1) {
-                echo "isNewToggledOn = true;";
-                echo "newToggleButton.classList.add('on');";
-                echo "newToggleText.textContent = 'ON';";
-                echo "newToggleButton.classList.remove('off');";
-            } else {
-                echo "isNewToggledOn = false;";
-                echo "newToggleButton.classList.add('off');";
-                echo "newToggleText.textContent = 'OFF';";
-                echo "newToggleButton.classList.remove('on');";
-            }
-        }
-    ?>
 </script>
 
 <style>

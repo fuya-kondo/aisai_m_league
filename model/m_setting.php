@@ -17,7 +17,8 @@ try {
 $tmp = $mSettingList;
 $mSettingList = [];
 foreach ($tmp as $key => $value) {
-    $mSettingList[$value['m_setting_id']] = $value;
+    $mSettingList[$value['m_setting_id']]['name'] = $value['name'];
+    $mSettingList[$value['m_setting_id']]['value'] = $value['value'];
 }
 
 /**

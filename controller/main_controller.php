@@ -46,9 +46,6 @@ $directionStats     = $statsService->getRelativeScoreByDirection(); // 各家の
 $gameHistoryList    = $statsService->getGameHistoryList();  // 対局履歴の取得
 $dayStatsList       = $statsService->getDayStats();         // 日ごとの対局履歴の取得
 $analysisDataList   = $statsService->getAnalysisDataList(); // AI分析用のデータ取得
-$pointHiddenMode    = $mSettingList[1]['value'];            // ポイント非表示モードの状態取得
-//$noMistakeCountMode = $mSettingList[2]['value'];            // チョンボなし状態取得
-//$magicMode          = $mSettingList[3]['value'];            // パルプンテの状態取得
 
 /* --- ヘルパー関数 -- */
 
