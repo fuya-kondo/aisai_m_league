@@ -43,18 +43,28 @@ $title = '個人成績';
             </form>
         </div>
     <?php else: ?>
-        <?php
-            $players = [];
-            if (isset($yearlyStatsList[$selectedYear])) {
-                foreach ($yearlyStatsList[$selectedYear] as $playerData) {
-                    $players[$playerData['u_user_id']] = $playerData['name'];
-                }
-            }
-        ?>
-        <?php if(isset($players[$selectedPlayer])):?>
-            <div class="page-title"><?= $players[$selectedPlayer] . 'の' . $title ?></div>
+        <?php if( isset($userList[$selectedPlayer]) ):?>
+            <div class="profile-header">
+                <div class="profile-info">
+                    <?php if ( isset($userList[$selectedPlayer]['tier']) ): ?>
+                        <span class="tier" style="color:<?=$userList[$selectedPlayer]['tier']['color']?>">
+                            <?= $userList[$selectedPlayer]['tier']['name'] ?>
+                        </span>
+                    <?php endif;?>
+                    <h1 class="player-name">
+                        <?= $userList[$selectedPlayer]['last_name'].$userList[$selectedPlayer]['first_name'] ?>
+                    </h1>
+                </div>
+                <?php if ( isset($userList[$selectedPlayer]['badge']) ): ?>
+                    <a href="badge?&userId=<?= $selectedPlayer ?>">
+                        <div class="badge">
+                            <span class="badge-icon">⭐</span> <span class="badge-name"><?=$userList[$selectedPlayer]['badge']['name']?></span>
+                        </div>
+                    </a>
+                <?php endif;?>
+            </div>
         <?php else: ?>
-            <div class="page-title"><?= $title ?></div>
+            <h1 class="page-title"><?= $title ?></h1>
         <?php endif; ?>
         <form action="" method="get" class="player-selection-form">
             <div class="selection-container">
@@ -66,11 +76,11 @@ $title = '個人成績';
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div>
+                <div style="display:none">
                     <label for="player">選手を選択:</label>
                     <select name="player" id="player" onchange="this.form.submit()" class="player-select">
-                        <?php foreach($players as $playerId => $playerName): ?>
-                            <option value="<?= $playerId ?>" <?= ($playerId == $selectedPlayer) ? 'selected' : '' ?>><?= $playerName ?></option>
+                        <?php foreach($userList as $userId => $userData): ?>
+                            <option value="<?= $userId ?>" <?= ($userId == $selectedPlayer) ? 'selected' : '' ?>><?= $userData['last_name'].$userData['first_name'] ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -433,9 +443,37 @@ $title = '個人成績';
 </html>
 
 <style>
-    .player-selection-form{
+    .profile-header {
         text-align: center;
-        margin-bottom: 20px;
+        padding: 20px 0;
+    }
+    .profile-header .profile-info {
+        margin-bottom: 5px;
+    }
+    .profile-header .player-name {
+        font-size: 1.8em;
+        font-weight: bold;
+        margin: 0;
+    }
+    .profile-header .tier {
+        display: block;
+        font-size: 1em;
+        font-weight: 500;
+    }
+    .profile-header .badge {
+        margin-top: 10px;
+        font-size: 0.8em;
+        color: #6c757d;
+    }
+    .profile-header .badge-icon {
+        margin-right: 5px;
+    }
+    .profile-header .page-title {
+        text-align: center;
+        font-size: 1.8em;
+    }
+    .player-selection-form {
+        text-align: center;
     }
     .table-container {
         margin-bottom: 30px;

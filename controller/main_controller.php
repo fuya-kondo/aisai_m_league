@@ -30,13 +30,16 @@ $statsService = new StatsService(
     $mTitleList,            // m_title
     $uGameHistoryList,      // u_game_history
     $uTitleList,            // u_title
+    $mTierList,             // m_tier
+    $uTierHistoryList,      // u_tier_history
+    $mBadgeList,            // m_badge
 );
 
 
 /* --- 表示用データの取得 -- */
 $nextGameDay        = $statsService->getNextGameDay();      // 対局日時の取得
 $nextTwoGameDays    = $statsService->getNextTwoGameDays();  // 対局日時の取得
-$userList           = $targetUserData;                      // ユーザーの取得
+$userList           = $statsService->getUserList();         // ユーザーの取得
 $years              = $statsService->getYears();            // 対象の年を取得
 $titleHolderList    = $statsService->getTitleHolder();      // タイトル保持者の取得
 $todayStatsList     = $statsService->getTodayStatsList();   // 本日の成績の取得

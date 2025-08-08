@@ -15,6 +15,9 @@ class StatsService {
     private $mDirectionDataList     = [];
     private $mGameDayDataList       = [];
     private $uGameHistoryDataList   = [];
+    private $mTierDataList          = [];
+    private $uTierHistoryDataList   = [];
+    private $mBadgeDataList         = [];
     private $years                  = [];
     private $baseScore              = null;
     private const START_YEAR        = 2022;
@@ -23,7 +26,7 @@ class StatsService {
     /**
      * コンストラクタ
      */
-    public function __construct( $user, $table, $group, $rule, $mDirection, $mGameDay, $mTitle, $uGameHistory, $uTitle ) {
+    public function __construct( $user, $table, $group, $rule, $mDirection, $mGameDay, $mTitle, $uGameHistory, $uTitle, $mTier, $uTierHistory, $mBadge ) {
         $this->userList             = $user;
         $this->tableData            = $table;
         $this->groupData            = $group;
@@ -33,11 +36,32 @@ class StatsService {
         $this->mDirectionDataList   = $mDirection;
         $this->mGameDayDataList     = $mGameDay;
         $this->uGameHistoryDataList = $uGameHistory;
+        $this->mTierDataList        = $mTier;
+        $this->uTierHistoryDataList = $uTierHistory;
+        $this->mBadgeDataList       = $mBadge;
         $this->baseScore            = $rule['start_score'];
         $this->_setYears();
     }
 
     /* -------- GETメソッド -------- */
+
+    /**
+     * 集計対象の年を取得
+     *
+     * @return array 集計対象の年リスト
+     */
+    public function getUserList(): array
+    {
+        foreach ($this->userList as $userId => &$userData) {
+            if ( isset($this->mTierDataList[$userData['m_tier_id']]) ) {
+                $userData['tier'] = $this->mTierDataList[$userData['m_tier_id']];
+            }
+            if ( isset($this->mBadgeDataList[$userData['m_badge_id']]) ) {
+                $userData['badge'] = $this->mBadgeDataList[$userData['m_badge_id']];
+            }
+        }
+        return $this->userList;
+    }
 
     /**
      * 集計対象の年を取得

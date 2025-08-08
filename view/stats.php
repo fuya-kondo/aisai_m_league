@@ -141,6 +141,7 @@ $title = '成績';
                                         <td class="player-name-<?=$statusData['ranking']?>-<?php if($statusData['sum_point']>=0):?>p<?php else:?>m<?php endif;?>">
                                             <a href="personal_stats?year=<?= $selectedYear ?>&player=<?= $statusData['u_user_id'] ?>">
                                                 <span class="stats-value"><?= $statusData[$column] ?></span>
+                                                <!-- <span class="badge"><?= $userList[$statusData['u_user_id']]['badge']['name'] ?></span> -->
                                             </a>
                                         </td>
                                     <?php elseif ($column == 'sum_point' && !$scoreDisplayFlag): ?>
@@ -473,7 +474,7 @@ $title = '成績';
         }
         .score-table th,
         .score-table td {
-            padding: 10px 8px;
+            padding: 10px 3px;
             font-size: 0.85em;
         }
         .score-table th {
