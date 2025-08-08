@@ -24,8 +24,7 @@ $title = '個人成績';
     <link rel="icon" href="../favicon.ico" sizes="64x64" type="image/x-icon">
     <link rel="stylesheet" href="../webroot/css/master.css">
     <link rel="stylesheet" href="../webroot/css/header.css">
-    <link rel="stylesheet" href="../webroot/css/button.css">
-    <link rel="stylesheet" href="../webroot/css/table.css">
+    <link rel="stylesheet" href="../webroot/css/app.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -136,7 +135,7 @@ $title = '個人成績';
                 </div>
 
                 <?php /* グラフ */?>
-                <div class="charts-container">
+                <div class="charts-container container">
                     <div class="chart-card">
                         <h3>着順分布</h3>
                         <div class="chart-wrapper">
@@ -356,7 +355,7 @@ $title = '個人成績';
                 <?php /* グラフ */?>
 
                 <?php /* 各家の成績 */?>
-                <div class="table-container">
+                <div class="table-container container">
                     <div class="table-wrapper">
                         <h2 class="section-title">各家成績</h2>
                         <table class="score-table house-stats">
@@ -402,7 +401,7 @@ $title = '個人成績';
                 <?php /* 各家の成績 */?>
 
                 <?php /* 各家の成績 */?>
-                <h2>席による関係性</h2>
+                <h2 class="page-title">席による関係性</h2>
                     <div class="relation-section">
                         <div class="relation-column">
                             <h3>上家</h3>
@@ -411,7 +410,7 @@ $title = '個人成績';
                                     <div class="player-name"><?= $userList[$userId]['last_name'] ?></div>
                                     <ul class="player-stats">
                                         <?php foreach($data as $key => $value): ?>
-                                            <li><?= $displayStatsColumn_4[$key] ?> ： <?= $value ?></li>
+                                            <li><?= $displayStatsColumn_2[$key] ?> ： <?= $value ?></li>
                                         <?php endforeach; ?>
                                     </ul>
                                 </div>
@@ -424,7 +423,7 @@ $title = '個人成績';
                                     <div class="player-name"><?= $userList[$userId]['last_name'] ?></div>
                                     <ul class="player-stats">
                                         <?php foreach($data as $key => $value): ?>
-                                            <li><?= $displayStatsColumn_4[$key] ?> ： <?= $value ?></li>
+                                            <li><?= $displayStatsColumn_2[$key] ?> ： <?= $value ?></li>
                                         <?php endforeach; ?>
                                     </ul>
                                 </div>

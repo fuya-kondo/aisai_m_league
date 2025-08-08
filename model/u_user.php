@@ -3,14 +3,18 @@
 // ----------------------------------------------------------------------
 // データ取得
 // ----------------------------------------------------------------------
+
+// クエリ定義
 $uUserSql = 'SELECT * FROM `u_user`;';
 
 try {
+    // DB接続
     $dbConfig = getDatabaseConfig();
     $db = Database::getInstance($dbConfig);
     $pdo = $db->getConnection();
-    $uUserSth = $pdo->query($uUserSql);
-    $uUserList = $uUserSth->fetchAll(PDO::FETCH_ASSOC);
+    // 問い合わせ実行
+    $uUserStatement = $pdo->query($uUserSql);
+    $uUserList = $uUserStatement->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     exit($e->getMessage());
 }

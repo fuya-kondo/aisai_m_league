@@ -40,8 +40,7 @@ $currentBadgeData = $mBadgeList[$currentUserBadgeId] ?? null;
     <link rel="icon" href="../favicon.ico" sizes="64x64" type="image/x-icon">
     <link rel="stylesheet" href="../webroot/css/master.css">
     <link rel="stylesheet" href="../webroot/css/header.css">
-    <link rel="stylesheet" href="../webroot/css/button.css">
-    <link rel="stylesheet" href="../webroot/css/table.css">
+    <link rel="stylesheet" href="../webroot/css/app.css">
     <title><?= $title ?></title>
 </head>
 <body>

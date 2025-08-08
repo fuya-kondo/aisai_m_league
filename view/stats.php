@@ -25,8 +25,7 @@ $title = '成績';
     <link rel="icon" href="../favicon.ico" sizes="64x64" type="image/x-icon">
     <link rel="stylesheet" href="../webroot/css/master.css">
     <link rel="stylesheet" href="../webroot/css/header.css">
-    <link rel="stylesheet" href="../webroot/css/button.css">
-    <link rel="stylesheet" href="../webroot/css/table.css">
+    <link rel="stylesheet" href="../webroot/css/app.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
     <title><?= $title ?></title>

@@ -1,22 +1,27 @@
 <?php
 
-// ----------------------------------------------------------------------
-// データ取得
-// ----------------------------------------------------------------------
+/**
+ * ティア（m_tier）一覧を取得し、IDをキーに整形します。
+ */
+
+// クエリ定義
 $mTierSql = 'SELECT * FROM `m_tier`';
 
 try {
+    // DB接続
     $dbConfig = getDatabaseConfig();
     $db = Database::getInstance($dbConfig);
     $pdo = $db->getConnection();
-    $mTierSth = $pdo->query($mTierSql);
-    $mTierList = $mTierSth->fetchAll(PDO::FETCH_ASSOC);
+    // 問い合わせ実行
+    $mTierStatement = $pdo->query($mTierSql);
+    $mTierList = $mTierStatement->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     exit($e->getMessage());
 }
 
-$tmp = $mTierList;
+// IDをキーに整形
+$tierRows = $mTierList;
 $mTierList = [];
-foreach ($tmp as $key => $value) {
-    $mTierList[$value['m_tier_id']] = $value;
+foreach ($tierRows as $tierRow) {
+    $mTierList[$tierRow['m_tier_id']] = $tierRow;
 }

@@ -9,13 +9,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $require_oncedFields = ['userId', 'tableId', 'game', 'direction', 'rank', 'score', 'year', 'month', 'day'];
     $missingFields = array_filter($require_oncedFields, fn($field) => !isset($_POST[$field]));
     if (empty($missingFields)) {
-        $userId   = $_POST['userId'];
-        $tableId  = $_POST['tableId'];
-        $game     = $_POST['game'];
-        $direction= $_POST['direction'];
-        $rank     = $_POST['rank'];
-        $score    = $_POST['score'];
-        $playDate = sprintf(
+        $userId    = $_POST['userId'];
+        $tableId   = $_POST['tableId'];
+        $game      = $_POST['game'];
+        $direction = $_POST['direction'];
+        $rank      = $_POST['rank'];
+        $score     = $_POST['score'];
+        $playDate  = sprintf(
             '%04d-%02d-%02d %s',
             $_POST['year'],
             $_POST['month'],
@@ -47,15 +47,14 @@ $title = '登録';
     <link rel="icon" href="../favicon.ico" sizes="64x64" type="image/x-icon">
     <link rel="stylesheet" href="../webroot/css/master.css">
     <link rel="stylesheet" href="../webroot/css/header.css">
-    <link rel="stylesheet" href="../webroot/css/button.css">
-    <link rel="stylesheet" href="../webroot/css/table.css">
+    <link rel="stylesheet" href="../webroot/css/app.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
     <title><?= $title ?></title>
 </head>
 <body>
 <main>
     <div class="page-title"><?= $title ?></div>
-    <div class="form-container">
+    <div class="form-container container">
         <form action="add" method="post" class="registration-form">
             <div class="form-group">
                 <label for="userId">ユーザー</label>
@@ -72,9 +71,9 @@ $title = '登録';
                 <input id="tableId" class="input" type="number" name="tableId" require_onced value="1" style="width: 70%;">
             </div>
             <div class="form-group game">
-                <div class="date-inputs" >
-                    <input id="game" class="input" type="number" name="game" require_onced value="0" style="width: 70%;">
-                    <label style="margin-bottom:0; font-size:14px;">半荘目</label>
+                <label for="game">半荘目</label>
+                <div class="date-inputs">
+                    <input id="game" class="input" type="number" name="game" require_onced value="0">
                 </div>
             </div>
             <div class="form-group">
@@ -97,24 +96,24 @@ $title = '登録';
             </div>
             <div class="form-group">
                 <label for="score">点数</label>
-                <input id="score" class="input" type=”tel” name="score" require_onced>
+                <input id="score" class="input" type="tel" name="score" require_onced inputmode="numeric" pattern="[0-9]*" placeholder="例: 25300">
             </div>
             <div class="form-group date-group">
                 <label>日付</label>
                 <div class="date-inputs">
-                    <select class="input play_date" name="year" require_onced>
+                    <select class="input play_date year" name="year" require_onced>
                         <?php for ($year = 2025; $year <= 2027; $year++): ?>
                             <option value="<?= $year ?>" <?= $year == 2025 ? 'selected' : '' ?>><?= $year ?></option>
                         <?php endfor; ?>
                     </select>
                     <span>年</span>
-                    <select class="input play_date" name="month" require_onced>
+                    <select class="input play_date month" name="month" require_onced>
                         <?php for ($month = 1; $month <= 12; $month++): ?>
                             <option value="<?= $month ?>" <?= $month == date('n') ? 'selected' : '' ?>><?= $month ?></option>
                         <?php endfor; ?>
                     </select>
                     <span>月</span>
-                    <select class="input play_date" name="day" require_onced>
+                    <select class="input play_date day" name="day" require_onced>
                         <?php for ($day = 1; $day <= 31; $day++): ?>
                             <option value="<?= $day ?>" <?= $day == date('j') ? 'selected' : '' ?>><?= $day ?></option>
                         <?php endfor; ?>
@@ -123,7 +122,7 @@ $title = '登録';
                 </div>
             </div>
 
-            <button class="submit-button" type="submit">登録する</button>
+            <button class="submit-button btn-primary" type="submit">登録する</button>
         </form>
     </div>
 </main>
@@ -154,103 +153,7 @@ $title = '登録';
 </script>
 
 <style>
-    .form-container {
-        background-color: #fff;
-        border-radius: 4px;
-        box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-        padding: 30px;
-    }
-    .registration-form {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-    .form-group {
-        display: flex;
-        flex-direction: column;
-    }
-    .form-group label {
-        margin-bottom: 5px;
-        font-weight: bold;
-        color: #2c3e50;
-    }
-    .input {
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 16px;
-    }
-    .date-group {
-        display: flex;
-        flex-direction: column;
-    }
-    .date-inputs {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    .date-inputs select {
-        flex: 1;
-    }
-    .date-inputs span {
-        color: #2c3e50;
-    }
-    .submit-button {
-        background-color: #009944;
-        color: white;
-        border: none;
-        padding: 15px;
-        font-size: 18px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-    .submit-button:hover {
-        background-color: #2980b9;
-    }
-    .button-container {
-        display: flex;
-    }
-    .direction-button {
-        padding: 10px 20px;
-        margin-right: 5px;
-        border: 1px solid #ccc;
-        cursor: pointer;
-    }
-    .direction-button:last-child {
-        margin-right: 0;
-    }
-    .selected {
-        background-color: #1e90ff; /* 薄い青 */
-        color: black; /* 選択時の文字色（見やすさのため） */
-    }
-    @media (max-width: 375px) {
-        .form-container {
-            padding: 10px;
-        }
-        .input, .submit-button {
-            font-size: 14px;
-        }
-        .date-inputs > span{
-            font-size: 12px;
-        }
-    }
-    /* 標準サイズスマホ向け */
-    @media (min-width: 376px) and (max-width: 767px) {
-        .form-container {
-            padding: 20px;
-        }
-        .input, .submit-button {
-            font-size: 16px;
-        }
-    }
-    /* 大型スマホ向け */
-    @media (min-width: 768px) and (max-width: 1024px) {
-        .form-container {
-            padding: 20px;
-        }
-        .input, .submit-button {
-            font-size: 16px;
-        }
-    }
+    .play_date.year { width: 100px; }
+    .play_date.month { width: 80px; }
+    .play_date.day { width: 80px; }
 </style>

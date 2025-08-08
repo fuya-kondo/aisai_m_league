@@ -78,8 +78,7 @@ $title = '履歴';
     <link rel="icon" href="../favicon.ico" sizes="64x64" type="image/x-icon">
     <link rel="stylesheet" href="../webroot/css/master.css">
     <link rel="stylesheet" href="../webroot/css/header.css">
-    <link rel="stylesheet" href="../webroot/css/button.css">
-    <link rel="stylesheet" href="../webroot/css/table.css">
+    <link rel="stylesheet" href="../webroot/css/app.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
     <title><?= $title ?></title>
 </head>
@@ -122,7 +121,7 @@ $title = '履歴';
             </div>
         </div>
         <!-- 対戦記録の表示 -->
-        <div class="game-history-container">
+        <div class="game-history-container container">
             <?php foreach($current_dates as $date): ?>
                 <div class="game-date">
                     <h4 class="date-header"><?=$date?></h4>
@@ -243,7 +242,7 @@ $title = '履歴';
                 </div>
             <?php endif; ?>
         </div>
-        <div class="table-container">
+        <div class="table-container container">
             <div class="table-wrapper">
                 <table class="history-table">
                     <thead>

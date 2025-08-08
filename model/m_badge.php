@@ -1,22 +1,27 @@
 <?php
 
-// ----------------------------------------------------------------------
-// データ取得
-// ----------------------------------------------------------------------
+/**
+ * 称号（m_badge）を取得し、IDをキーにした連想配列へ整形します。
+ */
+
+// クエリ定義
 $mBadgeSql = 'SELECT * FROM `m_badge`';
 
 try {
+    // DB接続
     $dbConfig = getDatabaseConfig();
     $db = Database::getInstance($dbConfig);
     $pdo = $db->getConnection();
-    $mBadgeSth = $pdo->query($mBadgeSql);
-    $mBadgeList = $mBadgeSth->fetchAll(PDO::FETCH_ASSOC);
+    // 問い合わせ実行
+    $mBadgeStatement = $pdo->query($mBadgeSql);
+    $mBadgeList = $mBadgeStatement->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     exit($e->getMessage());
 }
 
-$tmp = $mBadgeList;
+// IDをキーにして再構成
+$badgeRows = $mBadgeList;
 $mBadgeList = [];
-foreach ($tmp as $key => $value) {
-    $mBadgeList[$value['m_badge_id']] = $value;
+foreach ($badgeRows as $badgeRow) {
+    $mBadgeList[$badgeRow['m_badge_id']] = $badgeRow;
 }

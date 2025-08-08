@@ -1,6 +1,7 @@
 <?php
 
 // 必要なファイルの読み込み
+require_once __DIR__ . '/../lib/helpers.php';
 require_once __DIR__ . '/db_connect.php';
 require_once __DIR__ . '/google_gemini.php';
 require_once __DIR__ . '/../model/u_user.php';

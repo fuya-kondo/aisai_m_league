@@ -1,7 +1,7 @@
 <div class="header_area">
 
     <nav id="headerArea">
-        <a href="top"><img src="../image/aisai_m_league.jpg"></a>
+        <a href="top"><img src="../image/aisai_m_league.jpg" alt="AISAI.M.LEAGUE"></a>
     </nav>
 
     <?php /* ハンバーガーメニュー */?>

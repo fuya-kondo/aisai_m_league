@@ -18,13 +18,12 @@ $title = '';
     <link rel="icon" href="../favicon.ico" sizes="64x64" type="image/x-icon">
     <link rel="stylesheet" href="../webroot/css/master.css">
     <link rel="stylesheet" href="../webroot/css/header.css">
-    <link rel="stylesheet" href="../webroot/css/button.css">
-    <link rel="stylesheet" href="../webroot/css/table.css">
+    <link rel="stylesheet" href="../webroot/css/app.css">
     <title><?= $title ?></title>
 </head>
 <body>
 <main>
-    <div class="button-container">
+    <div class="button-container grid-2">
         <button class="sound-button blue" data-sound="../sound/pon.mp3">ポン</button>
         <button class="sound-button red" data-sound="../sound/chi.mp3">チー</button>
         <button class="sound-button green" data-sound="../sound/kan.mp3">カン</button>
@@ -58,48 +57,14 @@ $title = '';
 
 <style>
     .button-container {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr); /* 2列で表示 */
-        gap: 20px; /* ボタン間のスペース */
-        padding: 20px;
-        max-width: 600px; /* コンテナの最大幅 */
-        width: 100%;
-        box-sizing: border-box;
+        margin-top: 25px;
     }
-    .sound-button {
-        width: 100%;
-        padding: 30px 20px;
-        font-size: 24px;
-        font-weight: bold;
-        color: #fff;
-        background-color: #007bff;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: background-color 0.3s ease, transform 0.1s ease;
-        -webkit-tap-highlight-color: rgba(0, 0, 0, 0); /* スマホでのタップ時のハイライトを無効化 */
-    }
-    .sound-button:active {
-        background-color: #0056b3;
-        transform: scale(0.98);
-    }
-    /* ボタンの色を個別に設定する例 */
-    .sound-button.red { background-color: #dc3545; }
-    .sound-button.green { background-color: #28a745; }
-    .sound-button.yellow { background-color: #ffc107; }
-    .sound-button.purple { background-color: #6f42c4; }
-    .sound-button.orange { background-color: #fd7e14; }
-
-    /* スマートフォン向けに1列表示にするメディアクエリ */
-    @media (max-width: 600px) {
-        .button-container {
-            grid-template-columns: 1fr; /* 1列で表示 */
-            padding: 15px;
-        }
-        .sound-button {
-            font-size: 20px;
-            padding: 25px 15px;
-        }
-    }
+    /* Sound buttons */
+    .button-container.grid-2 { display:grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .sound-button { font-size: 1.1rem; padding: 14px; color:#fff; }
+    .sound-button.red{ background:#dc3545; }
+    .sound-button.green{ background:#28a745; }
+    .sound-button.yellow{ background:#ffc107; color:#333; }
+    .sound-button.purple{ background:#6f42c4; }
+    .sound-button.orange{ background:#fd7e14; }
 </style>

@@ -4,14 +4,24 @@
 // データ取得
 // ----------------------------------------------------------------------
 
+// クエリ定義
+$uGameHistorySql = 'SELECT * FROM `u_game_history` WHERE `del_flag` = 0 ORDER BY `u_user_id`, `u_game_history_id` DESC';
+
 try {
+    // DB接続
     $dbConfig = getDatabaseConfig();
     $db = Database::getInstance($dbConfig);
     $pdo = $db->getConnection();
-    foreach($uUserList as $user) {
-        $uGameHistorySql = 'SELECT * FROM u_game_history WHERE u_user_id = '.$user['u_user_id'].' AND del_flag = 0 ORDER BY `u_game_history`.`u_game_history_id` DESC;';
-        $uGameHistorySth = $pdo->query($uGameHistorySql);
-        $uGameHistoryList[$user['u_user_id']] = $uGameHistorySth->fetchAll(PDO::FETCH_ASSOC);
+    // 問い合わせ実行
+    $stmt = $pdo->query($uGameHistorySql);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $uGameHistoryList = [];
+    foreach ($rows as $row) {
+        $userId = $row['u_user_id'];
+        if (!isset($uGameHistoryList[$userId])) {
+            $uGameHistoryList[$userId] = [];
+        }
+        $uGameHistoryList[$userId][] = $row;
     }
 } catch (Exception $e) {
     exit($e->getMessage());
@@ -22,16 +32,7 @@ try {
 // ----------------------------------------------------------------------
 
 /**
- * データを追加
- *
- * @param int $userId
- * @param int $tableId
- * @param int $game
- * @param int $direction
- * @param int|string $rank
- * @param int $score
- * @param string $playDate YYYY-MM-DD形式
- * @return bool
+ * 成績レコードを追加します。
  */
 function addData(int $userId, int $tableId, int $game, int $direction, string $rank, int $score, string $playDate): bool {
     try {
@@ -40,7 +41,7 @@ function addData(int $userId, int $tableId, int $game, int $direction, string $r
         $pdo = $db->getConnection();
         $sql = 'INSERT INTO `u_game_history` (u_user_id, u_table_id, game, m_direction_id, rank, score, point, play_date, reg_date) VALUES (:userId, :tableId, :game, :direction, :rank, :score, :point, :playDate, NOW())';
         $stmt = $pdo->prepare($sql);
-        $point = _calculationPoint($rank, $score);
+        $point = calculatePoint($rank, $score);
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
         $stmt->bindParam(':tableId', $tableId, PDO::PARAM_INT);
         $stmt->bindParam(':game', $game, PDO::PARAM_INT);
@@ -57,14 +58,7 @@ function addData(int $userId, int $tableId, int $game, int $direction, string $r
 }
 
 /**
- * データを更新
- *
- * @param int $historyId
- * @param int|string $rank
- * @param int $score
- * @param int $game
- * @param int $direction
- * @return bool
+ * 成績レコードを更新します。
  */
 function updateData(int $historyId, string $rank, int $score, int $game, int $direction): bool {
     try {
@@ -73,7 +67,7 @@ function updateData(int $historyId, string $rank, int $score, int $game, int $di
         $pdo = $db->getConnection();
         $sql = 'UPDATE `u_game_history` SET `rank` = :rank, `score` = :score, `game` = :game, `m_direction_id` = :direction, `point` = :point WHERE `u_game_history_id` = :u_game_history_id';
         $stmt = $pdo->prepare($sql);
-        $point = _calculationPoint($rank, $score);
+        $point = calculatePoint($rank, $score);
         $stmt->bindParam(':rank', $rank);
         $stmt->bindParam(':score', $score, PDO::PARAM_INT);
         $stmt->bindParam(':game', $game, PDO::PARAM_INT);
@@ -88,10 +82,7 @@ function updateData(int $historyId, string $rank, int $score, int $game, int $di
 }
 
 /**
- * データを削除（del_flagを1にする）
- *
- * @param int $historyId
- * @return bool
+ * 成績レコードを論理削除します（del_flag=1）。
  */
 function deleteData(int $historyId): bool {
     try {
@@ -109,12 +100,9 @@ function deleteData(int $historyId): bool {
 }
 
 /**
- * ポイント計算
- *
- * @param int|string $rank
- * @param int $score
+ * ルールに基づいたポイント計算を行います。
  */
-function _calculationPoint($rank, int $score) {
+function calculatePoint($rank, int $score) {
     $point = 0;
     switch ($rank) {
         case 1:

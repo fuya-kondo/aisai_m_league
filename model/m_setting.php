@@ -1,24 +1,30 @@
 <?php
 
-// ----------------------------------------------------------------------
-// データ取得
-// ----------------------------------------------------------------------
+/**
+ * 設定（m_setting）一覧を取得し、IDをキーに整形します。
+ */
+
+// クエリ定義
 $mSettingSql = 'SELECT * FROM `m_setting`;';
 
 try {
+    // DB接続
     $dbConfig = getDatabaseConfig();
     $db = Database::getInstance($dbConfig);
     $pdo = $db->getConnection();
-    $mSettingSth = $pdo->query($mSettingSql);
-    $mSettingList = $mSettingSth->fetchAll(PDO::FETCH_ASSOC);
+    // 問い合わせ実行
+    $mSettingStatement = $pdo->query($mSettingSql);
+    $mSettingList = $mSettingStatement->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     exit($e->getMessage());
 }
-$tmp = $mSettingList;
+
+// IDをキーに整形
+$settingRows = $mSettingList;
 $mSettingList = [];
-foreach ($tmp as $key => $value) {
-    $mSettingList[$value['m_setting_id']]['name'] = $value['name'];
-    $mSettingList[$value['m_setting_id']]['value'] = $value['value'];
+foreach ($settingRows as $settingRow) {
+    $mSettingList[$settingRow['m_setting_id']]['name'] = $settingRow['name'];
+    $mSettingList[$settingRow['m_setting_id']]['value'] = $settingRow['value'];
 }
 
 /**

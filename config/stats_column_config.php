@@ -72,30 +72,6 @@ $displayStatsColumn_1 = [
 ];
 // 表示成績カラム定義2 (個人の成績一覧で使用)
 $displayStatsColumn_2 = [
-    'play_count'                => '対局数',
-    'sum_base_score'            => '素点',
-    'average_rank'              => '平均順位',
-    'average_score'             => '平均点',
-    'mistake_count'             => 'チョンボ数',
-    'sum_point'                 => '合計ポイント',
-    'average_point'             => '平均ポイント',
-    'over_second_probability'   => '連対率',
-    'over_third_probability'    => 'ラス回避率',
-];
-// 表示成績カラム定義3 (個人の成績一覧で使用)
-$displayStatsColumn_3 = [
-    'play_count'                => '対局数',
-    'sum_base_score'            => '素点',
-    'average_rank'              => '平均順位',
-    'average_score'             => '平均点',
-    'mistake_count'             => 'チョンボ数',
-    'sum_point'                 => '合計ポイント',
-    'average_point'             => '平均ポイント',
-    'over_second_probability'   => '連対率',
-    'over_third_probability'    => 'ラス回避率',
-];
-// 表示成績カラム定義3 (個人の成績一覧で使用)
-$displayStatsColumn_4 = [
     'sub_score' => '点差',
     'sub_point' => 'ポイント差',
 ];

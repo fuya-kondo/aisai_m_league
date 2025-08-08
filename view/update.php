@@ -44,8 +44,7 @@ include '../webroot/common/header.php';
     <link rel="icon" href="../favicon.ico" sizes="64x64" type="image/x-icon">
     <link rel="stylesheet" href="../webroot/css/master.css">
     <link rel="stylesheet" href="../webroot/css/header.css">
-    <link rel="stylesheet" href="../webroot/css/button.css">
-    <link rel="stylesheet" href="../webroot/css/table.css">
+    <link rel="stylesheet" href="../webroot/css/app.css">
     <title><?= $title ?></title>
 </head>
 <body>
@@ -54,13 +53,16 @@ include '../webroot/common/header.php';
             <div class="page-title"><?= $title ?></div>
             <div class="button-container" style="text-align: center;">
                 <form action="update" method="post">
-                    <select class="input" name="new_rank" require_onced style="width: 100px">
+                    <select class="input" name="new_rank" require_onced style="max-width: 160px">
                         <?php foreach($rankConfig as $value => $name): ?>
                             <option value="<?=$value?>" <?php if($value==$rank):?>selected<?php endif;?>><?=$name?></option>
                         <?php endforeach;?>
                     </select><br>
-                    <input class="input" type="number" name="new_score" require_onced value="<?= $score ?>" style="width: 80px"><br>
-                    <input class="input" type="number" name="new_game" require_onced value="<?= $game ?>" style="width: 80px">半荘目
+                    <input class="input" type="number" name="new_score" require_onced value="<?= $score ?>" style="max-width: 140px"><br>
+                    <div class="date-inputs" style="justify-content:center;">
+                        <input class="input" type="number" name="new_game" require_onced value="<?= $game ?>" style="max-width: 120px">
+                        <label style="margin:0 0 0 8px; font-size:14px;">半荘目</label>
+                    </div>
                     <div class="form-group">
                         <div class="button-containers">
                             <?php foreach($mDirectionList as $directionId => $directionName): ?>
@@ -70,7 +72,7 @@ include '../webroot/common/header.php';
                         </div>
                     </div>
                     <input name="userId" value="<?= $userId ?>" style="display:none"><br><br>
-                    <button class="submit-button"type="submit" name="historyId" value="<?= $historyId ?>">修正する</button>
+                    <button class="submit-button btn-primary" type="submit" name="historyId" value="<?= $historyId ?>">修正する</button>
                 </form>
             </div>
         <?php endif; ?>

@@ -2,20 +2,22 @@
 const AGGREGATE_TABLE_ID = 1; // 集計対象のテーブルID
 
 /* --- 集計対象のテーブル情報の取得 -- */
-$userMap            = array_column($uUserList, null, 'u_user_id');
+$userMap         = indexByKey($uUserList, 'u_user_id');
 // 集計対象のテーブル情報を取得
-$targetTableData    = _findFirstItem($uTableList, 'u_table_id', AGGREGATE_TABLE_ID);
+$targetTableData = findFirstByKey($uTableList, 'u_table_id', AGGREGATE_TABLE_ID);
 // 対象グループ情報を取得
-$targetGroupData    = _findFirstItem($mGroupList, 'm_group_id', $targetTableData['m_group_id']);
+$targetGroupData = findFirstByKey($mGroupList, 'm_group_id', $targetTableData['m_group_id']);
 // 対象ルール情報を取得
-$targetRuleData     = _findFirstItem($mRuleList, 'm_rule_id', $targetGroupData['m_rule_id']);
+$targetRuleData  = findFirstByKey($mRuleList, 'm_rule_id', $targetGroupData['m_rule_id']);
 // 対象ユーザー情報を取得
-$targetUserData     = [];
+$targetUserData  = [];
 for ($i = 1; $i <= 4; $i++) {
     $userIdKey = 'u_user_id_' . $i;
-    if (isset($targetTableData[$userIdKey])) {
+    if (!empty($targetTableData[$userIdKey])) {
         $userId = $targetTableData[$userIdKey];
-        if (isset($userMap[$userId])) $targetUserData[$userId] = $userMap[$userId];
+        if (isset($userMap[$userId])) {
+            $targetUserData[$userId] = $userMap[$userId];
+        }
     }
 }
 
@@ -50,17 +52,4 @@ $gameHistoryList    = $statsService->getGameHistoryList();  // 対局履歴の�
 $dayStatsList       = $statsService->getDayStats();         // 日ごとの対局履歴の取得
 $analysisDataList   = $statsService->getAnalysisDataList(); // AI分析用のデータ取得
 
-/* --- ヘルパー関数 -- */
-
-/**
- * 配列から特定のキーと値を持つ最初の要素を見つける
- */
-function _findFirstItem(array $list, string $key, $value): ?array
-{
-    foreach ($list as $item) {
-        if (isset($item[$key]) && $item[$key] === $value) {
-            return $item;
-        }
-    }
-    return null;
-}
+/* --- 以降のヘルパーは共通化（lib/helpers.php）を利用 --- */
