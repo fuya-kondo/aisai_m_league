@@ -260,10 +260,7 @@ $title = '個人成績';
                                         suggestedMin: 0,
                                         suggestedMax: baselineMax, // 基準値を100%として設定
                                         ticks: {
-                                            stepSize: 20,
-                                            callback: function(value) {
-                                                return value; // パーセント記号を削除
-                                            }
+                                            display: false
                                         },
                                         pointLabels: {
                                             fontSize: 14
@@ -402,34 +399,34 @@ $title = '個人成績';
 
                 <?php /* 各家の成績 */?>
                 <h2 class="page-title">席による関係性</h2>
-                    <div class="relation-section">
-                        <div class="relation-column">
-                            <h3>上家</h3>
-                            <?php foreach( $directionStats['upper'][$selectedPlayer] as $userId => $data ): ?>
-                                <div class="player-card">
-                                    <div class="player-name"><?= $userList[$userId]['last_name'] ?></div>
-                                    <ul class="player-stats">
-                                        <?php foreach($data as $key => $value): ?>
-                                            <li><?= $displayStatsColumn_2[$key] ?> ： <?= $value ?></li>
-                                        <?php endforeach; ?>
-                                    </ul>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                        <div class="relation-column">
-                            <h3>下家</h3>
-                            <?php foreach( $directionStats['lower'][$selectedPlayer] as $userId => $data ): ?>
-                                <div class="player-card">
-                                    <div class="player-name"><?= $userList[$userId]['last_name'] ?></div>
-                                    <ul class="player-stats">
-                                        <?php foreach($data as $key => $value): ?>
-                                            <li><?= $displayStatsColumn_2[$key] ?> ： <?= $value ?></li>
-                                        <?php endforeach; ?>
-                                    </ul>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
+                <div class="relation-section">
+                    <div class="relation-column">
+                        <h3>上家</h3>
+                        <?php foreach( $directionStats['upper'][$selectedPlayer] as $userId => $data ): ?>
+                            <div class="player-card">
+                                <div class="player-name"><?= $userList[$userId]['last_name'] ?></div>
+                                <ul class="player-stats">
+                                    <?php foreach($data as $key => $value): ?>
+                                        <li><?= $displayStatsColumn_2[$key] ?> ： <?= $value ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
+                    <div class="relation-column">
+                        <h3>下家</h3>
+                        <?php foreach( $directionStats['lower'][$selectedPlayer] as $userId => $data ): ?>
+                            <div class="player-card">
+                                <div class="player-name"><?= $userList[$userId]['last_name'] ?></div>
+                                <ul class="player-stats">
+                                    <?php foreach($data as $key => $value): ?>
+                                        <li><?= $displayStatsColumn_2[$key] ?> ： <?= $value ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
                 <?php /* 各家の成績 */?>
 
                 <?php /* ランク履歴 */ ?>
