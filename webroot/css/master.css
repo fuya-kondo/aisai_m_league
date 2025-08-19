@@ -71,6 +71,7 @@ table { border-collapse: separate; border-spacing: 0; width: 100%; }
   padding: 10px 12px; border:1px solid #dfe3e6; border-radius: 8px; font-size: 1rem; width: 100%;
 }
 .year-select { width: 100px; }
+.player-select { width: 200px; }
 .year-select, .player-select { background:#fff; }
 .date-inputs { display: flex; align-items: center; gap: 8px; }
 

@@ -50,9 +50,11 @@ $title = '個人成績';
                             <div class="scroll-btn" data-target="tier_history"><?= $userList[$selectedPlayer]['tier']['name'] ?></div>
                         </span>
                     <?php endif;?>
-                    <h1 class="player-name">
-                        <?= $userList[$selectedPlayer]['last_name'].$userList[$selectedPlayer]['first_name'] ?>
-                    </h1>
+                    <select name="player" id="player" onchange="this.form.submit()" class="player-name player-select">
+                        <?php foreach($userList as $userId => $userData): ?>
+                            <option value="<?= $userId ?>" <?= ($userId == $selectedPlayer) ? 'selected' : '' ?>><?= $userData['last_name'].$userData['first_name'] ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
                 <?php if ( isset($userList[$selectedPlayer]['badge']) ): ?>
                     <a href="badge?&userId=<?= $selectedPlayer ?>">
@@ -67,22 +69,11 @@ $title = '個人成績';
         <?php endif; ?>
         <form action="" method="get" class="player-selection-form">
             <div class="selection-container">
-                <div style="margin-bottom:10px">
-                    <label for="year">年を選択:</label>
-                    <select name="year" id="year" onchange="this.form.submit()" class="year-select">
-                        <?php foreach($yearlyStatsList as $year => $displayStatsData): ?>
-                            <option value="<?= $year ?>" <?= ($year == $selectedYear) ? 'selected' : '' ?>><?= $year ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div style="display:none">
-                    <label for="player">選手を選択:</label>
-                    <select name="player" id="player" onchange="this.form.submit()" class="player-select">
-                        <?php foreach($userList as $userId => $userData): ?>
-                            <option value="<?= $userId ?>" <?= ($userId == $selectedPlayer) ? 'selected' : '' ?>><?= $userData['last_name'].$userData['first_name'] ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+                <select name="year" id="year" onchange="this.form.submit()" class="year-select">
+                    <?php foreach($yearlyStatsList as $year => $displayStatsData): ?>
+                        <option value="<?= $year ?>" <?= ($year == $selectedYear) ? 'selected' : '' ?>><?= $year ?></option>
+                    <?php endforeach; ?>
+                </select>
             </div>
         </form>
 
@@ -153,7 +144,6 @@ $title = '個人成績';
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
                         var playerData = <?= json_encode($playerData) ?>;
-                        console.log(playerData); // デバッグ用
                         var rankingCtx = document.getElementById('rankingChart').getContext('2d');
                         new Chart(rankingCtx, {
                             type: 'pie',
@@ -488,7 +478,7 @@ $title = '個人成績';
         font-weight: 500;
     }
     .profile-header .badge {
-        margin-top: 10px;
+        margin-top: 5px;
         font-size: 0.8em;
         color: #6c757d;
     }
@@ -501,6 +491,7 @@ $title = '個人成績';
     }
     .player-selection-form {
         text-align: center;
+        margin-bottom:0px;
     }
     .table-container {
         margin-bottom: 30px;
@@ -537,18 +528,28 @@ $title = '個人成績';
     .stats-colum {
         font-weight: bold;
     }
-    .year-select, .player-select {
-        padding: 10px; /* 内側の余白 */
+    .year-select {
+        padding: 0px;
         font-size: 1em; /* フォントサイズ */
-        border-radius: 4px; /* 角丸 */
-        border: 1px solid #ccc; /* ボーダー */
-        background-color: white; /* 背景色 */
-        transition: border-color 0.3s ease; /* ボーダー色の変化にトランジションを追加 */
+        border: 1px solid #fff; /* ボーダー */
+        text-align: center;          /* 文字を中央揃え */
+        text-align-last: center;     /* Firefox 用 */
+        -webkit-appearance: none;    /* iOS/Safari のデフォルト矢印を消す */
+        -moz-appearance: none;       /* Firefox */
+        appearance: none;
     }
-
+    .player-select {
+        padding: 10px 0px 5px 0px;
+        border: 1px solid #fff; /* ボーダー */
+        font-size: 1em; /* フォントサイズ */
+        text-align: center;          /* 文字を中央揃え */
+        text-align-last: center;     /* Firefox 用 */
+        -webkit-appearance: none;    /* iOS/Safari のデフォルト矢印を消す */
+        -moz-appearance: none;       /* Firefox */
+        appearance: none;
+    }
     .year-select:hover, .player-select:hover
     .year-select:focus, .player-select:focus {
-        border-color: #009944; /* フォーカス時やホバー時のボーダー色 */
         outline: none; /* デフォルトのアウトラインを無効化 */
     }
     .stats-column-2 {
