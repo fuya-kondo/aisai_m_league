@@ -115,6 +115,41 @@ class StatsService {
         return $groupedTitles;
     }
 
+    /*
+     * ランク履歴の取得
+     *
+     * @return array ランク履歴リスト
+     */
+    public function getRankHistory(): array
+    {
+        $tmp = [];
+        $result = [];
+        // データをまとめる
+        foreach ($this->uTierHistoryDataList as $row) {
+            $userId = $row["u_user_id"];
+            $year   = $row["change_date"];
+            $tier   = $row["m_tier_id"];
+            
+            $tmp[$userId][$year]['tier'] = $tier;
+            $tmp[$userId][$year]['name'] = $this->mTierDataList[$tier]['name'];
+            $tmp[$userId][$year]['color'] = $this->mTierDataList[$tier]['color'];
+
+        }
+        foreach ($tmp as $userId => $yearList) {
+            foreach ($yearList as $year => $dataList) {
+                if (isset($yearList[$year-1]))  {
+                    $result[$userId][$year]['before']['tier'] = $yearList[$year-1]['tier'];
+                    $result[$userId][$year]['before']['name'] = $yearList[$year-1]['name'];
+                    $result[$userId][$year]['before']['color'] = $yearList[$year-1]['color'];
+                    $result[$userId][$year]['after']['tier'] = $dataList['tier'];
+                    $result[$userId][$year]['after']['name'] = $dataList['name'];
+                    $result[$userId][$year]['after']['color'] = $dataList['color'];
+                }
+            }
+        }
+        return $result;
+    }
+
     /**
      * 本日の成績の取得
      *

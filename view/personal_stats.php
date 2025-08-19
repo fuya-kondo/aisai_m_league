@@ -47,7 +47,7 @@ $title = '個人成績';
                 <div class="profile-info">
                     <?php if ( isset($userList[$selectedPlayer]['tier']) ): ?>
                         <span class="tier" style="color:<?=$userList[$selectedPlayer]['tier']['color']?>">
-                            <?= $userList[$selectedPlayer]['tier']['name'] ?>
+                            <div class="scroll-btn" data-target="tier_history"><?= $userList[$selectedPlayer]['tier']['name'] ?></div>
                         </span>
                     <?php endif;?>
                     <h1 class="player-name">
@@ -432,6 +432,24 @@ $title = '個人成績';
                     </div>
                 <?php /* 各家の成績 */?>
 
+                <?php /* ランク履歴 */ ?>
+                <h2 class="page-title">ランク履歴</h2>
+                <div id="tier_history" class="rank-history-container">
+                    <?php foreach ($rankHistoryList[$selectedPlayer] as $year => $tierInfo): ?>
+                        <div class="rank-history-item">
+                            <div class="rank-year"><?= $year ?></div>
+                            <div class="rank-tier" style="color:<?= $tierInfo['before']['color'] ?>">
+                                <?= $tierInfo['before']['name'] ?>
+                            </div>
+                            <div>→</div>
+                            <div class="rank-tier" style="color:<?= $tierInfo['after']['color'] ?>">
+                                <?= $tierInfo['after']['name'] ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <?php /* ランク履歴 */ ?>
+
             <?php else: ?>
                 <p class="no-data-message">選択された選手のデータが見つかりません。</p>
             <?php endif; ?>
@@ -440,6 +458,19 @@ $title = '個人成績';
 </main>
 </body>
 </html>
+
+<script>
+    // 全ての .scroll-btn にイベントを付与
+    document.querySelectorAll('.scroll-btn').forEach(div => {
+        div.addEventListener('click', () => {
+            const targetId = div.getAttribute('data-target');
+            const target = document.getElementById(targetId);
+            if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+</script>
 
 <style>
     .profile-header {
@@ -557,6 +588,27 @@ $title = '個人成績';
         padding: 4px 0;
         font-size: 0.9em;
         border-bottom: 1px solid #eee;
+    }
+    /* Rank History */
+    .rank-history-container {
+        display: grid;
+        grid-template-columns: 80px 1fr 50px 1fr;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        overflow: hidden;
+        margin: 16px 0;
+        font-size: 1rem;
+    }
+    .rank-history-item {
+        display: contents; /* グリッドの中で要素をセルのように扱う */
+    }
+    .rank-history-item > div {
+        padding: 8px;
+        border-bottom: 1px solid #eee;
+        text-align: center;
+    }
+    .rank-history-item:last-child > div {
+        border-bottom: none;
     }
     @media screen and (max-width: 768px) {
         .table-wrapper {

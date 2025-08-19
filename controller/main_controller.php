@@ -44,6 +44,7 @@ $nextTwoGameDays    = $statsService->getNextTwoGameDays();  // 対局日時の�
 $userList           = $statsService->getUserList();         // ユーザーの取得
 $years              = $statsService->getYears();            // 対象の年を取得
 $titleHolderList    = $statsService->getTitleHolder();      // タイトル保持者の取得
+$rankHistoryList    = $statsService->getRankHistory();      // ランク履歴の取得
 $todayStatsList     = $statsService->getTodayStatsList();   // 本日の成績の取得
 $yearlyStatsList    = $statsService->getYearlyStatsList();  // 年毎の成績の取得
 $yearlyChartList    = $statsService->getYearlyChartList();  // 年毎のグラフ用データの取得

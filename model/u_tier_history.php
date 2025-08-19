@@ -5,7 +5,7 @@
  */
 
 // クエリ定義
-$uTierHistorySql = 'SELECT * FROM `u_user_tier_history`';
+$uTierHistorySql = 'SELECT * FROM `u_tier_history`';
 
 try {
     // DB接続

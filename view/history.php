@@ -128,10 +128,12 @@ $title = '履歴';
                     <div class="day-stats">
                         <?php foreach($dayStatsList[$date] as $userId => $data): ?>
                             <div class="day-stats-item">
-                                <?= $userList[$userId]['last_name']."：".$data ?>
+                                <div class="day-stats-user"><?= $userList[$userId]['last_name'] ?></div>
+                                <div class="day-stats-value"><?= $data ?></div>
                             </div>
                         <?php endforeach; ?>
                     </div>
+
                     <?php foreach($gameHistoryList[$date] as $game => $gameData): ?>
                         <div class="game-session">
                             <h5 class="game-header"><?=$game?>半荘目</h5>
@@ -456,14 +458,23 @@ $title = '履歴';
     }
     .day-stats {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 5px;
-        margin: 5px 0;
+        grid-template-columns: 150px 1fr; /* ユーザー列 / データ列 */
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        overflow: hidden;
+        margin: 8px 0;
+        font-size: 0.95rem;
     }
-
     .day-stats-item {
-        padding: 5px 12px;
+        display: contents; /* 各要素をセル化 */
+    }
+    .day-stats-item > div {
+        padding: 6px;
+        border-bottom: 1px solid #eee;
         text-align: center;
+    }
+    .day-stats-item:last-child > div {
+        border-bottom: none;
     }
     .game-session {
         margin-bottom: 20px;
