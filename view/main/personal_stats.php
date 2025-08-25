@@ -1,17 +1,7 @@
 <?php
-// Include necessary files
-require_once __DIR__ . '/../config/import_file.php';
+
 // Include header
-include '../webroot/common/header.php';
-
-// Get parameter
-$selectedYear   = isset( $_GET['year'] ) ? $_GET['year']   : date("Y");
-$selectedPlayer = isset($_GET['player']) ? $_GET['player'] : null;
-
-$scoreDisplayFlag = !( $mSettingList[1]['value'] && $selectedYear == date("Y") );
-
-// Set title
-$title = '個人成績';
+include __DIR__ . '/../header.php';
 ?>
 
 <!DOCTYPE html>
@@ -20,11 +10,11 @@ $title = '個人成績';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <link rel="apple-touch-icon" href="../favicon.png">
-    <link rel="icon" href="../favicon.ico" sizes="64x64" type="image/x-icon">
-    <link rel="stylesheet" href="../webroot/css/master.css">
-    <link rel="stylesheet" href="../webroot/css/header.css">
-    <link rel="stylesheet" href="../webroot/css/app.css">
+    <link rel="apple-touch-icon" href="<?= $baseUrl ?>/favicon.png">
+    <link rel="icon" href="<?= $baseUrl ?>/favicon.ico" sizes="64x64" type="image/x-icon">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/master.css">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/header.css">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/app.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -35,59 +25,52 @@ $title = '個人成績';
     <?php if (!isset($selectedPlayer)): ?>
         <div class="page-title"><?= $title ?></div>
         <div class="select-button-container">
-            <form action="personal_stats" method="get">
+            <form action="personal" method="get">
                 <?php foreach($userList as $userId => $userData): ?>
                     <button class="select-button" type="submit" name="player" value="<?=$userId?>"><?=$userData['last_name'].$userData['first_name']?></button>
                 <?php endforeach; ?>
             </form>
         </div>
     <?php else: ?>
-        <?php if( isset($userList[$selectedPlayer]) ):?>
+        <form action="" method="get" class="player-selection-form">
             <div class="profile-header">
                 <div class="profile-info">
                     <?php if ( isset($userList[$selectedPlayer]['tier']) ): ?>
                         <span class="tier" style="color:<?=$userList[$selectedPlayer]['tier']['color']?>">
                             <div class="scroll-btn" data-target="tier_history"><?= $userList[$selectedPlayer]['tier']['name'] ?></div>
                         </span>
-                    <?php endif;?>
+                    <?php endif; ?>
+                    <!-- プレイヤー選択 -->
                     <select name="player" id="player" onchange="this.form.submit()" class="player-name player-select">
                         <?php foreach($userList as $userId => $userData): ?>
-                            <option value="<?= $userId ?>" <?= ($userId == $selectedPlayer) ? 'selected' : '' ?>><?= $userData['last_name'].$userData['first_name'] ?></option>
+                            <option value="<?= $userId ?>" <?= ($userId == $selectedPlayer) ? 'selected' : '' ?>>
+                                <?= $userData['last_name'].$userData['first_name'] ?>
+                            </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <?php if ( isset($userList[$selectedPlayer]['badge']) ): ?>
                     <a href="badge?&userId=<?= $selectedPlayer ?>">
                         <div class="badge">
-                            <span class="badge-icon">⭐</span> <span class="badge-name"><?=$userList[$selectedPlayer]['badge']['name']?></span>
+                            <span class="badge-icon">⭐</span>
+                            <span class="badge-name"><?=$userList[$selectedPlayer]['badge']['name']?></span>
                         </div>
                     </a>
-                <?php endif;?>
+                <?php endif; ?>
             </div>
-        <?php else: ?>
-            <h1 class="page-title"><?= $title ?></h1>
-        <?php endif; ?>
-        <form action="" method="get" class="player-selection-form">
+            <!-- 年選択 -->
             <div class="selection-container">
                 <select name="year" id="year" onchange="this.form.submit()" class="year-select">
                     <?php foreach($yearlyStatsList as $year => $displayStatsData): ?>
-                        <option value="<?= $year ?>" <?= ($year == $selectedYear) ? 'selected' : '' ?>><?= $year ?></option>
+                        <option value="<?= $year ?>" <?= ($year == $selectedYear) ? 'selected' : '' ?>>
+                            <?= $year ?>
+                        </option>
                     <?php endforeach; ?>
                 </select>
             </div>
         </form>
 
         <?php if (isset($selectedYear) && isset($selectedPlayer)): ?>
-            <?php
-                // 選択された選手のデータを取得
-                $playerData = null;
-                foreach($yearlyStatsList[$selectedYear] as $data) {
-                    if ($data['u_user_id'] == $selectedPlayer) {
-                        $playerData = $data;
-                        break;
-                    }
-                }
-            ?>
             <?php if ($playerData): // データが存在する場合のみ処理?>
                 <?php /* 全体成績 */?>
                 <div class="table-container">
@@ -349,8 +332,8 @@ $title = '個人成績';
                             <thead>
                                 <tr>
                                     <th></th>
-                                    <?php foreach($mDirectionList as $directionName): ?>
-                                        <th><?= $directionName ?></th>
+                                    <?php foreach($mDirectionList as $directionId => $directionData): ?>
+                                        <th><?= $directionData['name'] ?></th>
                                     <?php endforeach; ?>
                                 </tr>
                             </thead>
@@ -392,29 +375,37 @@ $title = '個人成績';
                 <div class="relation-section">
                     <div class="relation-column">
                         <h3>上家</h3>
-                        <?php foreach( $directionStats['upper'][$selectedPlayer] as $userId => $data ): ?>
-                            <div class="player-card">
-                                <div class="player-name"><?= $userList[$userId]['last_name'] ?></div>
-                                <ul class="player-stats">
-                                    <?php foreach($data as $key => $value): ?>
-                                        <li><?= $displayStatsColumn_2[$key] ?> ： <?= $value ?></li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </div>
-                        <?php endforeach; ?>
+                        <?php if (isset($directionStats['upper'][$selectedPlayer]) && is_array($directionStats['upper'][$selectedPlayer])): ?>
+                            <?php foreach( $directionStats['upper'][$selectedPlayer] as $userId => $data ): ?>
+                                <div class="player-card">
+                                    <div class="player-name"><?= $userList[$userId]['last_name'] ?></div>
+                                    <ul class="player-stats">
+                                        <?php foreach($data as $key => $value): ?>
+                                            <li><?= $displayStatsColumn_2[$key] ?> ： <?= $value ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p class="no-data-message">上家のデータがありません。</p>
+                        <?php endif; ?>
                     </div>
                     <div class="relation-column">
                         <h3>下家</h3>
-                        <?php foreach( $directionStats['lower'][$selectedPlayer] as $userId => $data ): ?>
-                            <div class="player-card">
-                                <div class="player-name"><?= $userList[$userId]['last_name'] ?></div>
-                                <ul class="player-stats">
-                                    <?php foreach($data as $key => $value): ?>
-                                        <li><?= $displayStatsColumn_2[$key] ?> ： <?= $value ?></li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </div>
-                        <?php endforeach; ?>
+                        <?php if (isset($directionStats['lower'][$selectedPlayer]) && is_array($directionStats['lower'][$selectedPlayer])): ?>
+                            <?php foreach( $directionStats['lower'][$selectedPlayer] as $userId => $data ): ?>
+                                <div class="player-card">
+                                    <div class="player-name"><?= $userList[$userId]['last_name'] ?></div>
+                                    <ul class="player-stats">
+                                        <?php foreach($data as $key => $value): ?>
+                                            <li><?= $displayStatsColumn_2[$key] ?> ： <?= $value ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p class="no-data-message">下家のデータがありません。</p>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <?php /* 各家の成績 */?>
@@ -422,18 +413,22 @@ $title = '個人成績';
                 <?php /* ランク履歴 */ ?>
                 <h2 class="page-title">ランク履歴</h2>
                 <div id="tier_history" class="rank-history-container">
-                    <?php foreach ($rankHistoryList[$selectedPlayer] as $year => $tierInfo): ?>
-                        <div class="rank-history-item">
-                            <div class="rank-year"><?= $year ?></div>
-                            <div class="rank-tier" style="color:<?= $tierInfo['before']['color'] ?>">
-                                <?= $tierInfo['before']['name'] ?>
+                    <?php if (isset($rankHistoryList[$selectedPlayer]) && is_array($rankHistoryList[$selectedPlayer])): ?>
+                        <?php foreach ($rankHistoryList[$selectedPlayer] as $year => $tierInfo): ?>
+                            <div class="rank-history-item">
+                                <div class="rank-year"><?= $year ?></div>
+                                <div class="rank-tier" style="color:<?= $tierInfo['before']['color'] ?>">
+                                    <?= $tierInfo['before']['name'] ?>
+                                </div>
+                                <div>→</div>
+                                <div class="rank-tier" style="color:<?= $tierInfo['after']['color'] ?>">
+                                    <?= $tierInfo['after']['name'] ?>
+                                </div>
                             </div>
-                            <div>→</div>
-                            <div class="rank-tier" style="color:<?= $tierInfo['after']['color'] ?>">
-                                <?= $tierInfo['after']['name'] ?>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p class="no-data-message">ランク履歴データがありません。</p>
+                    <?php endif; ?>
                 </div>
                 <?php /* ランク履歴 */ ?>
 

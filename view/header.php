@@ -1,7 +1,10 @@
 <div class="header_area">
-
+<?php
+    require_once __DIR__ . '/../config/import_file.php';
+    $baseUrl = getBaseUrl();
+?>
     <nav id="headerArea">
-        <a href="top"><img src="../image/aisai_m_league.jpg" alt="AISAI.M.LEAGUE"></a>
+        <a href="<?= $baseUrl ?>/top"><img src="<?= $baseUrl ?>/resources/image/aisai_m_league.jpg" alt="AISAI.M.LEAGUE"></a>
     </nav>
 
     <?php /* ハンバーガーメニュー */?>
@@ -19,21 +22,21 @@
 
     <?php /* メニュー */ ?>
     <div id="popupMenu">
-        <a href="top"><div class="header-button">AISAI.M.LEAGUE</div></a>
+        <a href="<?= $baseUrl ?>/top"><div class="header-button">AISAI.M.LEAGUE</div></a>
         <div class="before-line"></div>
-        <a href="stats"><div class="header-button">全体成績</div></a>
-        <a href="personal_stats"><div class="header-button">個人成績</div></a>
+        <a href="<?= $baseUrl ?>/stats"><div class="header-button">全体成績</div></a>
+        <a href="<?= $baseUrl ?>/personal"><div class="header-button">個人成績</div></a>
         <div class="before-line"></div>
-        <a href="add"><div class="header-button">成績 登録</div></a>
-        <a href="history"><div class="header-button">成績 履歴</div></a>
+        <a href="<?= $baseUrl ?>/add"><div class="header-button">成績 登録</div></a>
+        <a href="<?= $baseUrl ?>/history"><div class="header-button">成績 履歴</div></a>
         <div class="before-line"></div>
-        <a href="rule"><div class="header-button">競技規定</div></a>
+        <a href="<?= $baseUrl ?>/rule"><div class="header-button">競技規定</div></a>
         <div class="before-line"></div>
-        <a href="analysis"><div class="header-button">AI成績分析</div></a>
+        <a href="<?= $baseUrl ?>/analysis"><div class="header-button">AI成績分析</div></a>
         <div class="before-line"></div>
-        <a href="sound"><div class="header-button">発声</div></a>
+        <a href="<?= $baseUrl ?>/sound"><div class="header-button">発声</div></a>
         <div class="before-line"></div>
-        <a href="setting"><div class="header-button">設定</div></a>
+        <a href="<?= $baseUrl ?>/setting"><div class="header-button">設定</div></a>
     </div>
 
 </div>

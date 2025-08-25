@@ -3,13 +3,13 @@ SetEnvIf Request_URI ".*" Ngx_Cache_AllCacheMode
 
 RewriteEngine on
 
-# HTTPSリダイレクト（ローカル開発環境では無効化）
-# RewriteCond %{HTTPS} !on
-# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+# HTTPSリダイレクト（本番環境用）
+RewriteCond %{HTTPS} !on
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
-# wwwリダイレクト（ローカル開発環境では無効化）
-# RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
-# RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+# wwwリダイレクト（本番環境用）
+RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
 
 # 静的ファイルの処理（先に処理）
 RewriteCond %{REQUEST_FILENAME} -f

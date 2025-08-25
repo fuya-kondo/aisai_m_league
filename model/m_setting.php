@@ -1,65 +1,122 @@
 <?php
 
 /**
- * 設定（m_setting）一覧を取得し、IDをキーに整形します。
+ * 設定マスターモデルクラス
+ * 設定情報の取得、更新、削除を行う
  */
+class MSetting
+{
+    private $db;
+    private $table_name = 'm_setting';
 
-// クエリ定義
-$mSettingSql = 'SELECT * FROM `m_setting`;';
+    public function __construct()
+    {
+        $this->db = Database::getInstance();
+    }
 
-try {
-    // DB接続
-    $dbConfig = getDatabaseConfig();
-    $db = Database::getInstance($dbConfig);
-    $pdo = $db->getConnection();
-    // 問い合わせ実行
-    $mSettingStatement = $pdo->query($mSettingSql);
-    $mSettingList = $mSettingStatement->fetchAll(PDO::FETCH_ASSOC);
-} catch (Exception $e) {
-    exit($e->getMessage());
-}
+    /**
+     * すべてのデータを取得
+     */
+    public function getAllData()
+    {
+        try {
+            $sql = 'SELECT * FROM '.$this->table_name;
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            error_log($this->table_name.'取得エラー: ' . $e->getMessage());
+            return [];
+        }
 
-// IDをキーに整形
-$settingRows = $mSettingList;
-$mSettingList = [];
-foreach ($settingRows as $settingRow) {
-    $mSettingList[$settingRow['m_setting_id']]['name'] = $settingRow['name'];
-    $mSettingList[$settingRow['m_setting_id']]['value'] = $settingRow['value'];
-}
+        // IDをキーに整形
+        $result = [];
+        foreach ($data as $value) {
+            $result[$value[$this->table_name.'_id']] = $value;
+        }
 
-/**
- * データを更新
- *
- * @param int $settingId
- * @param int $enableFlag
- * @return bool
- */
-function switchMode(int $settingId): bool {
-    try {
-        $dbConfig = getDatabaseConfig();
-        $db = Database::getInstance($dbConfig);
-        $pdo = $db->getConnection();
+        return $result;
+    }
 
-        // 1. 現在のvalueの値を取得
-        $sqlSelect = 'SELECT `value` FROM `m_setting` WHERE `m_setting_id` = :m_setting_id';
-        $stmtSelect = $pdo->prepare($sqlSelect);
-        $stmtSelect->bindParam(':m_setting_id', $settingId, PDO::PARAM_INT);
-        $stmtSelect->execute();
-        $currentFlag = $stmtSelect->fetchColumn(); // valueの値を取得
+    /**
+     * 設定の切り替え
+     */
+    public function switchMode($settingId)
+    {
+        try {
+            // 現在の設定を取得
+            $sql = 'SELECT value FROM '.$this->table_name.' WHERE '.$this->table_name.'_id = ?';
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$settingId]);
+            $currentSetting = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // 現在の値に基づいて次の値を決定
-        $changeMode = ($currentFlag == 1) ? 0 : 1;
+            if (!$currentSetting) {
+                throw new Exception('設定が見つかりません');
+            }
 
-        // 2. valueを更新
-        $sqlUpdate = 'UPDATE `m_setting` SET `value` = :value WHERE `m_setting_id` = :m_setting_id';
-        $stmtUpdate = $pdo->prepare($sqlUpdate);
-        $stmtUpdate->bindParam(':value', $changeMode, PDO::PARAM_INT);
-        $stmtUpdate->bindParam(':m_setting_id', $settingId, PDO::PARAM_INT);
+            // 値を反転（0→1、1→0）
+            $newValue = $currentSetting['value'] == 1 ? 0 : 1;
 
-        return $stmtUpdate->execute();
+            // 設定を更新
+            $sql = 'UPDATE '.$this->table_name.' SET value = ? WHERE '.$this->table_name.'_id = ?';
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$newValue, $settingId]);
 
-    } catch (Exception $e) {
-        error_log('データ更新エラー: ' . $e->getMessage());
-        return false;
+            return true;
+        } catch (Exception $e) {
+            error_log('設定切り替えエラー: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * 設定を追加
+     */
+    public function addSetting($data)
+    {
+        try {
+            $sql = 'INSERT INTO m_setting (name, value) VALUES (:name, :value)';
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':name', $data['name']);
+            $stmt->bindParam(':value', $data['value']);
+            return $stmt->execute();
+        } catch (Exception $e) {
+            error_log('設定追加エラー: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * 設定を更新
+     */
+    public function updateSetting($id, $data)
+    {
+        try {
+            $sql = 'UPDATE m_setting SET name = :name, value = :value WHERE m_setting_id = :id';
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':name', $data['name']);
+            $stmt->bindParam(':value', $data['value']);
+            $stmt->bindParam(':id', $id);
+            return $stmt->execute();
+        } catch (Exception $e) {
+            error_log('設定更新エラー: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * 設定を削除
+     */
+    public function deleteSetting($id)
+    {
+        try {
+            $sql = 'DELETE FROM m_setting WHERE m_setting_id = :id';
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':id', $id);
+            return $stmt->execute();
+        } catch (Exception $e) {
+            error_log('設定削除エラー: ' . $e->getMessage());
+            throw $e;
+        }
     }
 }

@@ -1,71 +1,7 @@
 <?php
-// Include necessary files
-require_once __DIR__ . '/../config/import_file.php';
+
 // Include header
-include '../webroot/common/header.php';
-
-// Handling POST requests
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $historyId = $_POST['historyId'] ?? null;
-    $userId = $_POST['userId'] ?? null;
-    if ($historyId !== null && $userId !== null) {
-        try {
-            deleteData($historyId);
-            header("Location: history?userId=" . urlencode($userId));
-            exit();
-        } catch (Exception $e) {
-            $error_msg = '削除処理中にエラーが発生しました: ' . $e->getMessage();
-        }
-    } else {
-        $error_msg = '必要なパラメータが不足しています';
-    }
-}
-
-// Get parameter
-if( isset( $_GET['userId'] ) ) $selectUser = $_GET['userId'];
-$selectYear = date("Y");
-if( isset(  $_GET['year']  ) ) $selectYear = $_GET['year'];
-
-// ページネーションの設定
-if (isset($_GET['userId'])) {
-    $records_per_page = 15; // 1ページあたりの表示件数
-    $current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1; // 現在のページ番号
-    $offset = ($current_page - 1) * $records_per_page; // オフセット計算
-    // 対象レコードの合計数を計算
-    $total_records = 0;
-    foreach($uGameHistoryList[$selectUser] as $data) {
-        if(date('Y', strtotime($data['play_date'])) == $selectYear || date('Y', strtotime($data['play_date'])) == $selectYear - 1) {
-            $total_records++;
-        }
-    }
-    // 総ページ数を計算
-    $total_pages = ceil($total_records / $records_per_page);
-    // 表示するレコードをフィルタリングして配列に格納
-    $filtered_data = [];
-    foreach($uGameHistoryList[$selectUser] as $data) {
-        if(date('Y', strtotime($data['play_date'])) == $selectYear || date('Y', strtotime($data['play_date'])) == $selectYear - 1) {
-            $filtered_data[] = $data;
-        }
-    }
-    // 現在のページに表示するレコードのみを抽出
-    $paginated_data = array_slice($filtered_data, $offset, $records_per_page);
-}
-
-// ページネーションの設定
-$dates_per_page = 1; // 1ページあたりの表示日数
-$current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-
-// 日付の配列を取得
-$all_dates = array_keys($gameHistoryList);
-$total_dates = count($all_dates);
-$total_pages_game = ceil($total_dates / $dates_per_page);
-
-// 現在のページに表示する日付の範囲を計算
-$start_index = ($current_page - 1) * $dates_per_page;
-$current_dates = array_slice($all_dates, $start_index, $dates_per_page);
-
-// Set title
-$title = '履歴';
+include __DIR__ . '/../header.php';
 ?>
 
 <!DOCTYPE html>
@@ -74,16 +10,20 @@ $title = '履歴';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <link rel="apple-touch-icon" href="../favicon.png">
-    <link rel="icon" href="../favicon.ico" sizes="64x64" type="image/x-icon">
-    <link rel="stylesheet" href="../webroot/css/master.css">
-    <link rel="stylesheet" href="../webroot/css/header.css">
-    <link rel="stylesheet" href="../webroot/css/app.css">
+    <link rel="apple-touch-icon" href="<?= $baseUrl ?>/favicon.png">
+    <link rel="icon" href="<?= $baseUrl ?>/favicon.ico" sizes="64x64" type="image/x-icon">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/master.css">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/header.css">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/app.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
     <title><?= $title ?></title>
 </head>
 <body>
 <main>
+    <?php if (isset($error_msg)): ?>
+        <div class="error-message"><?= $error_msg ?></div>
+    <?php endif; ?>
+    
     <?php if (!isset($selectUser)): ?>
         <div class="page-title">個人<?= $title ?></div>
         <div class="select-button-container">
@@ -166,7 +106,7 @@ $title = '履歴';
                                     ?>
                                         <tr class="player-row rank-<?=$historyData['rank']?>">
                                             <?php if(isset($mDirectionList[$historyData['m_direction_id']])): ?>
-                                                <td class="direction-cell"><?=$mDirectionList[$historyData['m_direction_id']]?></td>
+                                                <td class="direction-cell"><?=$mDirectionList[$historyData['m_direction_id']]['name']?></td>
                                             <?php endif;?>
                                             <td class="rank-cell"><?=$historyData['rank']?></td>
                                             <td class="name-cell"><?=$userList[$historyData['u_user_id']]['last_name']?></td>
@@ -386,6 +326,15 @@ $title = '履歴';
     }
     .delete-button:hover {
         background-color: #c0392b;
+    }
+    .error-message {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+        padding: 10px 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        text-align: center;
     }
     @media screen and (max-width: 768px) {
         .history-table th,

@@ -1,33 +1,7 @@
 <?php
 
-// Include necessary files
-require_once __DIR__ . '/../config/import_file.php';
 // Include header
-include '../webroot/common/header.php';
-
-// Set title
-$title = '称号';
-
-$userId = isset($_GET['userId']) ? $_GET['userId'] : null;
-
-$userPossessionBadgeIds = array_keys($mBadgeList);
-
-$currentUserBadgeId = $userList[$userId]['badge']['m_badge_id'] ?? 0;
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['m_badge_id'])) {
-    $selectedBadgeId = (int)$_POST['m_badge_id'];
-
-    if (in_array($selectedBadgeId, $userPossessionBadgeIds)) {
-        updateUserBadge($userId, $selectedBadgeId);
-
-        $currentUserBadgeId = $selectedBadgeId;
-
-        $successMessage = "称号を「" . htmlspecialchars($mBadgeList[$selectedBadgeId]['name']) . "」に変更しました。";
-    }
-}
-
-// 現在の称号データを取得
-$currentBadgeData = $mBadgeList[$currentUserBadgeId] ?? null;
+include __DIR__ . '/../header.php';
 ?>
 
 <!DOCTYPE html>
@@ -36,18 +10,18 @@ $currentBadgeData = $mBadgeList[$currentUserBadgeId] ?? null;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <link rel="apple-touch-icon" href="../favicon.png">
-    <link rel="icon" href="../favicon.ico" sizes="64x64" type="image/x-icon">
-    <link rel="stylesheet" href="../webroot/css/master.css">
-    <link rel="stylesheet" href="../webroot/css/header.css">
-    <link rel="stylesheet" href="../webroot/css/app.css">
+    <link rel="apple-touch-icon" href="<?= $baseUrl ?>/favicon.png">
+    <link rel="icon" href="<?= $baseUrl ?>/favicon.ico" sizes="64x64" type="image/x-icon">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/master.css">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/header.css">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/app.css">
     <title><?= $title ?></title>
 </head>
 <body>
 <main>
 
     <div class="back-button-container">
-        <a href="personal_stats?&player=<?= $userId ?>" class="back-button">個人成績へ戻る</a>
+        <a href="personal?&player=<?= $userId ?>" class="back-button">個人成績へ戻る</a>
     </div>
 
     <?php if (isset($successMessage)): ?>
@@ -58,7 +32,7 @@ $currentBadgeData = $mBadgeList[$currentUserBadgeId] ?? null;
         <h3>現在の称号</h3>
         <?php if ($currentBadgeData): ?>
             <div class="badge-item current">
-                <!-- <img src="../webroot/image/badge/<?= htmlspecialchars($currentBadgeData['image']) ?>" alt="" class="badge-image"> -->
+                <?= htmlspecialchars($currentBadgeData['image']) ?>
                 <span class="badge-name"><?= htmlspecialchars($currentBadgeData['name']) ?></span>
             </div>
         <?php else: ?>
@@ -82,7 +56,7 @@ $currentBadgeData = $mBadgeList[$currentUserBadgeId] ?? null;
                             class="badge-button <?= ($badgeId == $currentUserBadgeId) ? 'selected' : '' ?>"
                             aria-label="称号を<?= htmlspecialchars($badgeData['name']) ?>に変更する">
                         <div class="badge-item">
-                            <!-- <img src="../webroot/image/badge/<?= htmlspecialchars($badgeData['image']) ?>" alt="" class="badge-image"> -->
+                            <!-- <img src="../../webroot/image/badge/<?= htmlspecialchars($badgeData['image']) ?>" alt="" class="badge-image"> -->
                             <span class="badge-name"><?= htmlspecialchars($badgeData['name']) ?></span>
                         </div>
                     </button>

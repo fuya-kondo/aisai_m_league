@@ -1,37 +1,7 @@
 <?php
-// Include necessary files
-require_once __DIR__ . '/../config/import_file.php';
-
-// Handling POST requests
-$isFix = false;
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (isset($_POST['historyId']) && isset($_POST['rank']) && isset($_POST['score']) && isset($_POST['game']) && isset($_POST['direction']) && isset($_POST['userId'])) {
-        $isFix = true;
-        $historyId  = $_POST['historyId'];
-        $rank       = $_POST['rank'];
-        $score      = $_POST['score'];
-        $game       = $_POST['game'];
-        $direction  = $_POST['direction'];
-        $userId     = $_POST['userId'];
-    }
-    if (isset($_POST['historyId']) && isset($_POST['new_rank']) && isset($_POST['new_score']) && isset($_POST['new_game']) && isset($_POST['new_direction']) && isset($_POST['userId'])) {
-        $historyId  = $_POST['historyId'];
-        $rank       = $_POST['new_rank'];
-        $score      = $_POST['new_score'];
-        $game       = $_POST['new_game'];
-        $direction  = $_POST['new_direction'];
-        $userId     = $_POST['userId'];
-        updateData((int)$historyId, $rank, (int)$score, (int)$game, (int)$direction);
-        header("Location: history?userId=" . $userId);
-        exit();
-    }
-}
-
-// Set title
-$title = '修正';
 
 // Include header
-include '../webroot/common/header.php';
+include __DIR__ . '/../header.php';
 ?>
 
 <!DOCTYPE html>
@@ -40,11 +10,11 @@ include '../webroot/common/header.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <link rel="apple-touch-icon" href="../favicon.png">
-    <link rel="icon" href="../favicon.ico" sizes="64x64" type="image/x-icon">
-    <link rel="stylesheet" href="../webroot/css/master.css">
-    <link rel="stylesheet" href="../webroot/css/header.css">
-    <link rel="stylesheet" href="../webroot/css/app.css">
+    <link rel="apple-touch-icon" href="<?= $baseUrl ?>/favicon.png">
+    <link rel="icon" href="<?= $baseUrl ?>/favicon.ico" sizes="64x64" type="image/x-icon">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/master.css">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/header.css">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/app.css">
     <title><?= $title ?></title>
 </head>
 <body>
@@ -52,21 +22,21 @@ include '../webroot/common/header.php';
         <?php if ($isFix): ?>
             <div class="page-title"><?= $title ?></div>
             <div class="button-container" style="text-align: center;">
-                <form action="update" method="post">
-                    <select class="input" name="new_rank" require_onced style="max-width: 160px">
+                <form action="update" method="post" onsubmit="return validateForm()">
+                    <select class="input" name="new_rank" required style="max-width: 160px">
                         <?php foreach($rankConfig as $value => $name): ?>
                             <option value="<?=$value?>" <?php if($value==$rank):?>selected<?php endif;?>><?=$name?></option>
                         <?php endforeach;?>
                     </select><br>
-                    <input class="input" type="number" name="new_score" require_onced value="<?= $score ?>" style="max-width: 140px"><br>
+                    <input class="input" type="number" name="new_score" required value="<?= $score ?>" style="max-width: 140px"><br>
                     <div class="date-inputs" style="justify-content:center;">
-                        <input class="input" type="number" name="new_game" require_onced value="<?= $game ?>" style="max-width: 120px">
+                        <input class="input" type="number" name="new_game" required value="<?= $game ?>" style="max-width: 120px">
                         <label style="margin:0 0 0 8px; font-size:14px;">半荘目</label>
                     </div>
                     <div class="form-group">
                         <div class="button-containers">
-                            <?php foreach($mDirectionList as $directionId => $directionName): ?>
-                                <button class="direction-button <?php if($direction==$directionId):?>selected<?php endif;?>" type="button" name="new_direction" value="<?=$directionId?>" require_onced <?php if($direction==$directionId):?>selected<?php endif;?> onclick="selectButton(this)"><?=$directionName?></button>
+                            <?php foreach($mDirectionList as $directionId => $directionData): ?>
+                                <button class="direction-button <?php if($direction==$directionId):?>selected<?php endif;?>" type="button" name="new_direction" value="<?=$directionId?>" required <?php if($direction==$directionId):?>selected<?php endif;?> onclick="selectButton(this)"><?=$directionData['name']?></button>
                             <?php endforeach;?>
                             <input type="hidden" id="direction" name="new_direction" value="<?=$direction?>">
                         </div>
@@ -80,7 +50,14 @@ include '../webroot/common/header.php';
 </body>
 </html>
 <script>
-
+   function validateForm() {
+        const directionInput = document.getElementById('direction');
+        if (directionInput.value === '') {
+            alert('席を選択してください。'); // エラーメッセージを表示
+            return false; // フォーム送信をキャンセル
+        }
+        return true; // フォームを送信
+    }
     function selectButton(button) {
         const buttons = document.querySelectorAll('.direction-button');
         buttons.forEach(btn => btn.classList.remove('selected'));
@@ -123,7 +100,6 @@ include '../webroot/common/header.php';
         cursor: pointer; /* カーソルをポインターに */
         transition: background-color 0.3s ease; /* ホバー時のエフェクト */
     }
-
     .form-group {
         display: flex;
         flex-direction: column;

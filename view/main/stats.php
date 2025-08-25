@@ -1,18 +1,7 @@
 <?php
 
-// Include necessary files
-require_once __DIR__ . '/../config/import_file.php';
 // Include header
-include '../webroot/common/header.php';
-
-// Get parameter
-$selectedYear = isset($_GET['year']) ? $_GET['year'] : date("Y");
-$selectedPlayer = isset($_GET['player']) ? $_GET['player'] : 1;
-
-$scoreDisplayFlag = !( $mSettingList[1]['value'] && $selectedYear == date("Y") );
-
-// Set title
-$title = '成績';
+include __DIR__ . '/../header.php';
 ?>
 
 <!DOCTYPE html>
@@ -21,11 +10,12 @@ $title = '成績';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <link rel="apple-touch-icon" href="../favicon.png">
-    <link rel="icon" href="../favicon.ico" sizes="64x64" type="image/x-icon">
-    <link rel="stylesheet" href="../webroot/css/master.css">
-    <link rel="stylesheet" href="../webroot/css/header.css">
-    <link rel="stylesheet" href="../webroot/css/app.css">
+
+    <link rel="apple-touch-icon" href="<?= $baseUrl ?>/favicon.png">
+    <link rel="icon" href="<?= $baseUrl ?>/favicon.ico" sizes="64x64" type="image/x-icon">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/master.css">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/header.css">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/app.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
     <title><?= $title ?></title>
@@ -33,51 +23,55 @@ $title = '成績';
 <body>
 <main>
     <?php /* 本日の成績 */?>
-        <?php if(!empty($todayStatsList[1]['play_count'])):?>
+        <?php if(isset($todayStatsList) && !empty($todayStatsList[1]['play_count'])):?>
             <div class="page-title">本日の<?= $title ?></div>
             <div class="table-container">
                 <div class="table-wrapper">
                         <table class="score-table">
                             <tr>
-                                <?php foreach($displayStatsColumn_1 as $column => $data):?>
-                                    <?php if (is_array($data)): ?>
-                                        <?php foreach($data as $key => $value):?>
-                                            <th><?=$value?></th>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <th><?=$data?></th>
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
-                            </tr>
-                            <?php foreach($todayStatsList as $todayStatsData): ?>
-                                <tr align="center">
-                                    <?php foreach ($displayStatsColumn_1 as $column => $data): ?>
-                                        <?php if ($column == 'ranking'): ?>
-                                            <td>
-                                                <span class="rank-column">
-                                                    <span class="rank-icon rank-<?= $todayStatsData[$column] ?>">
-                                                        <span class="stats-value"><?= $todayStatsData[$column] ?></span>
-                                                    </span>
-                                                </span>
-                                            </td>
-                                        <?php elseif ($column == 'name'): ?>
-                                            <td>
-                                                <a href="personal_stats?year=<?= $selectedYear ?>&player=<?= $todayStatsData['u_user_id'] ?>">
-                                                    <span class="stats-value"><?= $todayStatsData[$column] ?></span>
-                                                </a>
-                                            </td>
-                                        <?php else: // その他のカラムの場合 ?>
-                                            <?php if (is_array($data) && isset($todayStatsData[$column]) && is_array($todayStatsData[$column])): ?>
-                                                <?php foreach ($todayStatsData[$column] as $key => $value): ?>
-                                                    <td><span class="stats-value"><?= $value ?></span></td>
-                                                <?php endforeach; ?>
-                                            <?php else: ?>
-                                                <td><span class="stats-value"><?= $todayStatsData[$column] ?></span></td>
-                                            <?php endif; ?>
+                                <?php if(isset($displayStatsColumn_1)): ?>
+                                    <?php foreach($displayStatsColumn_1 as $column => $data):?>
+                                        <?php if (is_array($data)): ?>
+                                            <?php foreach($data as $key => $value):?>
+                                                <th><?=$value?></th>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <th><?=$data?></th>
                                         <?php endif; ?>
                                     <?php endforeach; ?>
-                                </tr>
-                            <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tr>
+                            <?php if(isset($todayStatsList)): ?>
+                                <?php foreach($todayStatsList as $todayStatsData): ?>
+                                    <tr align="center">
+                                        <?php foreach ($displayStatsColumn_1 as $column => $data): ?>
+                                            <?php if ($column == 'ranking'): ?>
+                                                <td>
+                                                    <span class="rank-column">
+                                                        <span class="rank-icon rank-<?= $todayStatsData[$column] ?>">
+                                                            <span class="stats-value"><?= $todayStatsData[$column] ?></span>
+                                                        </span>
+                                                    </span>
+                                                </td>
+                                            <?php elseif ($column == 'name'): ?>
+                                                <td>
+                                                    <a href="personal?year=<?= $selectedYear ?>&player=<?= $todayStatsData['u_user_id'] ?>">
+                                                        <span class="stats-value"><?= $todayStatsData[$column] ?></span>
+                                                    </a>
+                                                </td>
+                                            <?php else: // その他のカラムの場合 ?>
+                                                <?php if (is_array($data) && isset($todayStatsData[$column]) && is_array($todayStatsData[$column])): ?>
+                                                    <?php foreach ($todayStatsData[$column] as $key => $value): ?>
+                                                        <td><span class="stats-value"><?= $value ?></span></td>
+                                                    <?php endforeach; ?>
+                                                <?php else: ?>
+                                                    <td><span class="stats-value"><?= $todayStatsData[$column] ?></span></td>
+                                                <?php endif; ?>
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </table>
                     </div>
             </div>
@@ -86,82 +80,90 @@ $title = '成績';
 
     <?php /* 総合成績 */?>
     <div class="page-title"><?= $title ?></div>
-    <?php foreach($yearlyStatsList as $year => $displayStatsData): ?>
-        <?php if ($year == $selectedYear): // 選択された年のみ表示 ?>
-            <div class="table-container">
-                <form class="year-title" action="" method="get" class="year-selection-form">
-                    <select name="year" id="year" onchange="this.form.submit()" class="year-select">
-                        <?php foreach($years as $year): ?>
-                            <option value="<?= $year ?>" <?= ($year == $selectedYear) ? 'selected' : '' ?>><?= $year ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <span class="play-count">対局数：<?=$displayStatsData[1]['play_count'] ?><br></span>
-                </form>
-                <div class="table-wrapper">
-                    <table class="score-table">
-                        <tr>
-                            <?php foreach($displayStatsColumn_1 as $column => $data):?>
-                                <?php if (is_array($data)): ?>
-                                    <?php foreach($data as $key => $value):?>
-                                        <th><?=$value?></th>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <th><?=$data?></th>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
-                        </tr>
-                        <?php
-                            $maxPoint = 0;
-                            $minPoint = 0;
-                            foreach($displayStatsData as $statusData) {
-                                $maxPoint = max($statusData['sum_point'], $maxPoint);
-                                $minPoint = min($statusData['sum_point'], $minPoint);
-                            }
-                        ?>
-                        <?php foreach($displayStatsData as $statusData): ?>
-                            <tr align="center">
-                                <?php foreach ($displayStatsColumn_1 as $column => $data): ?>
-                                    <?php if ($column == 'ranking'): ?>
-                                        <?php
-                                            if ( $statusData['sum_point'] == $maxPoint || $statusData['sum_point'] == $minPoint) {
-                                                $rgbaValue[$statusData[$column]] = 90;
-                                            } else {
-                                                $rgbaValue[$statusData[$column]] = max((int)$statusData['sum_point'] / $maxPoint * 80, 50); // 最大点数に基づく透明度の計算
-                                            }
-                                        ?>
-                                        <td>
-                                            <span class="rank-column">
-                                                <span class="rank-icon rank-<?= $statusData[$column] ?>">
-                                                    <span class="stats-value"><?= $statusData[$column] ?></span>
-                                                </span>
-                                            </span>
-                                        </td>
-                                    <?php elseif ($column == 'name'): ?>
-                                        <td class="player-name-<?=$statusData['ranking']?>-<?php if($statusData['sum_point']>=0):?>p<?php else:?>m<?php endif;?>">
-                                            <a href="personal_stats?year=<?= $selectedYear ?>&player=<?= $statusData['u_user_id'] ?>">
-                                                <span class="stats-value"><?= $statusData[$column] ?></span>
-                                                <!-- <span class="badge"><?= $userList[$statusData['u_user_id']]['badge']['name'] ?></span> -->
-                                            </a>
-                                        </td>
-                                    <?php elseif ($column == 'sum_point' && !$scoreDisplayFlag): ?>
-                                        <td><span class="stats-value"> --- </span></td>
-                                    <?php else: // その他のカラムの場合 ?>
-                                        <?php if (is_array($data) && isset($statusData[$column]) && is_array($statusData[$column])): ?>
-                                            <?php foreach ($statusData[$column] as $key => $value): ?>
-                                                <td><span class="stats-value"><?= $value ?></span></td>
+    <?php if(isset($yearlyStatsList)): ?>
+        <?php foreach($yearlyStatsList as $year => $displayStatsData): ?>
+            <?php if ($year == $selectedYear): // 選択された年のみ表示 ?>
+                <div class="table-container">
+                    <form class="year-title" action="" method="get" class="year-selection-form">
+                        <select name="year" id="year" onchange="this.form.submit()" class="year-select">
+                            <?php if(isset($years)): ?>
+                                <?php foreach($years as $year): ?>
+                                    <option value="<?= $year ?>" <?= ($year == $selectedYear) ? 'selected' : '' ?>><?= $year ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                        <span class="play-count">対局数：<?=$displayStatsData[1]['play_count'] ?><br></span>
+                    </form>
+                    <div class="table-wrapper">
+                        <table class="score-table">
+                            <tr>
+                                <?php if(isset($displayStatsColumn_1)): ?>
+                                    <?php foreach($displayStatsColumn_1 as $column => $data):?>
+                                        <?php if (is_array($data)): ?>
+                                            <?php foreach($data as $key => $value):?>
+                                                <th><?=$value?></th>
                                             <?php endforeach; ?>
                                         <?php else: ?>
-                                            <td><span class="stats-value"><?= $statusData[$column] ?></span></td>
+                                            <th><?=$data?></th>
                                         <?php endif; ?>
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </tr>
-                        <?php endforeach; ?>
-                    </table>
+                            <?php
+                                $maxPoint = 0;
+                                $minPoint = 0;
+                                foreach($displayStatsData as $statusData) {
+                                    $maxPoint = max($statusData['sum_point'], $maxPoint);
+                                    $minPoint = min($statusData['sum_point'], $minPoint);
+                                }
+                            ?>
+                            <?php if(isset($displayStatsData)): ?>
+                                <?php foreach($displayStatsData as $statusData): ?>
+                                    <tr align="center">
+                                        <?php foreach ($displayStatsColumn_1 as $column => $data): ?>
+                                            <?php if ($column == 'ranking'): ?>
+                                                <?php
+                                                    if ( $statusData['sum_point'] == $maxPoint || $statusData['sum_point'] == $minPoint) {
+                                                        $rgbaValue[$statusData[$column]] = 90;
+                                                    } else {
+                                                        $rgbaValue[$statusData[$column]] = max((int)$statusData['sum_point'] / $maxPoint * 80, 50); // 最大点数に基づく透明度の計算
+                                                    }
+                                                ?>
+                                                <td>
+                                                    <span class="rank-column">
+                                                        <span class="rank-icon rank-<?= $statusData[$column] ?>">
+                                                            <span class="stats-value"><?= $statusData[$column] ?></span>
+                                                        </span>
+                                                    </span>
+                                                </td>
+                                            <?php elseif ($column == 'name'): ?>
+                                                <td class="player-name-<?=$statusData['ranking']?>-<?php if($statusData['sum_point']>=0):?>p<?php else:?>m<?php endif;?>">
+                                                    <a href="personal?year=<?= $selectedYear ?>&player=<?= $statusData['u_user_id'] ?>">
+                                                        <span class="stats-value"><?= $statusData[$column] ?></span>
+                                                        <!-- <span class="badge"><?= $userList[$statusData['u_user_id']]['badge']['name'] ?></span> -->
+                                                    </a>
+                                                </td>
+                                            <?php elseif ($column == 'sum_point' && !$scoreDisplayFlag): ?>
+                                                <td><span class="stats-value"> --- </span></td>
+                                            <?php else: // その他のカラムの場合 ?>
+                                                <?php if (is_array($data) && isset($statusData[$column]) && is_array($statusData[$column])): ?>
+                                                    <?php foreach ($statusData[$column] as $key => $value): ?>
+                                                        <td><span class="stats-value"><?= $value ?></span></td>
+                                                    <?php endforeach; ?>
+                                                <?php else: ?>
+                                                    <td><span class="stats-value"><?= $statusData[$column] ?></span></td>
+                                                <?php endif; ?>
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </table>
+                    </div>
                 </div>
-            </div>
-        <?php endif; ?>
-    <?php endforeach; ?>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    <?php endif; ?>
     <?php /* 総合成績 */?>
 
     <?php /* グラフ */?>
@@ -418,54 +420,54 @@ $title = '成績';
         background-color: white;
     }
     <?php if ($scoreDisplayFlag): ?>
-    .player-name-1-p {
-        background: linear-gradient(to right,
-                rgba(0, 153, 68, 0) 0%,
-                rgba(0, 153, 68, 0) 50%,
-                rgba(0, 153, 68, 0.05) 50%,
-                rgba(0, 153, 68, 0.05) <?=$rgbaValue[1]?>%,
-                rgba(0, 153, 68, 0) <?=$rgbaValue[1]+10?>%);
-    }
-    .player-name-2-p {
-        background: linear-gradient(to right,
-                rgba(0, 153, 68, 0) 0%,
-                rgba(0, 153, 68, 0) 50%,
-                rgba(0, 153, 68, 0.05) 50%,
-                rgba(0, 153, 68, 0.05) <?=$rgbaValue[2]?>%,
-                rgba(0, 153, 68, 0) <?=$rgbaValue[2]+10?>%);
-    }
-    .player-name-2-m {
-        background: linear-gradient(to left,
-                rgba(153, 0, 0, 0) 0%,
-                rgba(153, 0, 0, 0) 50%,
-                rgba(153, 0, 0, 0.05) 50%,
-                rgba(153, 0, 0, 0.05) <?=$rgbaValue[2]?>%,
-                rgba(153, 0, 0, 0) <?=$rgbaValue[2]+10?>%);
-    }
-    .player-name-3-p {
-        background: linear-gradient(to right,
-                rgba(0, 153, 68, 0) 0%,
-                rgba(0, 153, 68, 0) 50%,
-                rgba(0, 153, 68, 0.05) 50%,
-                rgba(0, 153, 68, 0.05) <?=$rgbaValue[3]?>%,
-                rgba(0, 153, 68, 0) <?=$rgbaValue[3]+10?>%);
-    }
-    .player-name-3-m {
-        background: linear-gradient(to left,
-                rgba(153, 0, 0, 0) 0%,
-                rgba(153, 0, 0, 0) 50%,
-                rgba(153, 0, 0, 0.05) 50%,
-                rgba(153, 0, 0, 0.05) <?=$rgbaValue[3]?>%,
-                rgba(153, 0, 0, 0) <?=$rgbaValue[3]+10?>%);
-    }
-    .player-name-4-m {
-        background: linear-gradient(to left,
-                rgba(153, 0, 0, 0) 0%,
-                rgba(153, 0, 0, 0) 50%,
-                rgba(153, 0, 0, 0.05) 50%,
-                rgba(153, 0, 0, 0.05) <?=$rgbaValue[4]?>%,
-                rgba(153, 0, 0, 0) <?=$rgbaValue[4]+10?>%);
-    }
+        .player-name-1-p {
+            background: linear-gradient(to right,
+                    rgba(0, 153, 68, 0) 0%,
+                    rgba(0, 153, 68, 0) 50%,
+                    rgba(0, 153, 68, 0.05) 50%,
+                    rgba(0, 153, 68, 0.05) <?=$rgbaValue[1]?>%,
+                    rgba(0, 153, 68, 0) <?=$rgbaValue[1]+10?>%);
+        }
+        .player-name-2-p {
+            background: linear-gradient(to right,
+                    rgba(0, 153, 68, 0) 0%,
+                    rgba(0, 153, 68, 0) 50%,
+                    rgba(0, 153, 68, 0.05) 50%,
+                    rgba(0, 153, 68, 0.05) <?=$rgbaValue[2]?>%,
+                    rgba(0, 153, 68, 0) <?=$rgbaValue[2]+10?>%);
+        }
+        .player-name-2-m {
+            background: linear-gradient(to left,
+                    rgba(153, 0, 0, 0) 0%,
+                    rgba(153, 0, 0, 0) 50%,
+                    rgba(153, 0, 0, 0.05) 50%,
+                    rgba(153, 0, 0, 0.05) <?=$rgbaValue[2]?>%,
+                    rgba(153, 0, 0, 0) <?=$rgbaValue[2]+10?>%);
+        }
+        .player-name-3-p {
+            background: linear-gradient(to right,
+                    rgba(0, 153, 68, 0) 0%,
+                    rgba(0, 153, 68, 0) 50%,
+                    rgba(0, 153, 68, 0.05) 50%,
+                    rgba(0, 153, 68, 0.05) <?=$rgbaValue[3]?>%,
+                    rgba(0, 153, 68, 0) <?=$rgbaValue[3]+10?>%);
+        }
+        .player-name-3-m {
+            background: linear-gradient(to left,
+                    rgba(153, 0, 0, 0) 0%,
+                    rgba(153, 0, 0, 0) 50%,
+                    rgba(153, 0, 0, 0.05) 50%,
+                    rgba(153, 0, 0, 0.05) <?=$rgbaValue[3]?>%,
+                    rgba(153, 0, 0, 0) <?=$rgbaValue[3]+10?>%);
+        }
+        .player-name-4-m {
+            background: linear-gradient(to left,
+                    rgba(153, 0, 0, 0) 0%,
+                    rgba(153, 0, 0, 0) 50%,
+                    rgba(153, 0, 0, 0.05) 50%,
+                    rgba(153, 0, 0, 0.05) <?=$rgbaValue[4]?>%,
+                    rgba(153, 0, 0, 0) <?=$rgbaValue[4]+10?>%);
+        }
     <?php endif; ?>
     @media screen and (max-width: 768px) {
         .table-wrapper {

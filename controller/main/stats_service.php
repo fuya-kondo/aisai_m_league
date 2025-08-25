@@ -39,7 +39,7 @@ class StatsService {
         $this->mTierDataList        = $mTier;
         $this->uTierHistoryDataList = $uTierHistory;
         $this->mBadgeDataList       = $mBadge;
-        $this->baseScore            = $rule['start_score'];
+        $this->baseScore            = is_array($rule) && isset($rule['start_score']) ? $rule['start_score'] : 25000;
         $this->_setYears();
     }
 
@@ -124,29 +124,58 @@ class StatsService {
     {
         $tmp = [];
         $result = [];
+        
+        // デバッグログ
+        error_log('getRankHistory: uTierHistoryDataList count: ' . count($this->uTierHistoryDataList));
+        error_log('getRankHistory: mTierDataList count: ' . count($this->mTierDataList));
+        
         // データをまとめる
         foreach ($this->uTierHistoryDataList as $row) {
-            $userId = $row["u_user_id"];
-            $year   = $row["change_date"];
-            $tier   = $row["m_tier_id"];
-            
-            $tmp[$userId][$year]['tier'] = $tier;
-            $tmp[$userId][$year]['name'] = $this->mTierDataList[$tier]['name'];
-            $tmp[$userId][$year]['color'] = $this->mTierDataList[$tier]['color'];
+            $userId = $row["u_user_id"] ?? 0;
+            $year   = $row["year"] ?? '';  // change_dateではなくyearキーを使用
+            $tier   = $row["m_tier_id"] ?? 0;
 
+            error_log("getRankHistory: Processing row - userId: $userId, year: $year, tier: $tier");
+
+            if ($year && $tier && isset($this->mTierDataList[$tier])) {
+                $tmp[$userId][$year]['tier'] = $tier;
+                $tmp[$userId][$year]['name'] = $this->mTierDataList[$tier]['name'];
+                $tmp[$userId][$year]['color'] = $this->mTierDataList[$tier]['color'];
+                error_log("getRankHistory: Added to tmp - userId: $userId, year: $year, tier: $tier");
+            } else {
+                error_log("getRankHistory: Skipped row - userId: $userId, year: $year, tier: $tier, tier exists: " . (isset($this->mTierDataList[$tier]) ? 'yes' : 'no'));
+            }
         }
+        
+        error_log('getRankHistory: tmp count: ' . count($tmp));
+        
         foreach ($tmp as $userId => $yearList) {
+            error_log("getRankHistory: Processing userId: $userId, yearList count: " . count($yearList));
             foreach ($yearList as $year => $dataList) {
-                if (isset($yearList[$year-1]))  {
-                    $result[$userId][$year]['before']['tier'] = $yearList[$year-1]['tier'];
-                    $result[$userId][$year]['before']['name'] = $yearList[$year-1]['name'];
-                    $result[$userId][$year]['before']['color'] = $yearList[$year-1]['color'];
+                $prevYear = (int)$year - 1;
+                if (isset($yearList[$prevYear]))  {
+                    // 前年のデータが存在する場合
+                    $result[$userId][$year]['before']['tier'] = $yearList[$prevYear]['tier'];
+                    $result[$userId][$year]['before']['name'] = $yearList[$prevYear]['name'];
+                    $result[$userId][$year]['before']['color'] = $yearList[$prevYear]['color'];
                     $result[$userId][$year]['after']['tier'] = $dataList['tier'];
                     $result[$userId][$year]['after']['name'] = $dataList['name'];
                     $result[$userId][$year]['after']['color'] = $dataList['color'];
+                    error_log("getRankHistory: Added result with previous year - userId: $userId, year: $year");
+                } else {
+                    // 前年のデータが存在しない場合（最初の年など）
+                    $result[$userId][$year]['before']['tier'] = 0;
+                    $result[$userId][$year]['before']['name'] = '未設定';
+                    $result[$userId][$year]['before']['color'] = '#999999';
+                    $result[$userId][$year]['after']['tier'] = $dataList['tier'];
+                    $result[$userId][$year]['after']['name'] = $dataList['name'];
+                    $result[$userId][$year]['after']['color'] = $dataList['color'];
+                    error_log("getRankHistory: Added result without previous year - userId: $userId, year: $year");
                 }
             }
         }
+        
+        error_log('getRankHistory: Final result count: ' . count($result));
         return $result;
     }
 
@@ -259,11 +288,13 @@ class StatsService {
         foreach ($this->years as $year) {
             $statsData = []; // 年ごとに初期化
             foreach ($this->userList as $userId => $userData) {
-                foreach ($this->uGameHistoryDataList[$userId] as $data) {
-                    // 年の条件をチェック
-                    if ($year == self::ALL_TERM || date('Y', strtotime($data['play_date'])) == $year) {
-                        // 該当する年のデータを追加
-                        $statsData[$userId][] = $data;
+                if ( isset($this->uGameHistoryDataList[$userId]) ) {
+                    foreach ($this->uGameHistoryDataList[$userId] as $data) {
+                        // 年の条件をチェック
+                        if ($year == self::ALL_TERM || date('Y', strtotime($data['play_date'])) == $year) {
+                            // 該当する年のデータを追加
+                            $statsData[$userId][] = $data;
+                        }
                     }
                 }
             }
@@ -271,53 +302,6 @@ class StatsService {
             $result[$year] = $statsData;
         }
         return $result;
-    }
-
-    /**
-     * 次の対局日時を取得します。
-     *
-     * @return string 次の対局日時
-     */
-    public function getNextGameDay(): string
-    {
-        $todayStart = (new DateTimeImmutable())->setTime(0, 0, 0);
-        $futureGameDateObjects = [];
-
-        // 未来の対局日時のみを抽出
-        foreach ($this->mGameDayDataList as $gameDayData) {
-            if (!isset($gameDayData['game_day']) || !is_string($gameDayData['game_day'])) {
-                error_log("Invalid game_day data structure: " . json_encode($gameDayData));
-                continue;
-            }
-            $dateString = $gameDayData['game_day'];
-            try {
-                $gameDateTime = new DateTimeImmutable($dateString);
-
-                if ($gameDateTime->setTime(0, 0, 0) >= $todayStart) {
-                    $futureGameDateObjects[] = $gameDateTime;
-                }
-            } catch (Exception $e) {
-                error_log("Failed to parse game_day date string: '{$dateString}' - " . $e->getMessage());
-            }
-        }
-
-        // 未来の対局日時が一件もない場合
-        if (empty($futureGameDateObjects)) {
-            return '予定なし';
-        }
-
-        // 最も近い対局日時を特定
-        usort($futureGameDateObjects, function (DateTimeImmutable $a, DateTimeImmutable $b) {
-            return $a <=> $b;
-        });
-        $closestDateTime = $futureGameDateObjects[0];
-
-        // 日時と曜日のフォーマット
-        $weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-        $weekday = $weekdays[(int)$closestDateTime->format('w')]; // wは0(日)から6(土)
-        $nextGameDay = $closestDateTime->format('n/j') . "(" . $weekday . ")";
-
-        return $nextGameDay;
     }
 
     /**
@@ -383,14 +367,16 @@ class StatsService {
     {
         $result = [];
         foreach ($this->userList as $userId => $userData) {
-            foreach ($this->uGameHistoryDataList[$userId] as $uGameHistoryData) {
-                if (!empty($uGameHistoryData['game'])) {
-                    $playDate = new DateTime($uGameHistoryData['play_date']);
-                    $dateKey = $playDate->format('Y-m-d');
-                    if ( !isset($result[$dateKey][$userId]) ) {
-                        $result[$dateKey][$userId] = 0;
+            if ( isset($this->uGameHistoryDataList[$userId]) ) {
+                foreach ($this->uGameHistoryDataList[$userId] as $uGameHistoryData) {
+                    if (!empty($uGameHistoryData['game'])) {
+                        $playDate = new DateTime($uGameHistoryData['play_date']);
+                        $dateKey = $playDate->format('Y-m-d');
+                        if ( !isset($result[$dateKey][$userId]) ) {
+                            $result[$dateKey][$userId] = 0;
+                        }
+                        $result[$dateKey][$userId] += $uGameHistoryData['point'];
                     }
-                    $result[$dateKey][$userId] += $uGameHistoryData['point'];
                 }
             }
         }
@@ -406,11 +392,13 @@ class StatsService {
     {
         $result = [];
         foreach ($this->userList as $userId => $userData) {
-            foreach ($this->uGameHistoryDataList[$userId] as $uGameHistoryData) {
-                if (!empty($uGameHistoryData['game'])) {
-                    $playDate = new DateTime($uGameHistoryData['play_date']);
-                    $dateKey = $playDate->format('Y-m-d');
-                    $result[$dateKey][$uGameHistoryData['game']][$userId] = $uGameHistoryData;
+            if ( isset($this->uGameHistoryDataList[$userId]) ) {
+                foreach ($this->uGameHistoryDataList[$userId] as $uGameHistoryData) {
+                    if (!empty($uGameHistoryData['game'])) {
+                        $playDate = new DateTime($uGameHistoryData['play_date']);
+                        $dateKey = $playDate->format('Y-m-d');
+                        $result[$dateKey][$uGameHistoryData['game']][$userId] = $uGameHistoryData;
+                    }
                 }
             }
         }
@@ -439,7 +427,7 @@ class StatsService {
         $userGameHistoryData = [];
         foreach ( $this->userList as $userId => $userData ) {
             $result[$userId] = $this->_initializeUserStats($userData);
-            $userGameHistoryData = $this->_getGameHistory($this->uGameHistoryDataList[$userId], $year, $today);
+            $userGameHistoryData = $this->_getGameHistory($this->uGameHistoryDataList[$userId] ?? [], $year, $today);
             $result[$userId] = $this->_calculateUserStats($result[$userId], $userGameHistoryData);
         }
         return $this->_formatUserStats($result);
@@ -490,6 +478,10 @@ class StatsService {
      */
     private function _getGameHistory(array $uGameHistoryDataList, $year, bool $today = false): array
     {
+        if (!is_array($uGameHistoryDataList)) {
+            return [];
+        }
+        
         $result = [];
         foreach ($uGameHistoryDataList as $uGameHistoryData) {
             $isGet = false;

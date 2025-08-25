@@ -1,12 +1,7 @@
 <?php
 
-// Include necessary files
-require_once __DIR__ . '/../config/import_file.php';
 // Include header
-include '../webroot/common/header.php';
-
-// Set title
-$title = 'AISAI.M.LEAGUE 競技ルール規定';
+include __DIR__ . '/../header.php';
 ?>
 
 <!DOCTYPE html>
@@ -15,11 +10,11 @@ $title = 'AISAI.M.LEAGUE 競技ルール規定';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <link rel="apple-touch-icon" href="../favicon.png">
-    <link rel="icon" href="../favicon.ico" sizes="64x64" type="image/x-icon">
-    <link rel="stylesheet" href="../webroot/css/master.css">
-    <link rel="stylesheet" href="../webroot/css/header.css">
-    <link rel="stylesheet" href="../webroot/css/app.css">
+    <link rel="apple-touch-icon" href="<?= $baseUrl ?>/favicon.png">
+    <link rel="icon" href="<?= $baseUrl ?>/favicon.ico" sizes="64x64" type="image/x-icon">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/master.css">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/header.css">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/app.css">
     <title><?= $title ?></title>
 </head>
 <body>

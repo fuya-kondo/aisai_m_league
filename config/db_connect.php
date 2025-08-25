@@ -26,6 +26,12 @@ function getDatabaseConfig(): array
             'dbServer' => '127.0.0.1',
             'dbName'   => 'fuyakondo_aisaimleague',
         ],
+        '127.0.0.1' => [
+            'dbUser'   => 'root',
+            'dbPass'   => '',
+            'dbServer' => '127.0.0.1',
+            'dbName'   => 'fuyakondo_aisaimleague',
+        ],
         'default' => [
             'dbUser'   => 'fuyakondo_aisai',
             'dbPass'   => 'aisaimleague',
@@ -34,9 +40,19 @@ function getDatabaseConfig(): array
         ],
     ];
 
-    if (isset($configs[$hostname])) {
-        return $configs[$hostname];
-    } elseif (array_key_exists('default', $configs)) {
+    // ローカル環境の判定（localhost、127.0.0.1、::1）
+    $localHosts = ['localhost', '127.0.0.1', '::1'];
+    if (in_array($hostname, $localHosts)) {
+        return $configs['localhost'];
+    }
+
+    // 本番環境の判定
+    if (strpos($hostname, 'aisai-m-league.com') !== false) {
+        return $configs['default'];
+    }
+
+    // デフォルト設定
+    if (array_key_exists('default', $configs)) {
         return $configs['default'];
     }
 
@@ -67,7 +83,16 @@ class Database
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC); // デフォルトのフェッチモードを設定
         } catch (PDOException $e) {
-            throw new Exception('データベース接続に失敗しました。管理者にお問い合わせください。');
+            // ローカル環境では詳細なエラー情報を表示
+            $hostname = $_SERVER['HTTP_HOST'] ?? 'unknown';
+            $localHosts = ['localhost', '127.0.0.1', '::1'];
+            
+            if (in_array($hostname, $localHosts)) {
+                throw new Exception('データベース接続に失敗しました。詳細: ' . $e->getMessage() . 
+                    ' (DSN: ' . $dsn . ', User: ' . $config['dbUser'] . ')');
+            } else {
+                throw new Exception('データベース接続に失敗しました。管理者にお問い合わせください。');
+            }
         }
     }
 
@@ -83,11 +108,15 @@ class Database
     {
         if (self::$instance === null) {
             if (empty($config)) {
-                throw new Exception('データベース接続設定が提供されていません。');
+                $config = getDatabaseConfig();
             }
             self::$instance = new Database($config);
         }
         return self::$instance;
+    }
+
+    public function prepare(string $sql) {
+        return $this->pdo->prepare($sql);
     }
 
     /**

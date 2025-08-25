@@ -1,0 +1,3 @@
+# 設定ファイルへの直接アクセスを禁止
+Order Deny,Allow
+Deny from all

@@ -1,9 +1,7 @@
 <?php
 
-// Include necessary files
-require_once __DIR__ . '/../config/import_file.php';
 // Include header
-include '../webroot/common/header.php';
+include __DIR__ . '/../header.php';
 
 // Set title
 $title = 'AISAI.M.LEAGUE';
@@ -15,11 +13,11 @@ $title = 'AISAI.M.LEAGUE';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <link rel="apple-touch-icon" href="../favicon.png">
-    <link rel="icon" href="../favicon.ico" sizes="64x64" type="image/x-icon">
-    <link rel="stylesheet" href="../webroot/css/master.css">
-    <link rel="stylesheet" href="../webroot/css/header.css">
-    <link rel="stylesheet" href="../webroot/css/app.css">
+    <link rel="apple-touch-icon" href="<?= $baseUrl ?>/favicon.png">
+    <link rel="icon" href="<?= $baseUrl ?>/favicon.ico" sizes="64x64" type="image/x-icon">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/master.css">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/header.css">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/app.css">
     <title><?= $title ?></title>
 </head>
 <body>
@@ -43,13 +41,13 @@ $title = 'AISAI.M.LEAGUE';
             <ul class="playerImg">
                 <li>
                     <video autoplay muted playsinline loop>
-                        <source src="../movie/player_1.mp4" type="video/mp4">
+                        <source src="<?= $baseUrl ?>/resources/movie/player_1.mp4" type="video/mp4">
                         お使いのブラウザは動画タグをサポートしていません。
                     </video>
                 </li>
-                <li><img src="../image/player_2.png"></li>
-                <li><img src="../image/player_3.png"></li>
-                <li><img src="../image/player_4.png"></li>
+                <li><img src="<?= $baseUrl ?>/resources/image/player_2.png"></li>
+                <li><img src="<?= $baseUrl ?>/resources/image/player_3.png"></li>
+                <li><img src="<?= $baseUrl ?>/resources/image/player_4.png"></li>
             </ul>
         </div>
     </div>
