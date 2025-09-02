@@ -56,10 +56,10 @@ class UGameHistory
     /**
      * 成績レコードを追加します。
      */
-    public function addData(int $userId, int $tableId, int $game, int $direction, string $rank, int $score, string $playDate): bool {
+    public function addData(int $userId, int $tableId, int $game, int $direction, string $rank, int $score, string $playDate, int $mistakeCount = 0): bool {
         try {
 
-            $sql = 'INSERT INTO `u_game_history` (u_user_id, u_table_id, game, m_direction_id, rank, score, point, play_date, reg_date) VALUES (:userId, :tableId, :game, :direction, :rank, :score, :point, :playDate, NOW())';
+            $sql = 'INSERT INTO `u_game_history` (u_user_id, u_table_id, game, m_direction_id, rank, score, point, play_date, mistake_count, reg_date) VALUES (:userId, :tableId, :game, :direction, :rank, :score, :point, :playDate, :mistakeCount, NOW())';
             $stmt = $this->db->prepare($sql);
             $point = $this->_calculatePoint($rank, $score);
             $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
@@ -70,6 +70,7 @@ class UGameHistory
             $stmt->bindParam(':score', $score, PDO::PARAM_INT);
             $stmt->bindParam(':point', $point);
             $stmt->bindParam(':playDate', $playDate);
+            $stmt->bindParam(':mistakeCount', $mistakeCount, PDO::PARAM_INT);
             return $stmt->execute();
         } catch (Exception $e) {
             error_log('データ追加エラー: ' . $e->getMessage()); // エラーログ出力
@@ -104,7 +105,7 @@ class UGameHistory
     public function addGameHistory(array $data)
     {
         try {
-            $sql = 'INSERT INTO u_game_history (play_date, game, u_user_id, u_table_id, rank, score, point, m_direction_id) VALUES (:play_date, :game, :u_user_id, :u_table_id, :rank, :score, :point, :m_direction_id)';
+            $sql = 'INSERT INTO u_game_history (play_date, game, u_user_id, u_table_id, rank, score, point, m_direction_id, mistake_count) VALUES (:play_date, :game, :u_user_id, :u_table_id, :rank, :score, :point, :m_direction_id, :mistake_count)';
             $stmt = $this->db->prepare($sql);
             $point = $this->_calculatePoint($data['rank'], $data['score']);
             $stmt->bindParam(':play_date', $data['play_date']);
@@ -115,6 +116,7 @@ class UGameHistory
             $stmt->bindParam(':score', $data['score']);
             $stmt->bindParam(':point', $point);
             $stmt->bindParam(':m_direction_id', $data['m_direction_id']);
+            $stmt->bindParam(':mistake_count', $data['mistake_count']);
             return $stmt->execute();
         } catch (Exception $e) {
             error_log('ゲーム履歴追加エラー: ' . $e->getMessage());
@@ -128,7 +130,7 @@ class UGameHistory
     public function updateGameHistory($gameId, array $data)
     {
         try {
-            $sql = 'UPDATE u_game_history SET play_date = :play_date, game = :game, u_user_id = :u_user_id, u_table_id = :u_table_id, rank = :rank, score = :score, point = :point, m_direction_id = :m_direction_id WHERE u_game_history_id = :game_id';
+            $sql = 'UPDATE u_game_history SET play_date = :play_date, game = :game, u_user_id = :u_user_id, u_table_id = :u_table_id, rank = :rank, score = :score, point = :point, m_direction_id = :m_direction_id, mistake_count = :mistake_count WHERE u_game_history_id = :game_id';
             $stmt = $this->db->prepare($sql);
             $point = $this->_calculatePoint($data['rank'], $data['score']);
             $stmt->bindParam(':play_date', $data['play_date']);
@@ -139,6 +141,7 @@ class UGameHistory
             $stmt->bindParam(':score', $data['score']);
             $stmt->bindParam(':point', $point);
             $stmt->bindParam(':m_direction_id', $data['m_direction_id']);
+            $stmt->bindParam(':mistake_count', $data['mistake_count']);
             $stmt->bindParam(':game_id', $gameId);
             return $stmt->execute();
         } catch (Exception $e) {

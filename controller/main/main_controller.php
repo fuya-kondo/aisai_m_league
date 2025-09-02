@@ -463,6 +463,7 @@ class MainController extends BaseController
                 $direction = $_POST['direction'];
                 $rank      = $_POST['rank'];
                 $score     = $_POST['score'];
+                $mistakeCount = isset($_POST['mistake_count']) ? (int)$_POST['mistake_count'] : 0;
                 $playDate  = sprintf(
                     '%04d-%02d-%02d %s',
                     $_POST['year'],
@@ -474,7 +475,7 @@ class MainController extends BaseController
                 // データ追加処理
                 require_once __DIR__ . '/../../model/u_game_history.php';
                 $uGameHistoryModel = new UGameHistory();
-                $uGameHistoryModel->addData($userId, $tableId, $game, $direction, $rank, $score, $playDate);
+                $uGameHistoryModel->addData($userId, $tableId, $game, $direction, $rank, $score, $playDate, $mistakeCount);
                 header("Location: history?userId=" . urlencode($userId));
                 exit();
             } else {

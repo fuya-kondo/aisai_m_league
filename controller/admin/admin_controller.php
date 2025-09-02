@@ -213,7 +213,8 @@ class AdminController extends BaseController
                 'u_table_id' => 1, // 固定値として1を設定
                 'rank' => $_POST['rank'],
                 'score' => $_POST['score'],
-                'm_direction_id' => !empty($_POST['m_direction_id']) ? $_POST['m_direction_id'] : 0
+                'm_direction_id' => !empty($_POST['m_direction_id']) ? $_POST['m_direction_id'] : 0,
+                'mistake_count' => !empty($_POST['mistake_count']) ? (int)$_POST['mistake_count'] : 0
             ];
 
             try {
@@ -244,7 +245,8 @@ class AdminController extends BaseController
                 'u_table_id' => 1, // 固定値として1を設定
                 'rank' => $_POST['rank'],
                 'score' => $_POST['score'],
-                'm_direction_id' => !empty($_POST['m_direction_id']) ? $_POST['m_direction_id'] : 0
+                'm_direction_id' => !empty($_POST['m_direction_id']) ? $_POST['m_direction_id'] : 0,
+                'mistake_count' => !empty($_POST['mistake_count']) ? (int)$_POST['mistake_count'] : 0
             ];
 
             try {

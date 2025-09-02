@@ -60,9 +60,13 @@ include __DIR__ . '/../header.php';
                 <label for="rank">位</label>
             </div>
             <div class="form-group score">
-                <input id="score" class="input" type="text" name="score" required inputmode="text" placeholder="例:25300" pattern="-?[0-9]*\.?[0-9]*">
-                <label for="score">点</label>
-            </div>
+                 <input id="score" class="input" type="text" name="score" required inputmode="text" placeholder="例:25300" pattern="-?[0-9]*\.?[0-9]*">
+                 <label for="score">点</label>
+             </div>
+             <div class="form-group mistake">
+                 <input id="mistakeCount" class="input" type="number" name="mistake_count" min="0" max="99" value="0" inputmode="numeric">
+                 <label for="mistakeCount">ﾁｮﾝﾎﾞ</label>
+             </div>
             <div class="form-group date-group">
                 <div class="date-inputs">
                     <select class="input play_date year" name="year" required>
@@ -142,18 +146,18 @@ include __DIR__ . '/../header.php';
     .play_date.year { width: 100px; }
     .play_date.month { width: 80px; }
     .play_date.day { width: 80px; }
-    .form-group.game, .form-group.rank, .form-group.score, .form-group.player, .form-group.direction {
-        text-align: right;
-        display: grid;
-        gap: 0px;
-        justify-content: end;
-    }
+    .form-group.game, .form-group.rank, .form-group.score, .form-group.player, .form-group.direction, .form-group.mistake {
+         text-align: right;
+         display: grid;
+         gap: 0px;
+         justify-content: end;
+     }
     .form-group {
         margin: 10px 0;
     }
-    .form-group.game, .form-group.player,.form-group.rank, .form-group.score {
-        grid-template-columns: 1fr 60px;
-    }
+    .form-group.game, .form-group.player,.form-group.rank, .form-group.score, .form-group.mistake {
+         grid-template-columns: 1fr 60px;
+     }
     .form-group.direction {
         justify-content: space-evenly;
     }
