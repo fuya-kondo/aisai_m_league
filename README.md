@@ -1,11 +1,12 @@
 # 麻雀成績管理サイト
 
 ## 開発環境
-PHP8  
-HTML  
-CSS  
-JavaScript  
-MySQL
+* バックエンド：PHP
+* フロントエンド：JavaScript, HTML, CSS
+* データベース：MySQL
+* インフラ/環境：XAMPP（ローカル環境）、Xserver（本番デプロイ）
+
+---
 
 ## 機能一覧
 <img width="329" height="508" alt="image" src="https://github.com/user-attachments/assets/b39f1091-ae7f-4dec-b10d-3cb5be04f439" />
