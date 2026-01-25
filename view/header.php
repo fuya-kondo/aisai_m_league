@@ -32,8 +32,8 @@
         <div class="before-line"></div>
         <a href="<?= $baseUrl ?>/rule"><div class="header-button">競技規定</div></a>
         <div class="before-line"></div>
-        <a href="<?= $baseUrl ?>/analysis"><div class="header-button">AI成績分析</div></a>
-        <div class="before-line"></div>
+        <!-- <a href="<?= $baseUrl ?>/analysis"><div class="header-button">AI成績分析</div></a>
+        <div class="before-line"></div> -->
         <a href="<?= $baseUrl ?>/sound"><div class="header-button">発声</div></a>
         <div class="before-line"></div>
         <a href="<?= $baseUrl ?>/setting"><div class="header-button">設定</div></a>
