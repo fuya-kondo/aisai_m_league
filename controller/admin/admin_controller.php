@@ -111,12 +111,13 @@ class AdminController extends BaseController
      */
     public function updateUser()
     {
-        error_log('=== updateUser called ===');
-        error_log('REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD']);
-        error_log('POST data: ' . print_r($_POST, true));
-        error_log('GET data: ' . print_r($_GET, true));
+        debug_log('=== updateUser called ===');
+        debug_log('REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD']);
+        debug_log('POST data: ' . print_r($_POST, true));
+        debug_log('GET data: ' . print_r($_GET, true));
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $this->enforceCsrfToken();
             try {
                 $userId = $_POST['user_id'];
                 $data = [
@@ -126,11 +127,11 @@ class AdminController extends BaseController
                     'm_tier_id' => !empty($_POST['tier_id']) ? $_POST['tier_id'] : 0
                 ];
 
-                error_log('Updating user ID: ' . $userId);
-                error_log('Update data: ' . print_r($data, true));
+                debug_log('Updating user ID: ' . $userId);
+                debug_log('Update data: ' . print_r($data, true));
 
                 $result = $this->uUser->updateUser($userId, $data);
-                error_log('Update result: ' . ($result ? 'success' : 'failed'));
+                debug_log('Update result: ' . ($result ? 'success' : 'failed'));
                 
                 $this->successResponse(['message' => 'ユーザー情報を更新しました']);
             } catch (Exception $e) {
@@ -138,7 +139,7 @@ class AdminController extends BaseController
                 $this->errorResponse('ユーザー情報の更新に失敗しました: ' . $e->getMessage());
             }
         } else {
-            error_log('Invalid request method: ' . $_SERVER['REQUEST_METHOD']);
+            debug_log('Invalid request method: ' . $_SERVER['REQUEST_METHOD']);
             $this->errorResponse('不正なリクエストです');
         }
     }
@@ -148,10 +149,11 @@ class AdminController extends BaseController
      */
     public function addUser()
     {
-        error_log('addUser called');
-        error_log('POST data: ' . print_r($_POST, true));
+        debug_log('addUser called');
+        debug_log('POST data: ' . print_r($_POST, true));
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->enforceCsrfToken();
             try {
                 $data = [
                     'last_name' => $_POST['last_name'],
@@ -160,18 +162,18 @@ class AdminController extends BaseController
                     'm_tier_id' => !empty($_POST['tier_id']) ? $_POST['tier_id'] : 0
                 ];
 
-                error_log('Adding user with data: ' . print_r($data, true));
+                debug_log('Adding user with data: ' . print_r($data, true));
 
                 $result = $this->uUser->addUser($data);
-                error_log('Add result: ' . ($result ? 'success' : 'failed'));
+                debug_log('Add result: ' . ($result ? 'success' : 'failed'));
                 
                 $this->successResponse(['message' => 'ユーザーを追加しました']);
             } catch (Exception $e) {
-                error_log('Add error: ' . $e->getMessage());
+                debug_log('Add error: ' . $e->getMessage());
                 $this->errorResponse('ユーザーの追加に失敗しました: ' . $e->getMessage());
             }
         } else {
-            error_log('Invalid request method: ' . $_SERVER['REQUEST_METHOD']);
+            debug_log('Invalid request method: ' . $_SERVER['REQUEST_METHOD']);
             $this->errorResponse('不正なリクエストです');
         }
     }
@@ -182,6 +184,7 @@ class AdminController extends BaseController
     public function deleteUser()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $this->enforceCsrfToken();
             try {
                 $userId = $_POST['user_id'];
                 $result = $this->uUser->deleteUser($userId);
@@ -200,6 +203,7 @@ class AdminController extends BaseController
     public function updateGameHistory()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $this->enforceCsrfToken();
             $gameId = $_POST['game_id'];
             
             // 日付と時刻を結合
@@ -210,7 +214,7 @@ class AdminController extends BaseController
                 'play_date' => $playDate,
                 'game' => $_POST['game'],
                 'u_user_id' => $_POST['u_user_id'],
-                'u_table_id' => 1, // 固定値として1を設定
+                'u_table_id' => 1, // 固定値として1を設宁E
                 'rank' => $_POST['rank'],
                 'score' => $_POST['score'],
                 'm_direction_id' => !empty($_POST['m_direction_id']) ? $_POST['m_direction_id'] : 0,
@@ -234,6 +238,7 @@ class AdminController extends BaseController
     public function addGameHistory()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $this->enforceCsrfToken();
             // 日付と時刻を結合
             $playTime = !empty($_POST['play_time']) ? $_POST['play_time'] : '00:00';
             $playDate = $_POST['play_date'] . ' ' . $playTime . ':00';
@@ -242,7 +247,7 @@ class AdminController extends BaseController
                 'play_date' => $playDate,
                 'game' => $_POST['game'],
                 'u_user_id' => $_POST['u_user_id'],
-                'u_table_id' => 1, // 固定値として1を設定
+                'u_table_id' => 1, // 固定値として1を設宁E
                 'rank' => $_POST['rank'],
                 'score' => $_POST['score'],
                 'm_direction_id' => !empty($_POST['m_direction_id']) ? $_POST['m_direction_id'] : 0,
@@ -261,11 +266,12 @@ class AdminController extends BaseController
     }
 
     /**
-     * マスターデータを更新
+     * マスターチE�Eタを更新
      */
     public function updateMasterData()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $this->enforceCsrfToken();
             $type = $_POST['type'];
             $id = $_POST['id'];
             $data = json_decode($_POST['data'], true);
@@ -280,19 +286,20 @@ class AdminController extends BaseController
     }
 
     /**
-     * データを削除
+     * チE�Eタを削除
      */
     public function deleteData()
     {
-        error_log('=== deleteData called ===');
-        error_log('REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD']);
-        error_log('POST data: ' . print_r($_POST, true));
+        debug_log('=== deleteData called ===');
+        debug_log('REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD']);
+        debug_log('POST data: ' . print_r($_POST, true));
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $this->enforceCsrfToken();
             $type = $_POST['type'];
             $id = $_POST['id'];
 
-            error_log('Deleting type: ' . $type . ', ID: ' . $id);
+            debug_log('Deleting type: ' . $type . ', ID: ' . $id);
 
             try {
                 $result = false;
@@ -308,11 +315,11 @@ class AdminController extends BaseController
                         break;
                 }
 
-                error_log('Delete result: ' . ($result ? 'success' : 'failed'));
-                $this->successResponse(['message' => 'データを削除しました']);
+                debug_log('Delete result: ' . ($result ? 'success' : 'failed'));
+                $this->successResponse(['message' => 'チE�Eタを削除しました']);
             } catch (Exception $e) {
-                error_log('Delete error: ' . $e->getMessage());
-                $this->errorResponse('データの削除に失敗しました: ' . $e->getMessage());
+                debug_log('Delete error: ' . $e->getMessage());
+                $this->errorResponse('チE�Eタの削除に失敗しました: ' . $e->getMessage());
             }
         } else {
             $this->errorResponse('不正なリクエストです');
@@ -320,37 +327,38 @@ class AdminController extends BaseController
     }
 
     /**
-     * 新しいマスターデータを追加
+     * 新しいマスターチE�Eタを追加
      */
     public function addMasterData()
     {
-        error_log('=== addMasterData called ===');
-        error_log('REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD']);
-        error_log('POST data: ' . print_r($_POST, true));
+        debug_log('=== addMasterData called ===');
+        debug_log('REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD']);
+        debug_log('POST data: ' . print_r($_POST, true));
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $this->enforceCsrfToken();
             $type = $_POST['type'];
             $data = json_decode($_POST['data'], true);
 
-            error_log('Type: ' . $type);
-            error_log('Decoded data: ' . print_r($data, true));
+            debug_log('Type: ' . $type);
+            debug_log('Decoded data: ' . print_r($data, true));
 
             try {
                 $result = $this->addMasterDataByType($type, $data);
-                error_log('Add result: ' . ($result ? 'success' : 'failed'));
-                $this->successResponse(['message' => 'データを追加しました']);
+                debug_log('Add result: ' . ($result ? 'success' : 'failed'));
+                $this->successResponse(['message' => 'チE�Eタを追加しました']);
             } catch (Exception $e) {
-                error_log('Add error: ' . $e->getMessage());
+                debug_log('Add error: ' . $e->getMessage());
                 $this->errorResponse($e->getMessage());
             }
         } else {
-            error_log('Invalid request method: ' . $_SERVER['REQUEST_METHOD']);
+            debug_log('Invalid request method: ' . $_SERVER['REQUEST_METHOD']);
             $this->errorResponse('不正なリクエストです');
         }
     }
 
     /**
-     * ユーザー数を取得
+     * ユーザー数を取征E
      */
     private function getUserCount()
     {
@@ -359,7 +367,7 @@ class AdminController extends BaseController
     }
 
     /**
-     * ゲーム数を取得
+     * ゲーム数を取征E
      */
     private function getGameCount()
     {
@@ -368,7 +376,7 @@ class AdminController extends BaseController
     }
 
     /**
-     * ティア履歴数を取得
+     * チE��ア履歴数を取征E
      */
     private function getTierCount()
     {
@@ -381,7 +389,7 @@ class AdminController extends BaseController
     }
 
     /**
-     * バッジ数を取得
+     * バッジ数を取征E
      */
     private function getBadgeCount()
     {

@@ -11,14 +11,14 @@ include __DIR__ . '/../header.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
 
-    <link rel="apple-touch-icon" href="<?= $baseUrl ?>/favicon.png">
-    <link rel="icon" href="<?= $baseUrl ?>/favicon.ico" sizes="64x64" type="image/x-icon">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/master.css">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/header.css">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/app.css">
+    <link rel="apple-touch-icon" href="<?= h($baseUrl) ?>/favicon.png">
+    <link rel="icon" href="<?= h($baseUrl) ?>/favicon.ico" sizes="64x64" type="image/x-icon">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/master.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/header.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/app.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
-    <title><?= $title ?></title>
+    <title><?= h($title) ?></title>
 </head>
 <body>
 <main>
@@ -48,24 +48,24 @@ include __DIR__ . '/../header.php';
                                             <?php if ($column == 'ranking'): ?>
                                                 <td>
                                                     <span class="rank-column">
-                                                        <span class="rank-icon rank-<?= $todayStatsData[$column] ?>">
-                                                            <span class="stats-value"><?= $todayStatsData[$column] ?></span>
+                                                        <span class="rank-icon rank-<?= h($todayStatsData[$column]) ?>">
+                                                            <span class="stats-value"><?= h($todayStatsData[$column]) ?></span>
                                                         </span>
                                                     </span>
                                                 </td>
                                             <?php elseif ($column == 'name'): ?>
                                                 <td>
                                                     <a href="personal?year=<?= $selectedYear ?>&player=<?= $todayStatsData['u_user_id'] ?>">
-                                                        <span class="stats-value"><?= $todayStatsData[$column] ?></span>
+                                                        <span class="stats-value"><?= h($todayStatsData[$column]) ?></span>
                                                     </a>
                                                 </td>
                                             <?php else: // その他のカラムの場合 ?>
                                                 <?php if (is_array($data) && isset($todayStatsData[$column]) && is_array($todayStatsData[$column])): ?>
                                                     <?php foreach ($todayStatsData[$column] as $key => $value): ?>
-                                                        <td><span class="stats-value"><?= $value ?></span></td>
+                                                        <td><span class="stats-value"><?= h($value) ?></span></td>
                                                     <?php endforeach; ?>
                                                 <?php else: ?>
-                                                    <td><span class="stats-value"><?= $todayStatsData[$column] ?></span></td>
+                                                    <td><span class="stats-value"><?= h($todayStatsData[$column]) ?></span></td>
                                                 <?php endif; ?>
                                             <?php endif; ?>
                                         <?php endforeach; ?>
@@ -79,7 +79,7 @@ include __DIR__ . '/../header.php';
     <?php /* 本日の成績 */?>
 
     <?php /* 総合成績 */?>
-    <div class="page-title"><?= $title ?></div>
+    <div class="page-title"><?= h($title) ?></div>
     <?php if(isset($yearlyStatsList)): ?>
         <?php foreach($yearlyStatsList as $year => $displayStatsData): ?>
             <?php if ($year == $selectedYear): // 選択された年のみ表示 ?>
@@ -88,7 +88,7 @@ include __DIR__ . '/../header.php';
                         <select name="year" id="year" onchange="this.form.submit()" class="year-select">
                             <?php if(isset($years)): ?>
                                 <?php foreach($years as $year): ?>
-                                    <option value="<?= $year ?>" <?= ($year == $selectedYear) ? 'selected' : '' ?>><?= $year ?></option>
+                                    <option value="<?= h($year) ?>" <?= ($year == $selectedYear) ? 'selected' : '' ?>><?= h($year) ?></option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </select>
@@ -131,15 +131,15 @@ include __DIR__ . '/../header.php';
                                                 ?>
                                                 <td>
                                                     <span class="rank-column">
-                                                        <span class="rank-icon rank-<?= $statusData[$column] ?>">
-                                                            <span class="stats-value"><?= $statusData[$column] ?></span>
+                                                        <span class="rank-icon rank-<?= h($statusData[$column]) ?>">
+                                                            <span class="stats-value"><?= h($statusData[$column]) ?></span>
                                                         </span>
                                                     </span>
                                                 </td>
                                             <?php elseif ($column == 'name'): ?>
                                                 <td class="player-name-<?=$statusData['ranking']?>-<?php if($statusData['sum_point']>=0):?>p<?php else:?>m<?php endif;?>">
                                                     <a href="personal?year=<?= $selectedYear ?>&player=<?= $statusData['u_user_id'] ?>">
-                                                        <span class="stats-value"><?= $statusData[$column] ?></span>
+                                                        <span class="stats-value"><?= h($statusData[$column]) ?></span>
                                                         <!-- <span class="badge"><?= $userList[$statusData['u_user_id']]['badge']['name'] ?></span> -->
                                                     </a>
                                                 </td>
@@ -148,10 +148,10 @@ include __DIR__ . '/../header.php';
                                             <?php else: // その他のカラムの場合 ?>
                                                 <?php if (is_array($data) && isset($statusData[$column]) && is_array($statusData[$column])): ?>
                                                     <?php foreach ($statusData[$column] as $key => $value): ?>
-                                                        <td><span class="stats-value"><?= $value ?></span></td>
+                                                        <td><span class="stats-value"><?= h($value) ?></span></td>
                                                     <?php endforeach; ?>
                                                 <?php else: ?>
-                                                    <td><span class="stats-value"><?= $statusData[$column] ?></span></td>
+                                                    <td><span class="stats-value"><?= h($statusData[$column]) ?></span></td>
                                                 <?php endif; ?>
                                             <?php endif; ?>
                                         <?php endforeach; ?>
@@ -284,15 +284,15 @@ include __DIR__ . '/../header.php';
         <?php foreach ($titleHolderList as $year => $titles): ?>
             <?php if ($year == $selectedYear): // 選択された年のみ表示 ?>
                 <div class="year-section">
-                    <h2 class="year-header"><?= $year ?>年</h2>
+                    <h2 class="year-header"><?= h($year) ?>年</h2>
                     <?php foreach ($titles as $item): ?>
                         <div class="title-item">
                             <div class="title-name">
-                                <?= $item['title_name'] ?>
+                                <?= h($item['title_name']) ?>
                             </div>
                             <div class="user-info">
-                                <span><?= $item['u_user_id'] ?></span>
-                                <span class="value"><?= $item['value'] ?></span>
+                                <span><?= h($item['u_user_id']) ?></span>
+                                <span class="value"><?= h($item['value']) ?></span>
                             </div>
                         </div>
                     <?php endforeach; ?>

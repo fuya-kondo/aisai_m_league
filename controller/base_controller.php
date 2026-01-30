@@ -167,6 +167,29 @@ class BaseController
     }
 
     /**
+     * CSRF validation for POST requests.
+     */
+    protected function enforceCsrfToken()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+
+        if (!function_exists('verify_csrf') || !verify_csrf()) {
+            http_response_code(403);
+            $message = 'Invalid CSRF token';
+            $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+            $isAjax = (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest') || str_contains($accept, 'application/json');
+            if ($isAjax) {
+                $this->errorResponse($message);
+            } else {
+                echo $message;
+            }
+            exit();
+        }
+    }
+
+    /**
      * エラーレスポンスを返す
      */
     protected function errorResponse($message)

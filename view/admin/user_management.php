@@ -7,9 +7,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $data['title'] ?></title>
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/master.css">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/header.css">
+    <title><?= h($data['title']) ?></title>
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/master.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/header.css">
     <style>
         .admin-container {
             max-width: 1200px;
@@ -266,6 +266,7 @@
             }
         }
     </style>
+    <meta name="csrf-token" content="<?= h(csrf_token()) ?>">
 </head>
 <body>
     <div class="admin-container">
@@ -305,10 +306,10 @@
                             $userCount++;
                             error_log("Displaying user {$userCount}: ID {$user['u_user_id']}, Name: {$user['last_name']} {$user['first_name']}, Badge: {$user['m_badge_id']}, Tier: {$user['m_tier_id']}");
                         ?>
-                             <tr data-user-id="<?= $user['u_user_id'] ?>" 
+                             <tr data-user-id="<?= h($user['u_user_id']) ?>" 
                                  data-badge-id="<?= isset($user['badge']) ? $user['badge']['m_badge_id'] : '' ?>"
                                  data-tier-id="<?= isset($user['tier']) ? $user['tier']['m_tier_id'] : '' ?>">
-                                 <td><?= $user['u_user_id'] ?></td>
+                                 <td><?= h($user['u_user_id']) ?></td>
                                 <td><?= htmlspecialchars($user['last_name']) ?></td>
                                 <td><?= htmlspecialchars($user['first_name']) ?></td>
                                 <td>
@@ -320,7 +321,7 @@
                                 </td>
                                 <td>
                                 <?php if (isset($user['tier'])): ?>
-                                    <span style="color: <?= $user['tier']['color'] ?>">
+                                    <span style="color: <?= h($user['tier']['color']) ?>">
                                         <?= htmlspecialchars($user['tier']['name']) ?>
                                     </span>
                                 <?php else: ?>
@@ -330,8 +331,8 @@
                             
                             <td>
                                 <div class="action-buttons">
-                                     <button class="btn-edit" onclick="editUser(<?= $user['u_user_id'] ?>)">編集</button>
-                                     <button class="btn-delete" onclick="deleteUser(<?= $user['u_user_id'] ?>)">削除</button>
+                                     <button class="btn-edit" onclick="editUser(<?= h($user['u_user_id']) ?>)">編集</button>
+                                     <button class="btn-delete" onclick="deleteUser(<?= h($user['u_user_id']) ?>)">削除</button>
                                  </div>
                             </td>
                                                  </tr>
@@ -351,6 +352,7 @@
                 <span class="close" onclick="closeModal()">&times;</span>
             </div>
             <form id="editForm">
+                <?= csrf_field() ?>
                 <input type="hidden" id="editUserId" name="user_id">
                 <div class="form-group">
                     <label class="form-label" for="editLastName">姓</label>
@@ -365,7 +367,7 @@
                     <select id="editBadge" name="badge_id" class="form-select">
                         <option value="">なし</option>
                          <?php foreach ($data['badges'] as $badge): ?>
-                             <option value="<?= $badge['m_badge_id'] ?>"><?= htmlspecialchars($badge['name']) ?></option>
+                             <option value="<?= h($badge['m_badge_id']) ?>"><?= h($badge['name']) ?></option>
                          <?php endforeach; ?>
                     </select>
                 </div>
@@ -374,7 +376,7 @@
                     <select id="editTier" name="tier_id" class="form-select">
                         <option value="">なし</option>
                         <?php foreach ($data['tiers'] as $tier): ?>
-                             <option value="<?= $tier['m_tier_id'] ?>"><?= htmlspecialchars($tier['name']) ?></option>
+                             <option value="<?= h($tier['m_tier_id']) ?>"><?= h($tier['name']) ?></option>
                          <?php endforeach; ?>
                     </select>
                 </div>
@@ -388,6 +390,7 @@
     </div>
 
     <script>
+        const csrfToken = "<?= h(csrf_token()) ?>";
         let currentUserId = null;
 
         // アコーディオン機能
@@ -464,6 +467,9 @@
                 
                 fetch('', {
                     method: 'POST',
+                    headers: {
+                        'X-CSRF-Token': csrfToken
+                    },
                     body: formData
                 })
                 .then(response => response.json())

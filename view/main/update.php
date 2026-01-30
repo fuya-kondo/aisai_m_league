@@ -10,39 +10,40 @@ include __DIR__ . '/../header.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <link rel="apple-touch-icon" href="<?= $baseUrl ?>/favicon.png">
-    <link rel="icon" href="<?= $baseUrl ?>/favicon.ico" sizes="64x64" type="image/x-icon">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/master.css">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/header.css">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/app.css">
-    <title><?= $title ?></title>
+    <link rel="apple-touch-icon" href="<?= h($baseUrl) ?>/favicon.png">
+    <link rel="icon" href="<?= h($baseUrl) ?>/favicon.ico" sizes="64x64" type="image/x-icon">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/master.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/header.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/app.css">
+    <title><?= h($title) ?></title>
 </head>
 <body>
     <main>
         <?php if ($isFix): ?>
-            <div class="page-title"><?= $title ?></div>
+            <div class="page-title"><?= h($title) ?></div>
             <div class="button-container" style="text-align: center;">
                 <form action="update" method="post" onsubmit="return validateForm()">
+                    <?= csrf_field() ?>
                     <select class="input" name="new_rank" required style="max-width: 160px">
                         <?php foreach($rankConfig as $value => $name): ?>
-                            <option value="<?=$value?>" <?php if($value==$rank):?>selected<?php endif;?>><?=$name?></option>
+                            <option value="<?=$value?>" <?php if($value==$rank):?>selected<?php endif;?>><?= h($name) ?></option>
                         <?php endforeach;?>
                     </select><br>
-                    <input class="input" type="number" name="new_score" required value="<?= $score ?>" style="max-width: 140px"><br>
+                    <input class="input" type="number" name="new_score" required value="<?= h($score) ?>" style="max-width: 140px"><br>
                     <div class="date-inputs" style="justify-content:center;">
-                        <input class="input" type="number" name="new_game" required value="<?= $game ?>" style="max-width: 120px">
+                        <input class="input" type="number" name="new_game" required value="<?= h($game) ?>" style="max-width: 120px">
                         <label style="margin:0 0 0 8px; font-size:14px;">半荘目</label>
                     </div>
                     <div class="form-group">
                         <div class="button-containers">
                             <?php foreach($mDirectionList as $directionId => $directionData): ?>
-                                <button class="direction-button <?php if($direction==$directionId):?>selected<?php endif;?>" type="button" name="new_direction" value="<?=$directionId?>" required <?php if($direction==$directionId):?>selected<?php endif;?> onclick="selectButton(this)"><?=$directionData['name']?></button>
+                                <button class="direction-button <?php if($direction==$directionId):?>selected<?php endif;?>" type="button" name="new_direction" value="<?= h($directionId) ?>" required <?php if($direction==$directionId):?>selected<?php endif;?> onclick="selectButton(this)"><?= h($directionData['name']) ?></button>
                             <?php endforeach;?>
                             <input type="hidden" id="direction" name="new_direction" value="<?=$direction?>">
                         </div>
                     </div>
-                    <input name="userId" value="<?= $userId ?>" style="display:none"><br><br>
-                    <button class="submit-button btn-primary" type="submit" name="historyId" value="<?= $historyId ?>">修正する</button>
+                    <input name="userId" value="<?= h($userId) ?>" style="display:none"><br><br>
+                    <button class="submit-button btn-primary" type="submit" name="historyId" value="<?= h($historyId) ?>">修正する</button>
                 </form>
             </div>
         <?php endif; ?>

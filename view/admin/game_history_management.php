@@ -9,9 +9,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $data['title'] ?></title>
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/master.css">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/header.css">
+    <title><?= h($data['title']) ?></title>
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/master.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/header.css">
     <style>
         .admin-container {
             max-width: 1200px;
@@ -289,6 +289,7 @@
             }
         }
     </style>
+    <meta name="csrf-token" content="<?= h(csrf_token()) ?>">
 </head>
 <body>
     <div class="admin-container">
@@ -302,7 +303,7 @@
 
         <div class="game-section">
             <div class="section-header" onclick="toggleSection(this)">
-                <h3 class="section-title">ゲーム履歴一覧 (<?= isset($data['gameHistory']) ? count($data['gameHistory']) : 0 ?>件)</h3>
+                <h3 class="section-title">ゲーム履歴一覧 (<?= h(isset($data['gameHistory']) ? count($data['gameHistory']) : 0) ?>件)</h3>
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <button class="add-button" onclick="event.stopPropagation(); addGame()">追加</button>
                     <span class="toggle-icon">▼</span>
@@ -311,40 +312,40 @@
             <div class="section-content">
                 <div class="table-container">
                     <table>
-                                                 <thead>
-                             <tr>
-                                 <th>ID</th>
-                                 <th>日付</th>
-                                 <th>試合番号</th>
-                                 <th>ユーザー</th>
-                                 <th>順位</th>
-                                 <th>スコア</th>
-                                 <th>ポイント</th>
-                                 <th>方向</th>
-                                 <th>チョンボ回数</th>
-                                 <th>操作</th>
-                             </tr>
-                         </thead>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>日付</th>
+                                <th>試合番号</th>
+                                <th>ユーザー</th>
+                                <th>順位</th>
+                                <th>スコア</th>
+                                <th>ポイント</th>
+                                <th>方向</th>
+                                <th>チョンボ回数</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
                         <tbody>
                         <?php if (isset($data['gameHistory']) && is_array($data['gameHistory'])): ?>
                             <?php foreach ($data['gameHistory'] as $game): ?>
-                                 <tr data-game-id="<?= $game['u_game_history_id'] ?>">
-                                 <td><?= $game['u_game_history_id'] ?></td>
-                                 <td><?= htmlspecialchars($game['play_date']) ?></td>
-                                 <td><?= $game['game'] ?></td>
-                                 <td><?= isset($data['users'][$game['u_user_id']]) ? htmlspecialchars($data['users'][$game['u_user_id']]['last_name'] . $data['users'][$game['u_user_id']]['first_name']) : 'Unknown' ?></td>
-                                 <td><?= htmlspecialchars($game['rank']) ?></td>
-                                 <td><?= $game['score'] ?></td>
-                                 <td><?= $game['point'] ?></td>
-                                 <td><?= isset($data['directions'][$game['m_direction_id']]) ? htmlspecialchars($data['directions'][$game['m_direction_id']]['name']) : 'Unknown' ?></td>
-                                 <td><?= $game['mistake_count'] ?></td>
-                                 <td>
-                                     <div class="action-buttons">
-                                          <button class="btn-edit" onclick="editGame(<?= $game['u_game_history_id'] ?>)">編集</button>
-                                      <button class="btn-delete" onclick="deleteGame(<?= $game['u_game_history_id'] ?>)">削除</button>
-                                 </div>
-                             </td>
-                         </tr>
+                                <tr data-game-id="<?= h($game['u_game_history_id']) ?>">
+                                <td><?= h($game['u_game_history_id']) ?></td>
+                                <td><?= h($game['play_date']) ?></td>
+                                <td><?= h($game['game']) ?></td>
+                                <td><?= isset($data['users'][$game['u_user_id']]) ? htmlspecialchars($data['users'][$game['u_user_id']]['last_name'] . $data['users'][$game['u_user_id']]['first_name']) : 'Unknown' ?></td>
+                                <td><?= h($game['rank']) ?></td>
+                                <td><?= h($game['score']) ?></td>
+                                <td><?= h($game['point']) ?></td>
+                                <td><?= isset($data['directions'][$game['m_direction_id']]) ? htmlspecialchars($data['directions'][$game['m_direction_id']]['name']) : 'Unknown' ?></td>
+                                <td><?= h($game['mistake_count']) ?></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-edit" onclick="editGame(<?= h($game['u_game_history_id']) ?>)">編集</button>
+                                    <button class="btn-delete" onclick="deleteGame(<?= h($game['u_game_history_id']) ?>)">削除</button>
+                                </div>
+                            </td>
+                        </tr>
                         <?php 
                             endforeach; 
                         endif; 
@@ -363,6 +364,7 @@
                 <span class="close" onclick="closeModal()">&times;</span>
             </div>
             <form id="editForm">
+                <?= csrf_field() ?>
                 <input type="hidden" id="editGameId" name="game_id">
                 <div class="form-grid">
                     <div class="form-group">
@@ -383,7 +385,7 @@
                         <select id="editUser" name="u_user_id" class="form-select" required>
                             <?php if (isset($data['users']) && is_array($data['users'])): ?>
                                 <?php foreach ($data['users'] as $user): ?>
-                                    <option value="<?= $user['u_user_id'] ?>"><?= htmlspecialchars($user['last_name'] . $user['first_name']) ?></option>
+                                    <option value="<?= h($user['u_user_id']) ?>"><?= h($user['last_name'] . $user['first_name']) ?></option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </select>
@@ -398,18 +400,18 @@
                         <input type="text" id="editScore" name="score" class="form-input" inputmode="text" pattern="-?[0-9]*\.?[0-9]*" required>
                     </div>
                     <div class="form-group">
-                         <label class="form-label" for="editDirection">方向</label>
-                         <select id="editDirection" name="m_direction_id" class="form-select" required>
-                             <?php foreach ($data['directions'] ?? [] as $direction): ?>
-                                 <option value="<?= $direction['m_direction_id'] ?>"><?= htmlspecialchars($direction['name']) ?></option>
-                             <?php endforeach; ?>
-                         </select>
-                     </div>
-                     <div class="form-group">
-                         <label class="form-label" for="editMistakeCount">チョンボ回数</label>
-                         <input type="number" id="editMistakeCount" name="mistake_count" class="form-input" min="0" max="99" value="0">
-                     </div>
-                 </div>
+                        <label class="form-label" for="editDirection">方向</label>
+                        <select id="editDirection" name="m_direction_id" class="form-select" required>
+                            <?php foreach ($data['directions'] ?? [] as $direction): ?>
+                                <option value="<?= h($direction['m_direction_id']) ?>"><?= h($direction['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="editMistakeCount">チョンボ回数</label>
+                        <input type="number" id="editMistakeCount" name="mistake_count" class="form-input" min="0" max="99" value="0">
+                    </div>
+                </div>
                 
                 <div class="form-actions">
                     <button type="button" class="btn-cancel" onclick="closeModal()">キャンセル</button>
@@ -420,6 +422,7 @@
     </div>
 
     <script>
+        const csrfToken = "<?= h(csrf_token()) ?>";
         let currentGameId = null;
 
         // アコーディオン機能
@@ -449,19 +452,19 @@
         });
 
         function addGame() {
-             currentGameId = null;
-             document.querySelector('.modal-title').textContent = 'ゲーム履歴追加';
-             document.getElementById('editGameId').value = '';
-             document.getElementById('editPlayDate').value = '';
-             document.getElementById('editPlayTime').value = '';
-             document.getElementById('editGame').value = '';
-             document.getElementById('editUser').value = '';
-             document.getElementById('editRank').value = '';
-             document.getElementById('editScore').value = '';
-             document.getElementById('editDirection').value = '';
-             document.getElementById('editMistakeCount').value = '0';
-             document.getElementById('editModal').style.display = 'block';
-         }
+            currentGameId = null;
+            document.querySelector('.modal-title').textContent = 'ゲーム履歴追加';
+            document.getElementById('editGameId').value = '';
+            document.getElementById('editPlayDate').value = '';
+            document.getElementById('editPlayTime').value = '';
+            document.getElementById('editGame').value = '';
+            document.getElementById('editUser').value = '';
+            document.getElementById('editRank').value = '';
+            document.getElementById('editScore').value = '';
+            document.getElementById('editDirection').value = '';
+            document.getElementById('editMistakeCount').value = '0';
+            document.getElementById('editModal').style.display = 'block';
+        }
 
         function editGame(gameId) {
             currentGameId = gameId;
@@ -503,15 +506,15 @@
             // スコアを設定
             document.getElementById('editScore').value = cells[5].textContent.trim();
             
-             // 方向を設定
-             const directionName = cells[7].textContent.trim();
-             setSelectValue('editDirection', directionName);
-             
-             // チョンボ回数を設定
-             const mistakeCount = cells[8].textContent.trim();
-             document.getElementById('editMistakeCount').value = mistakeCount;
-             
-             document.getElementById('editModal').style.display = 'block';
+            // 方向を設定
+            const directionName = cells[7].textContent.trim();
+            setSelectValue('editDirection', directionName);
+            
+            // チョンボ回数を設定
+            const mistakeCount = cells[8].textContent.trim();
+            document.getElementById('editMistakeCount').value = mistakeCount;
+            
+            document.getElementById('editModal').style.display = 'block';
         }
         
         function setSelectValue(selectId, displayName) {
@@ -536,7 +539,7 @@
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: `action=delete_data&type=game_history&id=${gameId}`
+                    body: `action=delete_data&type=game_history&id=${gameId}&csrf_token=${encodeURIComponent(csrfToken)}`
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -595,6 +598,9 @@
             
             fetch('', {
                 method: 'POST',
+                headers: {
+                    'X-CSRF-Token': csrfToken
+                },
                 body: formData
             })
             .then(response => response.json())

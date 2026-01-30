@@ -24,24 +24,24 @@ class Router
         // POSTデータのactionを優先し、なければGETデータのactionを使用
         $action = $_POST['action'] ?? $_GET['action'] ?? 'top';
 
-        error_log('=== handleRequest called ===');
-        error_log('Controller: ' . $controller);
-        error_log('Action: ' . $action);
-        error_log('GET data: ' . print_r($_GET, true));
-        error_log('POST data: ' . print_r($_POST, true));
+        debug_log('=== handleRequest called ===');
+        debug_log('Controller: ' . $controller);
+        debug_log('Action: ' . $action);
+        debug_log('GET data: ' . print_r($_GET, true));
+        debug_log('POST data: ' . print_r($_POST, true));
 
         try {
             switch ($controller) {
                 case 'main':
-                    error_log('Handling main request');
+                    debug_log('Handling main request');
                     $this->handleMainRequest($action);
                     break;
                 case 'admin':
-                    error_log('Handling admin request');
+                    debug_log('Handling admin request');
                     $this->handleAdminRequest($action);
                     break;
                 default:
-                    error_log('Default case - calling main top');
+                    debug_log('Default case - calling main top');
                     // デフォルトはメインコントローラーのtopアクション
                     $this->mainController->top();
                     break;
@@ -104,10 +104,10 @@ class Router
      */
     private function handleAdminRequest($action)
     {
-        error_log('=== handleAdminRequest called ===');
-        error_log('Action: ' . $action);
-        error_log('POST data: ' . print_r($_POST, true));
-        error_log('GET data: ' . print_r($_GET, true));
+        debug_log('=== handleAdminRequest called ===');
+        debug_log('Action: ' . $action);
+        debug_log('POST data: ' . print_r($_POST, true));
+        debug_log('GET data: ' . print_r($_GET, true));
         
         switch ($action) {
             case 'top':
@@ -123,15 +123,15 @@ class Router
                 $this->adminController->master();
                 break;
             case 'update_user':
-                error_log('Calling updateUser');
+                debug_log('Calling updateUser');
                 $this->adminController->updateUser();
                 break;
             case 'add_user':
-                error_log('Calling addUser');
+                debug_log('Calling addUser');
                 $this->adminController->addUser();
                 break;
             case 'delete_user':
-                error_log('Calling deleteUser');
+                debug_log('Calling deleteUser');
                 $this->adminController->deleteUser();
                 break;
             case 'update_game_history':
@@ -150,7 +150,7 @@ class Router
                 $this->adminController->addMasterData();
                 break;
             default:
-                error_log('Default case - calling top');
+                debug_log('Default case - calling top');
                 $this->adminController->top();
                 break;
         }

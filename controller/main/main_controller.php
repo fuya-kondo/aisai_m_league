@@ -338,11 +338,62 @@ class MainController extends BaseController
         // タイトルの設定
         $title = 'AI成績分析';
         
-        // Gemini APIの設定
-        $api_key = 'AIzaSyBPPLGL-RgI732EuVylSSFNaIGr2NRQYJ4';
-        $model = 'gemini-1.5-flash';
-        $api_version = 'v1';
-        $url = "https://generativelanguage.googleapis.com/{$api_version}/models/{$model}:generateContent?key={$api_key}";
+
+        $analysisResultText = null;
+        $analysisError = null;
+        if ($selectUser && $set_msg !== null && $score_msg !== null) {
+            $apiKeys = $GLOBALS['apiKeys'] ?? [];
+            $api_key = $apiKeys['gemini_api_key'] ?? '';
+
+            if (empty($api_key) || $api_key === 'PUT_YOUR_API_KEY_HERE') {
+                $analysisError = 'Gemini API?????????????';
+            } else {
+                $model = 'gemini-1.5-flash';
+                $api_version = 'v1';
+                $url = "https://generativelanguage.googleapis.com/${api_version}/models/${model}:generateContent?key=${api_key}";
+                $msg = $set_msg . "
+" . $score_msg;
+
+                $data = [
+                    'contents' => [[
+                        'parts' => [
+                            ['text' => $msg]
+                        ]
+                    ]]
+                ];
+
+                $payload = json_encode($data, JSON_UNESCAPED_UNICODE);
+                $ch = curl_init($url);
+                curl_setopt_array($ch, [
+                    CURLOPT_POST => true,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                    CURLOPT_POSTFIELDS => $payload,
+                    CURLOPT_CONNECTTIMEOUT => 5,
+                    CURLOPT_TIMEOUT => 10,
+                ]);
+
+                $response = curl_exec($ch);
+                $curlError = curl_error($ch);
+                $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+
+                if ($response === false) {
+                    $analysisError = 'API?????????: ' . $curlError;
+                } elseif ($httpCode >= 400) {
+                    $analysisError = 'API?????????? (HTTP ' . $httpCode . ')';
+                } else {
+                    $result = json_decode($response, true);
+                    if (isset($result['candidates'][0]['content']['parts'][0]['text'])) {
+                        $clean_text = str_replace(['```html', '```'], '', $result['candidates'][0]['content']['parts'][0]['text']);
+                        $analysisResultText = $clean_text;
+                    } else {
+                        $analysisError = 'API???????????';
+                    }
+                }
+            }
+        }
+
         
         include __DIR__ . '/../../view/main/analysis.php';
     }
@@ -354,6 +405,7 @@ class MainController extends BaseController
     {
         // POST処理
         if ($_SERVER["REQUEST_METHOD"] === "POST") {
+            $this->enforceCsrfToken();
             $settingId = $_POST['settingId'] ?? null;
 
             if ($settingId !== null) {
@@ -414,6 +466,7 @@ class MainController extends BaseController
         // POST処理（バッジ変更）
         $successMessage = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['m_badge_id'])) {
+            $this->enforceCsrfToken();
             $selectedBadgeId = (int)$_POST['m_badge_id'];
             
             if (in_array($selectedBadgeId, $userPossessionBadgeIds)) {
@@ -454,6 +507,7 @@ class MainController extends BaseController
     {
         // POST処理
         if ($_SERVER["REQUEST_METHOD"] === "POST") {
+            $this->enforceCsrfToken();
             $requiredFields = ['userId', 'tableId', 'game', 'direction', 'rank', 'score', 'year', 'month', 'day'];
             $missingFields = array_filter($requiredFields, fn($field) => !isset($_POST[$field]));
             if (empty($missingFields)) {
@@ -506,6 +560,7 @@ class MainController extends BaseController
         // POST処理
         $isFix = false;
         if ($_SERVER["REQUEST_METHOD"] === "POST") {
+            $this->enforceCsrfToken();
             if (isset($_POST['historyId']) && isset($_POST['rank']) && isset($_POST['score']) && isset($_POST['game']) && isset($_POST['direction']) && isset($_POST['userId'])) {
                 $isFix = true;
                 $historyId  = $_POST['historyId'];

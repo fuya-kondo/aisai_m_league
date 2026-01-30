@@ -10,13 +10,13 @@ include __DIR__ . '/../header.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <link rel="apple-touch-icon" href="<?= $baseUrl ?>/favicon.png">
-    <link rel="icon" href="<?= $baseUrl ?>/favicon.ico" sizes="64x64" type="image/x-icon">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/master.css">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/header.css">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/app.css">
+    <link rel="apple-touch-icon" href="<?= h($baseUrl) ?>/favicon.png">
+    <link rel="icon" href="<?= h($baseUrl) ?>/favicon.ico" sizes="64x64" type="image/x-icon">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/master.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/header.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/app.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
-    <title><?= $title ?></title>
+    <title><?= h($title) ?></title>
 </head>
 <body>
 <main>
@@ -25,7 +25,7 @@ include __DIR__ . '/../header.php';
     <?php endif; ?>
     
     <?php if (!isset($selectUser)): ?>
-        <div class="page-title">個人<?= $title ?></div>
+        <div class="page-title">個人<?= h($title) ?></div>
         <div class="select-button-container">
             <form action="history" method="get">
                 <?php foreach($userList as $userId => $userData): ?>
@@ -57,7 +57,7 @@ include __DIR__ . '/../header.php';
                 <?php endif; ?>
             </div>
             <div class="page-info">
-                <?=$total_dates?>日分中 <?=$start_index+1?>～<?=min($start_index+$dates_per_page, $total_dates)?>日目表示 (<?=$current_page?>/<?=$total_pages_game?>ページ)
+                <?=$total_dates?>日分中 <?=$start_index+1?>～<?=min($start_index+$dates_per_page, $total_dates)?>日目表示 (<?= h($current_page) ?>/<?=$total_pages_game?>ページ)
             </div>
         </div>
         <!-- 対戦記録の表示 -->
@@ -154,7 +154,7 @@ include __DIR__ . '/../header.php';
                 <?php endif; ?>
             </div>
             <div class="page-info">
-                <?=$total_dates?>日分中 <?=$start_index+1?>～<?=min($start_index+$dates_per_page, $total_dates)?>日目表示 (<?=$current_page?>/<?=$total_pages_game?>ページ)
+                <?=$total_dates?>日分中 <?=$start_index+1?>～<?=min($start_index+$dates_per_page, $total_dates)?>日目表示 (<?= h($current_page) ?>/<?=$total_pages_game?>ページ)
             </div>
         </div>
     <?php else: ?>
@@ -163,8 +163,8 @@ include __DIR__ . '/../header.php';
             <?php if($total_pages > 1): ?>
                 <div class="pagination-controls">
                     <?php if($current_page > 1): ?>
-                        <a href="?page=1&year=<?=$selectYear?>&userId=<?=$selectUser?>" class="page-link">最初</a>
-                        <a href="?page=<?=$current_page-1?>&year=<?=$selectYear?>&userId=<?=$selectUser?>" class="page-link">前へ</a>
+                        <a href="?page=1&year=<?= h($selectYear) ?>&userId=<?= h($selectUser) ?>" class="page-link">最初</a>
+                        <a href="?page=<?=$current_page-1?>&year=<?= h($selectYear) ?>&userId=<?= h($selectUser) ?>" class="page-link">前へ</a>
                     <?php endif; ?>
                     <?php
                         // ページリンクの表示（現在のページの前後2ページずつ表示）
@@ -172,15 +172,15 @@ include __DIR__ . '/../header.php';
                         $end_page = min($total_pages, $current_page + 2);
                     ?>
                     <?php for($i = $start_page; $i <= $end_page; $i++): ?>
-                        <a href="?page=<?=$i?>&year=<?=$selectYear?>&userId=<?=$selectUser?>" class="page-link <?=$i == $current_page ? 'active' : ''?>"><?=$i?></a>
+                        <a href="?page=<?=$i?>&year=<?= h($selectYear) ?>&userId=<?= h($selectUser) ?>" class="page-link <?=$i == $current_page ? 'active' : ''?>"><?=$i?></a>
                     <?php endfor; ?>
                     <?php if($current_page < $total_pages): ?>
-                        <a href="?page=<?=$current_page+1?>&year=<?=$selectYear?>&userId=<?=$selectUser?>" class="page-link">次へ</a>
-                        <a href="?page=<?=$total_pages?>&year=<?=$selectYear?>&userId=<?=$selectUser?>" class="page-link">最後</a>
+                        <a href="?page=<?=$current_page+1?>&year=<?= h($selectYear) ?>&userId=<?= h($selectUser) ?>" class="page-link">次へ</a>
+                        <a href="?page=<?= h($total_pages) ?>&year=<?= h($selectYear) ?>&userId=<?= h($selectUser) ?>" class="page-link">最後</a>
                     <?php endif; ?>
                 </div>
                 <div class="page-info">
-                    <?=$total_records?>件中 <?=($offset+1)?>-<?=min($offset+$records_per_page, $total_records)?>件表示 (<?=$current_page?>/<?=$total_pages?>ページ)
+                    <?= h($total_records) ?>件中 <?= h($offset+1) ?>-<?= h(min($offset+$records_per_page, $total_records)) ?>件表示 (<?= h($current_page) ?>/<?= h($total_pages) ?>ページ)
                 </div>
             <?php endif; ?>
         </div>
@@ -198,23 +198,25 @@ include __DIR__ . '/../header.php';
                                 $data['rank_display'] = mb_strlen($data['rank']) == 3 ? "同率".substr($data['rank'], 0,1) : $data['rank'];
                             ?>
                             <tr>
-                                <td class="<?= $data['rank_display'] == 4 ? 'red-text' : '' ?>"><?=$data['rank_display']?></td>
-                                <td class="<?= $data['score'] < 0 ? 'red-text' : '' ?>"><?=$data['score']?></td>
-                                <td class="<?= $data['point'] < 0 ? 'red-text' : '' ?>"><?=$data['point']?></td>
+                                <td class="<?= $data['rank_display'] == 4 ? 'red-text' : '' ?>"><?= h($data['rank_display']) ?></td>
+                                <td class="<?= $data['score'] < 0 ? 'red-text' : '' ?>"><?= h($data['score']) ?></td>
+                                <td class="<?= $data['point'] < 0 ? 'red-text' : '' ?>"><?= h($data['point']) ?></td>
                                 <td><?=date('Y/m/d', strtotime($data['play_date']))?></td>
-                                <td><?=$data['game']?></td>
+                                <td><?= h($data['game']) ?></td>
                                 <td>
                                     <form action="update" method="post" class="inline-form">
-                                        <input type="hidden" name="userId" value="<?=$data['u_user_id']?>">
-                                        <input type="hidden" name="rank" value="<?=$data['rank']?>">
-                                        <input type="hidden" name="score" value="<?=$data['score']?>">
-                                        <input type="hidden" name="game" value="<?=$data['game']?>">
-                                        <input type="hidden" name="direction" value="<?=$data['m_direction_id']?>">
-                                        <button type="submit" name="historyId" value="<?=$data['u_game_history_id']?>" class="action-button edit-button">修正</button>
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="userId" value="<?= h($data['u_user_id']) ?>">
+                                        <input type="hidden" name="rank" value="<?= h($data['rank']) ?>">
+                                        <input type="hidden" name="score" value="<?= h($data['score']) ?>">
+                                        <input type="hidden" name="game" value="<?= h($data['game']) ?>">
+                                        <input type="hidden" name="direction" value="<?= h($data['m_direction_id']) ?>">
+                                        <button type="submit" name="historyId" value="<?= h($data['u_game_history_id']) ?>" class="action-button edit-button">修正</button>
                                     </form>
-                                    <form action="history" method="post" onSubmit="return check(<?=$data['rank']?>,<?=$data['score']?>,<?=$data['point']?>)" class="inline-form">
-                                        <input type="hidden" name="userId" value="<?=$data['u_user_id']?>">
-                                        <button type="submit" name="historyId" value="<?=$data['u_game_history_id']?>" class="action-button delete-button">削除</button>
+                                    <form action="history" method="post" onSubmit="return check(<?= h($data['rank']) ?>,<?= h($data['score']) ?>,<?= h($data['point']) ?>)" class="inline-form">
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="userId" value="<?= h($data['u_user_id']) ?>">
+                                        <button type="submit" name="historyId" value="<?= h($data['u_game_history_id']) ?>" class="action-button delete-button">削除</button>
                                     </form>
                                 </td>
                             </tr>
@@ -226,8 +228,8 @@ include __DIR__ . '/../header.php';
                 <?php if($total_pages > 1): ?>
                     <div class="pagination-controls">
                         <?php if($current_page > 1): ?>
-                            <a href="?page=1&year=<?=$selectYear?>&userId=<?=$selectUser?>" class="page-link">最初</a>
-                            <a href="?page=<?=$current_page-1?>&year=<?=$selectYear?>&userId=<?=$selectUser?>" class="page-link">前へ</a>
+                            <a href="?page=1&year=<?= h($selectYear) ?>&userId=<?= h($selectUser) ?>" class="page-link">最初</a>
+                            <a href="?page=<?=$current_page-1?>&year=<?= h($selectYear) ?>&userId=<?= h($selectUser) ?>" class="page-link">前へ</a>
                         <?php endif; ?>
                         <?php
                             // ページリンクの表示（現在のページの前後2ページずつ表示）
@@ -235,16 +237,16 @@ include __DIR__ . '/../header.php';
                             $end_page = min($total_pages, $current_page + 2);
                         ?>
                         <?php for($i = $start_page; $i <= $end_page; $i++): ?>
-                            <a href="?page=<?=$i?>&year=<?=$selectYear?>&userId=<?=$selectUser?>" class="page-link <?=$i == $current_page ? 'active' : ''?>"><?=$i?></a>
+                            <a href="?page=<?=$i?>&year=<?= h($selectYear) ?>&userId=<?= h($selectUser) ?>" class="page-link <?=$i == $current_page ? 'active' : ''?>"><?=$i?></a>
                         <?php endfor; ?>
 
                         <?php if($current_page < $total_pages): ?>
-                            <a href="?page=<?=$current_page+1?>&year=<?=$selectYear?>&userId=<?=$selectUser?>" class="page-link">次へ</a>
-                            <a href="?page=<?=$total_pages?>&year=<?=$selectYear?>&userId=<?=$selectUser?>" class="page-link">最後</a>
+                            <a href="?page=<?=$current_page+1?>&year=<?= h($selectYear) ?>&userId=<?= h($selectUser) ?>" class="page-link">次へ</a>
+                            <a href="?page=<?= h($total_pages) ?>&year=<?= h($selectYear) ?>&userId=<?= h($selectUser) ?>" class="page-link">最後</a>
                         <?php endif; ?>
                     </div>
                     <div class="page-info">
-                        <?=$total_records?>件中 <?=($offset+1)?>-<?=min($offset+$records_per_page, $total_records)?>件表示 (<?=$current_page?>/<?=$total_pages?>ページ)
+                        <?= h($total_records) ?>件中 <?= h($offset+1) ?>-<?= h(min($offset+$records_per_page, $total_records)) ?>件表示 (<?= h($current_page) ?>/<?= h($total_pages) ?>ページ)
                     </div>
                 <?php endif; ?>
             </div>

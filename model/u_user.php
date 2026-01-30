@@ -40,6 +40,14 @@ class UUser
     }
 
     /**
+     * Alias for legacy usage.
+     */
+    public function getAllUsers()
+    {
+        return $this->getAllData();
+    }
+
+    /**
      * 指定されたIDのユーザーを取得
      */
     public function getUserById($userId)

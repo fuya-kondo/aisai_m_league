@@ -33,3 +33,15 @@ require_once __DIR__ . '/../controller/admin/admin_controller.php';
 require_once __DIR__ . '/../controller/main/stats_service.php';
 require_once __DIR__ . '/../controller/main/main_controller.php';
 require_once __DIR__ . '/../controller/router.php';
+
+// API keys (optional)
+$apiKeys = [];
+$apiKeysFile = __DIR__ . '/api_keys.php';
+if (file_exists($apiKeysFile)) {
+    $apiKeys = require $apiKeysFile;
+}
+
+// Ensure session for CSRF protection
+if (function_exists('ensureSession')) {
+    ensureSession();
+}

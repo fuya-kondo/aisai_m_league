@@ -10,20 +10,20 @@ include __DIR__ . '/../header.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <link rel="apple-touch-icon" href="<?= $baseUrl ?>/favicon.png">
-    <link rel="icon" href="<?= $baseUrl ?>/favicon.ico" sizes="64x64" type="image/x-icon">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/master.css">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/header.css">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/app.css">
+    <link rel="apple-touch-icon" href="<?= h($baseUrl) ?>/favicon.png">
+    <link rel="icon" href="<?= h($baseUrl) ?>/favicon.ico" sizes="64x64" type="image/x-icon">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/master.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/header.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/app.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <title><?= $title ?></title>
+    <title><?= h($title) ?></title>
 </head>
 <body>
 <main>
     <?php if (!isset($selectedPlayer)): ?>
-        <div class="page-title"><?= $title ?></div>
+        <div class="page-title"><?= h($title) ?></div>
         <div class="select-button-container">
             <form action="personal" method="get">
                 <?php foreach($userList as $userId => $userData): ?>
@@ -37,14 +37,14 @@ include __DIR__ . '/../header.php';
                 <div class="profile-info">
                     <?php if ( isset($userList[$selectedPlayer]['tier']) ): ?>
                         <span class="tier" style="color:<?=$userList[$selectedPlayer]['tier']['color']?>">
-                            <div class="scroll-btn" data-target="tier_history"><?= $userList[$selectedPlayer]['tier']['name'] ?></div>
+                            <div class="scroll-btn" data-target="tier_history"><?= h($userList[$selectedPlayer]['tier']['name']) ?></div>
                         </span>
                     <?php endif; ?>
                     <!-- プレイヤー選択 -->
                     <select name="player" id="player" onchange="this.form.submit()" class="player-name player-select">
                         <?php foreach($userList as $userId => $userData): ?>
                             <option value="<?= $userId ?>" <?= ($userId == $selectedPlayer) ? 'selected' : '' ?>>
-                                <?= $userData['last_name'].$userData['first_name'] ?>
+                                <?= h($userData['last_name'] . $userData['first_name']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -62,8 +62,8 @@ include __DIR__ . '/../header.php';
             <div class="selection-container">
                 <select name="year" id="year" onchange="this.form.submit()" class="year-select">
                     <?php foreach($yearlyStatsList as $year => $displayStatsData): ?>
-                        <option value="<?= $year ?>" <?= ($year == $selectedYear) ? 'selected' : '' ?>>
-                            <?= $year ?>
+                        <option value="<?= h($year) ?>" <?= ($year == $selectedYear) ? 'selected' : '' ?>>
+                            <?= h($year) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -91,7 +91,7 @@ include __DIR__ . '/../header.php';
                                             ?>
                                         </td>
                                     <?php else: ?>
-                                        <th class="stats-column-2"><?= $columnName ?></th>
+                                        <th class="stats-column-2"><?= h($columnName) ?></th>
                                         <td>
                                         <?php if (!$scoreDisplayFlag && ($column == 'sum_point' || $column == 'sum_base_score' || $column == 'average_point' || $column == 'average_score')): ?>
                                             ---
@@ -378,10 +378,10 @@ include __DIR__ . '/../header.php';
                         <?php if (isset($directionStats['upper'][$selectedPlayer]) && is_array($directionStats['upper'][$selectedPlayer])): ?>
                             <?php foreach( $directionStats['upper'][$selectedPlayer] as $userId => $data ): ?>
                                 <div class="player-card">
-                                    <div class="player-name"><?= $userList[$userId]['last_name'] ?></div>
+                                    <div class="player-name"><?= h($userList[$userId]['last_name']) ?></div>
                                     <ul class="player-stats">
                                         <?php foreach($data as $key => $value): ?>
-                                            <li><?= $displayStatsColumn_2[$key] ?> ： <?= $value ?></li>
+                                            <li><?= h($displayStatsColumn_2[$key]) ?> ： <?= h($value) ?></li>
                                         <?php endforeach; ?>
                                     </ul>
                                 </div>
@@ -395,10 +395,10 @@ include __DIR__ . '/../header.php';
                         <?php if (isset($directionStats['lower'][$selectedPlayer]) && is_array($directionStats['lower'][$selectedPlayer])): ?>
                             <?php foreach( $directionStats['lower'][$selectedPlayer] as $userId => $data ): ?>
                                 <div class="player-card">
-                                    <div class="player-name"><?= $userList[$userId]['last_name'] ?></div>
+                                    <div class="player-name"><?= h($userList[$userId]['last_name']) ?></div>
                                     <ul class="player-stats">
                                         <?php foreach($data as $key => $value): ?>
-                                            <li><?= $displayStatsColumn_2[$key] ?> ： <?= $value ?></li>
+                                            <li><?= h($displayStatsColumn_2[$key]) ?> ： <?= h($value) ?></li>
                                         <?php endforeach; ?>
                                     </ul>
                                 </div>
@@ -416,13 +416,13 @@ include __DIR__ . '/../header.php';
                     <?php if (isset($rankHistoryList[$selectedPlayer]) && is_array($rankHistoryList[$selectedPlayer])): ?>
                         <?php foreach ($rankHistoryList[$selectedPlayer] as $year => $tierInfo): ?>
                             <div class="rank-history-item">
-                                <div class="rank-year"><?= $year ?></div>
+                                <div class="rank-year"><?= h($year) ?></div>
                                 <div class="rank-tier" style="color:<?= $tierInfo['before']['color'] ?>">
-                                    <?= $tierInfo['before']['name'] ?>
+                                    <?= h($tierInfo['before']['name']) ?>
                                 </div>
                                 <div>→</div>
                                 <div class="rank-tier" style="color:<?= $tierInfo['after']['color'] ?>">
-                                    <?= $tierInfo['after']['name'] ?>
+                                    <?= h($tierInfo['after']['name']) ?>
                                 </div>
                             </div>
                         <?php endforeach; ?>

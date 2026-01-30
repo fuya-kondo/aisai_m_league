@@ -10,24 +10,25 @@ include __DIR__ . '/../header.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <link rel="apple-touch-icon" href="<?= $baseUrl ?>/favicon.png">
-    <link rel="icon" href="<?= $baseUrl ?>/favicon.ico" sizes="64x64" type="image/x-icon">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/master.css">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/header.css">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/app.css">
+    <link rel="apple-touch-icon" href="<?= h($baseUrl) ?>/favicon.png">
+    <link rel="icon" href="<?= h($baseUrl) ?>/favicon.ico" sizes="64x64" type="image/x-icon">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/master.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/header.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/app.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
-    <title><?= $title ?></title>
+    <title><?= h($title) ?></title>
 </head>
 <body>
 <main>
-    <div class="page-title"><?= $title ?></div>
+    <div class="page-title"><?= h($title) ?></div>
     <div class="form-container container">
         <form action="add" method="post" class="registration-form" onsubmit="return validateForm()">
+            <?= csrf_field() ?>
             <div class="form-group player">
                 <select id="userId" class="input" name="userId" required>
                     <option value="">-</option>
                     <?php foreach($userList as $userId => $userData): ?>
-                        <option value="<?=$userId?>"><?=$userData['last_name'].$userData['first_name']?></option>
+                        <option value="<?= h($userId) ?>"><?= h($userData['last_name'] . $userData['first_name']) ?></option>
                     <?php endforeach;?>
                 </select>
                 <label for="userId">選手</label>
@@ -45,7 +46,7 @@ include __DIR__ . '/../header.php';
             <div class="form-group direction">
                 <div class="button-container">
                     <?php foreach($mDirectionList as $directionId => $directionData): ?>
-                        <button class="direction-button" type="button" name="direction" value="<?=$directionId?>" onclick="selectButton(this)"><?=$directionData['name']?></button>
+                        <button class="direction-button" type="button" name="direction" value="<?= h($directionId) ?>" onclick="selectButton(this)"><?= h($directionData['name']) ?></button>
                     <?php endforeach;?>
                     <input type="hidden" id="direction" name="direction" value="" required>
                 </div>
@@ -54,7 +55,7 @@ include __DIR__ . '/../header.php';
                 <select id="rank" class="input" name="rank" required>
                     <option value="" selected>-</option>
                     <?php foreach($rankConfig as $value => $name): ?>
-                        <option value="<?=$value?>"><?=$name?></option>
+                        <option value="<?= h($value) ?>"><?= h($name) ?></option>
                         <?php endforeach;?>
                 </select>
                 <label for="rank">位</label>
@@ -72,19 +73,19 @@ include __DIR__ . '/../header.php';
                     <select class="input play_date year" name="year" required>
                         <?php $currentYear = (int)date('Y'); ?>
                         <?php for ($year = $currentYear - 1; $year <= $currentYear + 1; $year++): ?>
-                            <option value="<?= $year ?>" <?= $year == $currentYear ? 'selected' : '' ?>><?= $year ?></option>
+                            <option value="<?= h($year) ?>" <?= $year == $currentYear ? 'selected' : '' ?>><?= h($year) ?></option>
                         <?php endfor; ?>
                     </select>
                     <span>年</span>
                     <select class="input play_date month" name="month" required>
                         <?php for ($month = 1; $month <= 12; $month++): ?>
-                            <option value="<?= $month ?>" <?= $month == date('n') ? 'selected' : '' ?>><?= $month ?></option>
+                            <option value="<?= h($month) ?>" <?= $month == date('n') ? 'selected' : '' ?>><?= h($month) ?></option>
                         <?php endfor; ?>
                     </select>
                     <span>月</span>
                     <select class="input play_date day" name="day" required>
                         <?php for ($day = 1; $day <= 31; $day++): ?>
-                            <option value="<?= $day ?>" <?= $day == date('j') ? 'selected' : '' ?>><?= $day ?></option>
+                            <option value="<?= h($day) ?>" <?= $day == date('j') ? 'selected' : '' ?>><?= h($day) ?></option>
                         <?php endfor; ?>
                     </select>
                     <span>日</span>

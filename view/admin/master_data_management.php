@@ -7,9 +7,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $data['title'] ?></title>
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/master.css">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/header.css">
+    <title><?= h($data['title']) ?></title>
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/master.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/header.css">
     <style>
         .admin-container {
             max-width: 1200px;
@@ -39,8 +39,8 @@
             background: #5a6268;
         }
         .master-sections {
-             display: flex;
-             flex-direction: column;
+            display: flex;
+            flex-direction: column;
             gap: 20px;
         }
         .master-section {
@@ -60,15 +60,15 @@
             cursor: pointer;
             transition: background-color 0.2s ease;
         }
-         .section-header:hover {
-             background: #007a37;
-         }
-         .section-header .toggle-icon {
-             font-size: 1.2rem;
-             transition: transform 0.3s ease;
-         }
-         .section-header.collapsed .toggle-icon {
-             transform: rotate(-90deg);
+        .section-header:hover {
+            background: #007a37;
+        }
+        .section-header .toggle-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+        .section-header.collapsed .toggle-icon {
+            transform: rotate(-90deg);
         }
         .section-content {
             max-height: 2000px;
@@ -285,6 +285,7 @@
             }
         }
     </style>
+    <meta name="csrf-token" content="<?= h(csrf_token()) ?>">
 </head>
 <body>
     <div class="admin-container">
@@ -299,15 +300,15 @@
         <div class="master-sections">
             <!-- バッジ管理 -->
             <div class="master-section">
-                 <div class="section-header" onclick="toggleSection(this)">
+                <div class="section-header" onclick="toggleSection(this)">
                     <h3 class="section-title">バッジ管理</h3>
-                     <div style="display: flex; align-items: center; gap: 10px;">
-                         <button class="add-button" onclick="event.stopPropagation(); addMasterData('badge')">追加</button>
-                         <span class="toggle-icon">▼</span>
-                     </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button class="add-button" onclick="event.stopPropagation(); addMasterData('badge')">追加</button>
+                        <span class="toggle-icon">▼</span>
+                    </div>
                 </div>
                 <div class="section-content">
-                      <div class="table-container">
+                    <div class="table-container">
                     <table class="master-table">
                         <thead>
                             <tr>
@@ -321,37 +322,37 @@
                         </thead>
                         <tbody>
                             <?php foreach ($data['badges'] as $badge): ?>
-                                   <tr data-id="<?= $badge['m_badge_id'] ?>" data-type="badge">
-                                       <td><?= $badge['m_badge_id'] ?></td>
+                                <tr data-id="<?= h($badge['m_badge_id']) ?>" data-type="badge">
+                                    <td><?= h($badge['m_badge_id']) ?></td>
                                 <td><?= htmlspecialchars($badge['name']) ?></td>
                                 <td><?= htmlspecialchars($badge['image']) ?></td>
                                 <td><?= htmlspecialchars($badge['flame']) ?></td>
                                 <td><?= htmlspecialchars($badge['background']) ?></td>
                                 <td>
                                     <div class="action-buttons">
-                                               <button class="btn-edit" onclick="editMasterData('badge', <?= $badge['m_badge_id'] ?>)">編集</button>
-                                               <button class="btn-delete" onclick="deleteMasterData('badge', <?= $badge['m_badge_id'] ?>)">削除</button>
+                                        <button class="btn-edit" onclick="editMasterData('badge', <?= h($badge['m_badge_id']) ?>)">編集</button>
+                                        <button class="btn-delete" onclick="deleteMasterData('badge', <?= h($badge['m_badge_id']) ?>)">削除</button>
                                     </div>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
-                      </div>
+                    </div>
                 </div>
             </div>
 
             <!-- ティア管理 -->
             <div class="master-section">
-                 <div class="section-header" onclick="toggleSection(this)">
+                <div class="section-header" onclick="toggleSection(this)">
                     <h3 class="section-title">ティア管理</h3>
-                     <div style="display: flex; align-items: center; gap: 10px;">
-                         <button class="add-button" onclick="event.stopPropagation(); addMasterData('tier')">追加</button>
-                         <span class="toggle-icon">▼</span>
-                     </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button class="add-button" onclick="event.stopPropagation(); addMasterData('tier')">追加</button>
+                        <span class="toggle-icon">▼</span>
+                    </div>
                 </div>
                 <div class="section-content">
-                      <div class="table-container">
+                    <div class="table-container">
                     <table class="master-table">
                         <thead>
                             <tr>
@@ -363,198 +364,198 @@
                         </thead>
                         <tbody>
                             <?php foreach ($data['tiers'] as $tier): ?>
-                                   <tr data-id="<?= $tier['m_tier_id'] ?>" data-type="tier">
-                                       <td><?= $tier['m_tier_id'] ?></td>
+                                <tr data-id="<?= h($tier['m_tier_id']) ?>" data-type="tier">
+                                    <td><?= h($tier['m_tier_id']) ?></td>
                                 <td><?= htmlspecialchars($tier['name']) ?></td>
                                 <td>
-                                    <span class="color-preview" style="background-color: <?= $tier['color'] ?>"></span>
-                                    <?= $tier['color'] ?>
+                                    <span class="color-preview" style="background-color: <?= h($tier['color']) ?>"></span>
+                                    <?= h($tier['color']) ?>
                                 </td>
                                 <td>
                                     <div class="action-buttons">
-                                               <button class="btn-edit" onclick="editMasterData('tier', <?= $tier['m_tier_id'] ?>)">編集</button>
-                                               <button class="btn-delete" onclick="deleteMasterData('tier', <?= $tier['m_tier_id'] ?>)">削除</button>
-                                          </div>
-                                      </td>
-                                  </tr>
-                                  <?php endforeach; ?>
-                              </tbody>
-                          </table>
-                      </div>
-                  </div>
-             </div>
+                                        <button class="btn-edit" onclick="editMasterData('tier', <?= h($tier['m_tier_id']) ?>)">編集</button>
+                                        <button class="btn-delete" onclick="deleteMasterData('tier', <?= h($tier['m_tier_id']) ?>)">削除</button>
+                                    </div>
+                                </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-             <!-- ゲーム日管理 -->
-             <div class="master-section">
-                 <div class="section-header" onclick="toggleSection(this)">
-                     <h3 class="section-title">ゲーム日管理</h3>
-                     <div style="display: flex; align-items: center; gap: 10px;">
-                         <button class="add-button" onclick="event.stopPropagation(); addMasterData('game_day')">追加</button>
-                         <span class="toggle-icon">▼</span>
-                     </div>
-                 </div>
-                 <div class="section-content">
-                     <div class="table-container">
-                         <table class="master-table">
-                             <thead>
-                                 <tr>
-                                     <th>ID</th>
-                                     <th>日付</th>
-                                     <th>時間</th>
-                                     <th>操作</th>
-                                 </tr>
-                             </thead>
-                             <tbody>
-                             <?php foreach ($data['gameDays'] as $gameDay): ?>
-                                  <tr data-id="<?= $gameDay['game_day'] ?>" data-type="game_day">
-                                      <td><?= $gameDay['game_day'] ?></td>
-                                     <td><?= htmlspecialchars($gameDay['game_day']) ?></td>
-                                     <td>-</td>
-                                     <td>
-                                         <div class="action-buttons">
-                                              <button class="btn-edit" onclick="editMasterData('game_day', '<?= $gameDay['game_day'] ?>')">編集</button>
-                                              <button class="btn-delete" onclick="deleteMasterData('game_day', '<?= $gameDay['game_day'] ?>')">削除</button>
-                                         </div>
-                                     </td>
-                                 </tr>
-                                 <?php endforeach; ?>
-                             </tbody>
-                         </table>
-                     </div>
-                 </div>
-             </div>
+            <!-- ゲーム日管理 -->
+            <div class="master-section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <h3 class="section-title">ゲーム日管理</h3>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button class="add-button" onclick="event.stopPropagation(); addMasterData('game_day')">追加</button>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <div class="table-container">
+                        <table class="master-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>日付</th>
+                                    <th>時間</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($data['gameDays'] as $gameDay): ?>
+                                <tr data-id="<?= h($gameDay['game_day']) ?>" data-type="game_day">
+                                    <td><?= h($gameDay['game_day']) ?></td>
+                                    <td><?= htmlspecialchars($gameDay['game_day']) ?></td>
+                                    <td>-</td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-edit" onclick="editMasterData('game_day', '<?= h($gameDay['game_day']) ?>')">編集</button>
+                                            <button class="btn-delete" onclick="deleteMasterData('game_day', '<?= h($gameDay['game_day']) ?>')">削除</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-             <!-- ティア履歴管理 -->
-             <div class="master-section">
-                 <div class="section-header" onclick="toggleSection(this)">
-                     <h3 class="section-title">ティア履歴管理</h3>
-                     <div style="display: flex; align-items: center; gap: 10px;">
-                         <button class="add-button" onclick="event.stopPropagation(); addMasterData('tier_history')">追加</button>
-                         <span class="toggle-icon">▼</span>
-                     </div>
-                 </div>
-                 <div class="section-content">
-                     <div class="table-container">
-                         <table class="master-table">
-                             <thead>
-                                 <tr>
-                                     <th>ID</th>
-                                     <th>ユーザーID</th>
-                                     <th>ティアID</th>
-                                     <th>年</th>
-                                     <th>操作</th>
-                                 </tr>
-                             </thead>
-                             <tbody>
-                             <?php foreach ($data['tierHistory'] as $tierHistory): ?>
-                                  <tr data-id="<?= $tierHistory['u_user_tier_history_id'] ?>" data-type="tier_history">
-                                      <td><?= $tierHistory['u_user_tier_history_id'] ?></td>
-                                     <td><?= htmlspecialchars($tierHistory['u_user_id']) ?></td>
-                                     <td><?= htmlspecialchars($tierHistory['m_tier_id']) ?></td>
-                                     <td><?= htmlspecialchars($tierHistory['year']) ?></td>
-                                     <td>
-                                         <div class="action-buttons">
-                                              <button class="btn-edit" onclick="editMasterData('tier_history', <?= $tierHistory['u_user_tier_history_id'] ?>)">編集</button>
-                                              <button class="btn-delete" onclick="deleteMasterData('tier_history', <?= $tierHistory['u_user_tier_history_id'] ?>)">削除</button>
-                                         </div>
-                                     </td>
-                                 </tr>
-                                 <?php endforeach; ?>
-                             </tbody>
-                         </table>
-                     </div>
-                 </div>
-             </div>
+            <!-- ティア履歴管理 -->
+            <div class="master-section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <h3 class="section-title">ティア履歴管理</h3>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button class="add-button" onclick="event.stopPropagation(); addMasterData('tier_history')">追加</button>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <div class="table-container">
+                        <table class="master-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>ユーザーID</th>
+                                    <th>ティアID</th>
+                                    <th>年</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($data['tierHistory'] as $tierHistory): ?>
+                                <tr data-id="<?= h($tierHistory['u_user_tier_history_id']) ?>" data-type="tier_history">
+                                    <td><?= h($tierHistory['u_user_tier_history_id']) ?></td>
+                                    <td><?= htmlspecialchars($tierHistory['u_user_id']) ?></td>
+                                    <td><?= htmlspecialchars($tierHistory['m_tier_id']) ?></td>
+                                    <td><?= htmlspecialchars($tierHistory['year']) ?></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-edit" onclick="editMasterData('tier_history', <?= h($tierHistory['u_user_tier_history_id']) ?>)">編集</button>
+                                            <button class="btn-delete" onclick="deleteMasterData('tier_history', <?= h($tierHistory['u_user_tier_history_id']) ?>)">削除</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-             <!-- 方向管理 -->
-             <div class="master-section">
-                 <div class="section-header" onclick="toggleSection(this)">
-                     <h3 class="section-title">方向管理</h3>
-                     <div style="display: flex; align-items: center; gap: 10px;">
-                         <button class="add-button" onclick="event.stopPropagation(); addMasterData('direction')">追加</button>
-                         <span class="toggle-icon">▼</span>
-                     </div>
-                 </div>
-                 <div class="section-content">
-                     <div class="table-container">
-                         <table class="master-table">
-                             <thead>
-                                 <tr>
-                                     <th>ID</th>
-                                     <th>名前</th>
-                                     <th>操作</th>
-                                 </tr>
-                             </thead>
-                             <tbody>
-                             <?php foreach ($data['directions'] as $direction): ?>
-                                  <tr data-id="<?= $direction['m_direction_id'] ?>" data-type="direction">
-                                      <td><?= $direction['m_direction_id'] ?></td>
-                                     <td><?= htmlspecialchars($direction['name']) ?></td>
-                                     <td>
-                                         <div class="action-buttons">
-                                              <button class="btn-edit" onclick="editMasterData('direction', <?= $direction['m_direction_id'] ?>)">編集</button>
-                                              <button class="btn-delete" onclick="deleteMasterData('direction', <?= $direction['m_direction_id'] ?>)">削除</button>
-                                         </div>
-                                     </td>
-                                 </tr>
-                                 <?php endforeach; ?>
-                             </tbody>
-                         </table>
-                     </div>
-                 </div>
-             </div>
+            <!-- 方向管理 -->
+            <div class="master-section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <h3 class="section-title">方向管理</h3>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button class="add-button" onclick="event.stopPropagation(); addMasterData('direction')">追加</button>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <div class="table-container">
+                        <table class="master-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>名前</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($data['directions'] as $direction): ?>
+                                <tr data-id="<?= h($direction['m_direction_id']) ?>" data-type="direction">
+                                    <td><?= h($direction['m_direction_id']) ?></td>
+                                    <td><?= htmlspecialchars($direction['name']) ?></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-edit" onclick="editMasterData('direction', <?= h($direction['m_direction_id']) ?>)">編集</button>
+                                            <button class="btn-delete" onclick="deleteMasterData('direction', <?= h($direction['m_direction_id']) ?>)">削除</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-             <!-- グループ管理 -->
-             <div class="master-section">
-                 <div class="section-header" onclick="toggleSection(this)">
-                     <h3 class="section-title">グループ管理</h3>
-                     <div style="display: flex; align-items: center; gap: 10px;">
-                         <button class="add-button" onclick="event.stopPropagation(); addMasterData('group')">追加</button>
-                         <span class="toggle-icon">▼</span>
-                     </div>
-                 </div>
-                 <div class="section-content">
-                     <div class="table-container">
-                         <table class="master-table">
-                             <thead>
-                                 <tr>
-                                     <th>ID</th>
-                                     <th>名前</th>
-                                     <th>ルールID</th>
-                                     <th>操作</th>
-                                 </tr>
-                             </thead>
-                             <tbody>
-                             <?php foreach ($data['groups'] as $group): ?>
-                                  <tr data-id="<?= $group['m_group_id'] ?>" data-type="group">
-                                      <td><?= $group['m_group_id'] ?></td>
-                                     <td><?= htmlspecialchars($group['name']) ?></td>
-                                     <td><?= $group['m_rule_id'] ?></td>
-                                     <td>
-                                         <div class="action-buttons">
-                                              <button class="btn-edit" onclick="editMasterData('group', <?= $group['m_group_id'] ?>)">編集</button>
-                                              <button class="btn-delete" onclick="deleteMasterData('group', <?= $group['m_group_id'] ?>)">削除</button>
+            <!-- グループ管理 -->
+            <div class="master-section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <h3 class="section-title">グループ管理</h3>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button class="add-button" onclick="event.stopPropagation(); addMasterData('group')">追加</button>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <div class="table-container">
+                        <table class="master-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>名前</th>
+                                    <th>ルールID</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($data['groups'] as $group): ?>
+                                <tr data-id="<?= h($group['m_group_id']) ?>" data-type="group">
+                                    <td><?= h($group['m_group_id']) ?></td>
+                                    <td><?= htmlspecialchars($group['name']) ?></td>
+                                    <td><?= h($group['m_rule_id']) ?></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-edit" onclick="editMasterData('group', <?= h($group['m_group_id']) ?>)">編集</button>
+                                            <button class="btn-delete" onclick="deleteMasterData('group', <?= h($group['m_group_id']) ?>)">削除</button>
                                     </div>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
-                     </div>
+                    </div>
                 </div>
             </div>
 
-             <!-- ルール管理 -->
+            <!-- ルール管理 -->
             <div class="master-section">
-                 <div class="section-header" onclick="toggleSection(this)">
-                     <h3 class="section-title">ルール管理</h3>
-                     <div style="display: flex; align-items: center; gap: 10px;">
-                         <button class="add-button" onclick="event.stopPropagation(); addMasterData('rule')">追加</button>
-                         <span class="toggle-icon">▼</span>
-                     </div>
+                <div class="section-header" onclick="toggleSection(this)">
+                    <h3 class="section-title">ルール管理</h3>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button class="add-button" onclick="event.stopPropagation(); addMasterData('rule')">追加</button>
+                        <span class="toggle-icon">▼</span>
+                    </div>
                 </div>
                 <div class="section-content">
-                     <div class="table-container">
+                    <div class="table-container">
                     <table class="master-table">
                         <thead>
                             <tr>
@@ -570,67 +571,67 @@
                             </tr>
                         </thead>
                         <tbody>
-                             <?php foreach ($data['rules'] as $rule): ?>
-                                  <tr data-id="<?= $rule['m_rule_id'] ?>" data-type="rule">
-                                      <td><?= $rule['m_rule_id'] ?></td>
-                                     <td><?= htmlspecialchars($rule['name']) ?></td>
-                                     <td><?= $rule['start_score'] ?></td>
-                                     <td><?= $rule['end_score'] ?></td>
-                                     <td><?= $rule['point_1'] ?></td>
-                                     <td><?= $rule['point_2'] ?></td>
-                                     <td><?= $rule['point_3'] ?></td>
-                                     <td><?= $rule['point_4'] ?></td>
-                                     <td>
-                                         <div class="action-buttons">
-                                              <button class="btn-edit" onclick="editMasterData('rule', <?= $rule['m_rule_id'] ?>)">編集</button>
-                                              <button class="btn-delete" onclick="deleteMasterData('rule', <?= $rule['m_rule_id'] ?>)">削除</button>
-                                         </div>
+                            <?php foreach ($data['rules'] as $rule): ?>
+                                <tr data-id="<?= h($rule['m_rule_id']) ?>" data-type="rule">
+                                    <td><?= h($rule['m_rule_id']) ?></td>
+                                    <td><?= htmlspecialchars($rule['name']) ?></td>
+                                    <td><?= h($rule['start_score']) ?></td>
+                                    <td><?= h($rule['end_score']) ?></td>
+                                    <td><?= h($rule['point_1']) ?></td>
+                                    <td><?= h($rule['point_2']) ?></td>
+                                    <td><?= h($rule['point_3']) ?></td>
+                                    <td><?= h($rule['point_4']) ?></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-edit" onclick="editMasterData('rule', <?= h($rule['m_rule_id']) ?>)">編集</button>
+                                            <button class="btn-delete" onclick="deleteMasterData('rule', <?= h($rule['m_rule_id']) ?>)">削除</button>
+                                        </div>
                                 </td>
-                                 </tr>
-                                 <?php endforeach; ?>
-                             </tbody>
-                         </table>
-                     </div>
-                 </div>
-             </div>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-             <!-- 設定管理 -->
-             <div class="master-section">
-                 <div class="section-header" onclick="toggleSection(this)">
-                     <h3 class="section-title">設定管理</h3>
-                     <div style="display: flex; align-items: center; gap: 10px;">
-                         <button class="add-button" onclick="event.stopPropagation(); addMasterData('setting')">追加</button>
-                         <span class="toggle-icon">▼</span>
-                     </div>
-                 </div>
-                 <div class="section-content">
-                     <div class="table-container">
-                         <table class="master-table">
-                             <thead>
-                                 <tr>
-                                     <th>ID</th>
-                                     <th>名前</th>
-                                     <th>値</th>
-                                     <th>操作</th>
-                                 </tr>
-                             </thead>
-                             <tbody>
-                             <?php foreach ($data['settings'] as $setting): ?>
-                                  <tr data-id="<?= $setting['m_setting_id'] ?>" data-type="setting">
-                                      <td><?= $setting['m_setting_id'] ?></td>
-                                     <td><?= htmlspecialchars($setting['name']) ?></td>
-                                     <td><?= htmlspecialchars($setting['value']) ?></td>
+            <!-- 設定管理 -->
+            <div class="master-section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <h3 class="section-title">設定管理</h3>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button class="add-button" onclick="event.stopPropagation(); addMasterData('setting')">追加</button>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <div class="table-container">
+                        <table class="master-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>名前</th>
+                                    <th>値</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($data['settings'] as $setting): ?>
+                                <tr data-id="<?= h($setting['m_setting_id']) ?>" data-type="setting">
+                                    <td><?= h($setting['m_setting_id']) ?></td>
+                                    <td><?= htmlspecialchars($setting['name']) ?></td>
+                                    <td><?= htmlspecialchars($setting['value']) ?></td>
                                 <td>
                                     <div class="action-buttons">
-                                              <button class="btn-edit" onclick="editMasterData('setting', <?= $setting['m_setting_id'] ?>)">編集</button>
-                                              <button class="btn-delete" onclick="deleteMasterData('setting', <?= $setting['m_setting_id'] ?>)">削除</button>
+                                            <button class="btn-edit" onclick="editMasterData('setting', <?= h($setting['m_setting_id']) ?>)">編集</button>
+                                            <button class="btn-delete" onclick="deleteMasterData('setting', <?= h($setting['m_setting_id']) ?>)">削除</button>
                                     </div>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
-                     </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -644,31 +645,32 @@
                 <span class="close" onclick="closeModal()">&times;</span>
             </div>
             <form id="editForm" novalidate>
+                <?= csrf_field() ?>
                 <input type="hidden" id="editId" name="id">
                 <input type="hidden" id="editTable" name="table">
-                 
-                 <!-- バッジ用フォーム -->
-                 <div id="badgeForm" style="display: none;">
-                     <div class="form-group">
-                         <label class="form-label" for="badgeName">名前</label>
-                         <input type="text" id="badgeName" name="name" class="form-input" required>
-                     </div>
-                     <div class="form-group">
-                         <label class="form-label" for="badgeImage">画像</label>
-                         <input type="text" id="badgeImage" name="image" class="form-input">
-                     </div>
-                     <div class="form-group">
-                         <label class="form-label" for="badgeFlame">枠</label>
-                         <input type="text" id="badgeFlame" name="flame" class="form-input">
-                     </div>
-                     <div class="form-group">
-                         <label class="form-label" for="badgeBackground">背景</label>
-                         <input type="text" id="badgeBackground" name="background" class="form-input">
-                     </div>
-                 </div>
-                 
-                 <!-- ティア用フォーム -->
-                 <div id="tierForm" style="display: none;">
+                
+                <!-- バッジ用フォーム -->
+                <div id="badgeForm" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label" for="badgeName">名前</label>
+                        <input type="text" id="badgeName" name="name" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="badgeImage">画像</label>
+                        <input type="text" id="badgeImage" name="image" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="badgeFlame">枠</label>
+                        <input type="text" id="badgeFlame" name="flame" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="badgeBackground">背景</label>
+                        <input type="text" id="badgeBackground" name="background" class="form-input">
+                    </div>
+                </div>
+                
+                <!-- ティア用フォーム -->
+                <div id="tierForm" style="display: none;">
                 <div class="form-group">
                     <label class="form-label" for="tierName">名前</label>
                     <input type="text" id="tierName" name="name" class="form-input" required>
@@ -677,96 +679,96 @@
                     <label class="form-label" for="tierColor">色</label>
                     <input type="color" id="tierColor" name="color" class="form-color" required>
                 </div>
-                 </div>
-                 
-                                   <!-- ゲーム日用フォーム -->
-                  <div id="gameDayForm" style="display: none;">
-                      <div class="form-group">
-                          <label class="form-label" for="gameDayDate">日付</label>
-                          <input type="date" id="gameDayDate" name="game_day" class="form-input" required>
-                      </div>
-                  </div>
-                 
-                                   <!-- ティア履歴用フォーム -->
-                  <div id="tierHistoryForm" style="display: none;">
-                      <div class="form-group">
-                          <label class="form-label" for="tierHistoryUserId">ユーザーID</label>
-                          <input type="number" id="tierHistoryUserId" name="u_user_id" class="form-input" required>
-                      </div>
-                      <div class="form-group">
-                          <label class="form-label" for="tierHistoryTierId">ティアID</label>
-                          <input type="number" id="tierHistoryTierId" name="m_tier_id" class="form-input" required>
-                      </div>
-                      <div class="form-group">
-                          <label class="form-label" for="tierHistoryYear">年</label>
-                          <input type="number" id="tierHistoryYear" name="year" class="form-input" min="2020" max="2030" required>
-                      </div>
-                  </div>
+                </div>
+                
+                                <!-- ゲーム日用フォーム -->
+                <div id="gameDayForm" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label" for="gameDayDate">日付</label>
+                        <input type="date" id="gameDayDate" name="game_day" class="form-input" required>
+                    </div>
+                </div>
+                
+                                <!-- ティア履歴用フォーム -->
+                <div id="tierHistoryForm" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label" for="tierHistoryUserId">ユーザーID</label>
+                        <input type="number" id="tierHistoryUserId" name="u_user_id" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="tierHistoryTierId">ティアID</label>
+                        <input type="number" id="tierHistoryTierId" name="m_tier_id" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="tierHistoryYear">年</label>
+                        <input type="number" id="tierHistoryYear" name="year" class="form-input" min="2020" max="2030" required>
+                    </div>
+                </div>
 
-                  <!-- 方向用フォーム -->
-                  <div id="directionForm" style="display: none;">
-                      <div class="form-group">
-                          <label class="form-label" for="directionName">名前</label>
-                          <input type="text" id="directionName" name="name" class="form-input" required>
-                      </div>
-                  </div>
+                <!-- 方向用フォーム -->
+                <div id="directionForm" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label" for="directionName">名前</label>
+                        <input type="text" id="directionName" name="name" class="form-input" required>
+                    </div>
+                </div>
 
-                  <!-- グループ用フォーム -->
-                  <div id="groupForm" style="display: none;">
-                      <div class="form-group">
-                          <label class="form-label" for="groupName">名前</label>
-                          <input type="text" id="groupName" name="name" class="form-input" required>
-                      </div>
-                      <div class="form-group">
-                          <label class="form-label" for="groupRuleId">ルールID</label>
-                          <input type="number" id="groupRuleId" name="m_rule_id" class="form-input" min="0">
-                      </div>
-                  </div>
+                <!-- グループ用フォーム -->
+                <div id="groupForm" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label" for="groupName">名前</label>
+                        <input type="text" id="groupName" name="name" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="groupRuleId">ルールID</label>
+                        <input type="number" id="groupRuleId" name="m_rule_id" class="form-input" min="0">
+                    </div>
+                </div>
 
-                  <!-- ルール用フォーム -->
-                  <div id="ruleForm" style="display: none;">
-                      <div class="form-group">
-                          <label class="form-label" for="ruleName">名前</label>
-                          <input type="text" id="ruleName" name="name" class="form-input" required>
-                      </div>
-                      <div class="form-group">
-                          <label class="form-label" for="ruleStartScore">開始点数</label>
-                          <input type="number" id="ruleStartScore" name="start_score" class="form-input" min="0">
-                      </div>
-                      <div class="form-group">
-                          <label class="form-label" for="ruleEndScore">終了点数</label>
-                          <input type="number" id="ruleEndScore" name="end_score" class="form-input" min="0">
-                      </div>
-                      <div class="form-group">
-                          <label class="form-label" for="rulePoint1">1位ウマオカ</label>
-                          <input type="number" id="rulePoint1" name="point_1" class="form-input">
-                      </div>
-                      <div class="form-group">
-                          <label class="form-label" for="rulePoint2">2位ウマオカ</label>
-                          <input type="number" id="rulePoint2" name="point_2" class="form-input">
-                      </div>
-                      <div class="form-group">
-                          <label class="form-label" for="rulePoint3">3位ウマオカ</label>
-                          <input type="number" id="rulePoint3" name="point_3" class="form-input">
-                      </div>
-                      <div class="form-group">
-                          <label class="form-label" for="rulePoint4">4位ウマオカ</label>
-                          <input type="number" id="rulePoint4" name="point_4" class="form-input">
-                      </div>
-                  </div>
+                <!-- ルール用フォーム -->
+                <div id="ruleForm" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label" for="ruleName">名前</label>
+                        <input type="text" id="ruleName" name="name" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="ruleStartScore">開始点数</label>
+                        <input type="number" id="ruleStartScore" name="start_score" class="form-input" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="ruleEndScore">終了点数</label>
+                        <input type="number" id="ruleEndScore" name="end_score" class="form-input" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="rulePoint1">1位ウマオカ</label>
+                        <input type="number" id="rulePoint1" name="point_1" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="rulePoint2">2位ウマオカ</label>
+                        <input type="number" id="rulePoint2" name="point_2" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="rulePoint3">3位ウマオカ</label>
+                        <input type="number" id="rulePoint3" name="point_3" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="rulePoint4">4位ウマオカ</label>
+                        <input type="number" id="rulePoint4" name="point_4" class="form-input">
+                    </div>
+                </div>
 
-                  <!-- 設定用フォーム -->
-                  <div id="settingForm" style="display: none;">
-                      <div class="form-group">
-                          <label class="form-label" for="settingName">名前</label>
-                          <input type="text" id="settingName" name="name" class="form-input" required>
-                      </div>
-                      <div class="form-group">
-                          <label class="form-label" for="settingValue">値</label>
-                          <input type="number" id="settingValue" name="value" class="form-input" required>
-                      </div>
-                  </div>
-                 
+                <!-- 設定用フォーム -->
+                <div id="settingForm" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label" for="settingName">名前</label>
+                        <input type="text" id="settingName" name="name" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="settingValue">値</label>
+                        <input type="number" id="settingValue" name="value" class="form-input" required>
+                    </div>
+                </div>
+                
                 <div class="form-actions">
                     <button type="button" class="btn-cancel" onclick="closeModal()">キャンセル</button>
                     <button type="submit" class="btn-save">保存</button>
@@ -776,6 +778,7 @@
     </div>
 
     <script>
+        const csrfToken = "<?= h(csrf_token()) ?>";
         let currentEditData = null;
         let originalRequiredFields = [];
         let hiddenForms = [];
@@ -903,43 +906,43 @@
         }
 
          // アコーディオン機能
-         function toggleSection(header) {
-             const section = header.parentElement;
-             const content = section.querySelector('.section-content');
-             const isCollapsed = content.classList.contains('collapsed');
-             
-             if (isCollapsed) {
-                 content.classList.remove('collapsed');
-                 header.classList.remove('collapsed');
-             } else {
-                 content.classList.add('collapsed');
-                 header.classList.add('collapsed');
-             }
-         }
+        function toggleSection(header) {
+            const section = header.parentElement;
+            const content = section.querySelector('.section-content');
+            const isCollapsed = content.classList.contains('collapsed');
+            
+            if (isCollapsed) {
+                content.classList.remove('collapsed');
+                header.classList.remove('collapsed');
+            } else {
+                content.classList.add('collapsed');
+                header.classList.add('collapsed');
+            }
+        }
 
          // 初期状態で全てのセクションを折りたたむ
-         document.addEventListener('DOMContentLoaded', function() {
-             const sections = document.querySelectorAll('.master-section');
-             sections.forEach(section => {
-                 const header = section.querySelector('.section-header');
-                 const content = section.querySelector('.section-content');
-                 content.classList.add('collapsed');
-                 header.classList.add('collapsed');
-             });
-         });
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.master-section');
+            sections.forEach(section => {
+                const header = section.querySelector('.section-header');
+                const content = section.querySelector('.section-content');
+                content.classList.add('collapsed');
+                header.classList.add('collapsed');
+            });
+        });
 
         function addMasterData(type) {
             currentEditData = { type: type, isNew: true };
             document.getElementById('modalTitle').textContent = getTypeDisplayName(type) + '追加';
             document.getElementById('editId').value = '';
             document.getElementById('editTable').value = type;
-             
+            
              // フォームの表示/非表示を制御
-             showFormByType(type);
-             
+            showFormByType(type);
+            
              // フォームをリセット
-             resetFormByType(type);
-             
+            resetFormByType(type);
+            
             document.getElementById('editModal').style.display = 'block';
         }
 
@@ -951,154 +954,154 @@
             document.getElementById('modalTitle').textContent = getTypeDisplayName(type) + '編集';
             document.getElementById('editId').value = id;
             document.getElementById('editTable').value = type;
-             
+            
              // フォームの表示/非表示を制御
-             showFormByType(type);
-             
+            showFormByType(type);
+            
              // データをフォームに設定
-             setFormDataByType(type, cells);
+            setFormDataByType(type, cells);
             
             document.getElementById('editModal').style.display = 'block';
-         }
+        }
 
-                   function showFormByType(type) {
-              // 全てのフォームを非表示
-              document.getElementById('badgeForm').style.display = 'none';
-              document.getElementById('tierForm').style.display = 'none';
-              document.getElementById('gameDayForm').style.display = 'none';
-              document.getElementById('tierHistoryForm').style.display = 'none';
-              document.getElementById('directionForm').style.display = 'none';
-              document.getElementById('groupForm').style.display = 'none';
-              document.getElementById('ruleForm').style.display = 'none';
-              document.getElementById('settingForm').style.display = 'none';
-              
+        function showFormByType(type) {
+            // 全てのフォームを非表示
+            document.getElementById('badgeForm').style.display = 'none';
+            document.getElementById('tierForm').style.display = 'none';
+            document.getElementById('gameDayForm').style.display = 'none';
+            document.getElementById('tierHistoryForm').style.display = 'none';
+            document.getElementById('directionForm').style.display = 'none';
+            document.getElementById('groupForm').style.display = 'none';
+            document.getElementById('ruleForm').style.display = 'none';
+            document.getElementById('settingForm').style.display = 'none';
+            
               // 該当するフォームを表示
-              switch (type) {
-                  case 'badge':
-                      document.getElementById('badgeForm').style.display = 'block';
-                      break;
-                  case 'tier':
-                      document.getElementById('tierForm').style.display = 'block';
-                      break;
-                  case 'game_day':
-                      document.getElementById('gameDayForm').style.display = 'block';
-                      break;
-                  case 'tier_history':
-                      document.getElementById('tierHistoryForm').style.display = 'block';
-                      break;
-                  case 'direction':
-                      document.getElementById('directionForm').style.display = 'block';
-                      break;
-                  case 'group':
-                      document.getElementById('groupForm').style.display = 'block';
-                      break;
-                  case 'rule':
-                      document.getElementById('ruleForm').style.display = 'block';
-                      break;
-                  case 'setting':
-                      document.getElementById('settingForm').style.display = 'block';
-                      break;
-              }
-          }
+            switch (type) {
+                case 'badge':
+                    document.getElementById('badgeForm').style.display = 'block';
+                    break;
+                case 'tier':
+                    document.getElementById('tierForm').style.display = 'block';
+                    break;
+                case 'game_day':
+                    document.getElementById('gameDayForm').style.display = 'block';
+                    break;
+                case 'tier_history':
+                    document.getElementById('tierHistoryForm').style.display = 'block';
+                    break;
+                case 'direction':
+                    document.getElementById('directionForm').style.display = 'block';
+                    break;
+                case 'group':
+                    document.getElementById('groupForm').style.display = 'block';
+                    break;
+                case 'rule':
+                    document.getElementById('ruleForm').style.display = 'block';
+                    break;
+                case 'setting':
+                    document.getElementById('settingForm').style.display = 'block';
+                    break;
+            }
+        }
 
-                   function resetFormByType(type) {
-              switch (type) {
-                  case 'badge':
-                      document.getElementById('badgeName').value = '';
-                      document.getElementById('badgeImage').value = '';
-                      document.getElementById('badgeFlame').value = '';
-                      document.getElementById('badgeBackground').value = '';
-                      break;
-                  case 'tier':
-                      document.getElementById('tierName').value = '';
-                      document.getElementById('tierColor').value = '#000000';
-                      break;
-                  case 'game_day':
-                      document.getElementById('gameDayDate').value = '';
-                      break;
-                  case 'tier_history':
-                      document.getElementById('tierHistoryUserId').value = '';
-                      document.getElementById('tierHistoryTierId').value = '';
-                      document.getElementById('tierHistoryYear').value = '';
-                      break;
-                  case 'direction':
-                      document.getElementById('directionName').value = '';
-                      break;
-                  case 'group':
-                      document.getElementById('groupName').value = '';
-                      document.getElementById('groupRuleId').value = '';
-                      break;
-                  case 'rule':
-                      document.getElementById('ruleName').value = '';
-                      document.getElementById('ruleStartScore').value = '';
-                      document.getElementById('ruleEndScore').value = '';
-                      document.getElementById('rulePoint1').value = '';
-                      document.getElementById('rulePoint2').value = '';
-                      document.getElementById('rulePoint3').value = '';
-                      document.getElementById('rulePoint4').value = '';
-                      break;
-                  case 'setting':
-                      document.getElementById('settingName').value = '';
-                      document.getElementById('settingValue').value = '';
-                      break;
-              }
-          }
+        function resetFormByType(type) {
+            switch (type) {
+                case 'badge':
+                    document.getElementById('badgeName').value = '';
+                    document.getElementById('badgeImage').value = '';
+                    document.getElementById('badgeFlame').value = '';
+                    document.getElementById('badgeBackground').value = '';
+                    break;
+                case 'tier':
+                    document.getElementById('tierName').value = '';
+                    document.getElementById('tierColor').value = '#000000';
+                    break;
+                case 'game_day':
+                    document.getElementById('gameDayDate').value = '';
+                    break;
+                case 'tier_history':
+                    document.getElementById('tierHistoryUserId').value = '';
+                    document.getElementById('tierHistoryTierId').value = '';
+                    document.getElementById('tierHistoryYear').value = '';
+                    break;
+                case 'direction':
+                    document.getElementById('directionName').value = '';
+                    break;
+                case 'group':
+                    document.getElementById('groupName').value = '';
+                    document.getElementById('groupRuleId').value = '';
+                    break;
+                case 'rule':
+                    document.getElementById('ruleName').value = '';
+                    document.getElementById('ruleStartScore').value = '';
+                    document.getElementById('ruleEndScore').value = '';
+                    document.getElementById('rulePoint1').value = '';
+                    document.getElementById('rulePoint2').value = '';
+                    document.getElementById('rulePoint3').value = '';
+                    document.getElementById('rulePoint4').value = '';
+                    break;
+                case 'setting':
+                    document.getElementById('settingName').value = '';
+                    document.getElementById('settingValue').value = '';
+                    break;
+            }
+        }
 
-                   function setFormDataByType(type, cells) {
-              switch (type) {
-                  case 'badge':
-                      document.getElementById('badgeName').value = cells[1].textContent;
-                      document.getElementById('badgeImage').value = cells[2].textContent;
-                      document.getElementById('badgeFlame').value = cells[3].textContent;
-                      document.getElementById('badgeBackground').value = cells[4].textContent;
-                      break;
-                  case 'tier':
-                      document.getElementById('tierName').value = cells[1].textContent;
-                      const colorPreview = cells[2].querySelector('.color-preview');
-                      const color = colorPreview ? colorPreview.style.backgroundColor : '#000000';
-                      document.getElementById('tierColor').value = color;
-                      break;
-                  case 'game_day':
-                      document.getElementById('gameDayDate').value = cells[1].textContent;
-                      break;
-                  case 'tier_history':
-                      document.getElementById('tierHistoryUserId').value = cells[1].textContent;
-                      document.getElementById('tierHistoryTierId').value = cells[2].textContent;
-                      document.getElementById('tierHistoryYear').value = cells[3].textContent;
-                      break;
-                  case 'direction':
-                      document.getElementById('directionName').value = cells[1].textContent;
-                      break;
-                  case 'group':
-                      document.getElementById('groupName').value = cells[1].textContent;
-                      document.getElementById('groupRuleId').value = cells[2].textContent;
-                      break;
-                  case 'rule':
-                      document.getElementById('ruleName').value = cells[1].textContent;
-                      document.getElementById('ruleStartScore').value = cells[2].textContent;
-                      document.getElementById('ruleEndScore').value = cells[3].textContent;
-                      document.getElementById('rulePoint1').value = cells[4].textContent;
-                      document.getElementById('rulePoint2').value = cells[5].textContent;
-                      document.getElementById('rulePoint3').value = cells[6].textContent;
-                      document.getElementById('rulePoint4').value = cells[7].textContent;
-                      break;
-                  case 'setting':
-                      document.getElementById('settingName').value = cells[1].textContent;
-                      document.getElementById('settingValue').value = cells[2].textContent;
-                      break;
-              }
+        function setFormDataByType(type, cells) {
+            switch (type) {
+                case 'badge':
+                    document.getElementById('badgeName').value = cells[1].textContent;
+                    document.getElementById('badgeImage').value = cells[2].textContent;
+                    document.getElementById('badgeFlame').value = cells[3].textContent;
+                    document.getElementById('badgeBackground').value = cells[4].textContent;
+                    break;
+                case 'tier':
+                    document.getElementById('tierName').value = cells[1].textContent;
+                    const colorPreview = cells[2].querySelector('.color-preview');
+                    const color = colorPreview ? colorPreview.style.backgroundColor : '#000000';
+                    document.getElementById('tierColor').value = color;
+                    break;
+                case 'game_day':
+                    document.getElementById('gameDayDate').value = cells[1].textContent;
+                    break;
+                case 'tier_history':
+                    document.getElementById('tierHistoryUserId').value = cells[1].textContent;
+                    document.getElementById('tierHistoryTierId').value = cells[2].textContent;
+                    document.getElementById('tierHistoryYear').value = cells[3].textContent;
+                    break;
+                case 'direction':
+                    document.getElementById('directionName').value = cells[1].textContent;
+                    break;
+                case 'group':
+                    document.getElementById('groupName').value = cells[1].textContent;
+                    document.getElementById('groupRuleId').value = cells[2].textContent;
+                    break;
+                case 'rule':
+                    document.getElementById('ruleName').value = cells[1].textContent;
+                    document.getElementById('ruleStartScore').value = cells[2].textContent;
+                    document.getElementById('ruleEndScore').value = cells[3].textContent;
+                    document.getElementById('rulePoint1').value = cells[4].textContent;
+                    document.getElementById('rulePoint2').value = cells[5].textContent;
+                    document.getElementById('rulePoint3').value = cells[6].textContent;
+                    document.getElementById('rulePoint4').value = cells[7].textContent;
+                    break;
+                case 'setting':
+                    document.getElementById('settingName').value = cells[1].textContent;
+                    document.getElementById('settingValue').value = cells[2].textContent;
+                    break;
+            }
         }
 
         function getTypeDisplayName(type) {
             switch (type) {
                 case 'badge': return 'バッジ';
                 case 'tier': return 'ティア';
-                  case 'game_day': return 'ゲーム日';
-                  case 'tier_history': return 'ティア履歴';
-                  case 'direction': return '方向';
-                  case 'group': return 'グループ';
-                  case 'rule': return 'ルール';
-                  case 'setting': return '設定';
+                case 'game_day': return 'ゲーム日';
+                case 'tier_history': return 'ティア履歴';
+                case 'direction': return '方向';
+                case 'group': return 'グループ';
+                case 'rule': return 'ルール';
+                case 'setting': return '設定';
                 default: return 'データ';
             }
         }
@@ -1113,14 +1116,17 @@
         function deleteMasterData(type, id) {
             const typeName = getTypeDisplayName(type);
             if (confirm(`${typeName}を削除しますか？この操作は取り消せません。`)) {
-                  const formData = new FormData();
-                  formData.append('action', 'delete_data');
-                  formData.append('type', type);
-                  formData.append('id', id);
-                  
+                const formData = new FormData();
+                formData.append('action', 'delete_data');
+                formData.append('type', type);
+                formData.append('id', id);
+                
                 fetch('', {
                     method: 'POST',
-                      body: formData
+                    headers: {
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: formData
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -1239,22 +1245,22 @@
                 data.name = getFieldValue(visibleForm, 'name');
                 data.value = getNumberFieldValue(visibleForm, 'value');
             }
-              
+            
               // 新規追加か編集かを判定
-              const isNew = !id || id === '';
-              const action = isNew ? 'add_master_data' : 'update_master_data';
-              
-              const postData = new FormData();
-              postData.append('action', action);
-              postData.append('type', type);
-              if (!isNew) {
-                  postData.append('id', id);
-              }
-              postData.append('data', JSON.stringify(data));
+            const isNew = !id || id === '';
+            const action = isNew ? 'add_master_data' : 'update_master_data';
+            
+            const postData = new FormData();
+            postData.append('action', action);
+            postData.append('type', type);
+            if (!isNew) {
+                postData.append('id', id);
+            }
+            postData.append('data', JSON.stringify(data));
             
             fetch('', {
                 method: 'POST',
-                  body: postData
+                body: postData
             })
             .then(response => response.json())
             .then(data => {

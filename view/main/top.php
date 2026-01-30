@@ -13,12 +13,12 @@ $title = 'AISAI.M.LEAGUE';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <link rel="apple-touch-icon" href="<?= $baseUrl ?>/favicon.png">
-    <link rel="icon" href="<?= $baseUrl ?>/favicon.ico" sizes="64x64" type="image/x-icon">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/master.css">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/header.css">
-    <link rel="stylesheet" href="<?= $baseUrl ?>/resources/css/app.css">
-    <title><?= $title ?></title>
+    <link rel="apple-touch-icon" href="<?= h($baseUrl) ?>/favicon.png">
+    <link rel="icon" href="<?= h($baseUrl) ?>/favicon.ico" sizes="64x64" type="image/x-icon">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/master.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/header.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/app.css">
+    <title><?= h($title) ?></title>
 </head>
 <body>
 <main style="padding-left: 0; padding-right: 0;">
@@ -27,10 +27,10 @@ $title = 'AISAI.M.LEAGUE';
             <div class="game-day-container">
             <?php if (!empty($nextTwoGameDays)): ?>
                 <div class="day">
-                    <?=$nextTwoGameDays[0]?>
+                    <?= h($nextTwoGameDays[0]) ?>
                     <?php if (count($nextTwoGameDays) > 1): ?>
                     <div class="next-day">
-                        <?=$nextTwoGameDays[1]?>
+                        <?= h($nextTwoGameDays[1]) ?>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -41,13 +41,13 @@ $title = 'AISAI.M.LEAGUE';
             <ul class="playerImg">
                 <li>
                     <video autoplay muted playsinline loop>
-                        <source src="<?= $baseUrl ?>/resources/movie/player_1.mp4" type="video/mp4">
+                        <source src="<?= h($baseUrl) ?>/resources/movie/player_1.mp4" type="video/mp4">
                         お使いのブラウザは動画タグをサポートしていません。
                     </video>
                 </li>
-                <li><img src="<?= $baseUrl ?>/resources/image/player_2.png"></li>
-                <li><img src="<?= $baseUrl ?>/resources/image/player_3.png"></li>
-                <li><img src="<?= $baseUrl ?>/resources/image/player_4.png"></li>
+                <li><img src="<?= h($baseUrl) ?>/resources/image/player_2.png"></li>
+                <li><img src="<?= h($baseUrl) ?>/resources/image/player_3.png"></li>
+                <li><img src="<?= h($baseUrl) ?>/resources/image/player_4.png"></li>
             </ul>
         </div>
     </div>
