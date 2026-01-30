@@ -70,8 +70,9 @@ include __DIR__ . '/../header.php';
             <div class="form-group date-group">
                 <div class="date-inputs">
                     <select class="input play_date year" name="year" required>
-                        <?php for ($year = 2025; $year <= 2027; $year++): ?>
-                            <option value="<?= $year ?>" <?= $year == 2025 ? 'selected' : '' ?>><?= $year ?></option>
+                        <?php $currentYear = (int)date('Y'); ?>
+                        <?php for ($year = $currentYear - 1; $year <= $currentYear + 1; $year++): ?>
+                            <option value="<?= $year ?>" <?= $year == $currentYear ? 'selected' : '' ?>><?= $year ?></option>
                         <?php endfor; ?>
                     </select>
                     <span>年</span>

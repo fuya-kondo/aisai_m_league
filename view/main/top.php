@@ -59,7 +59,7 @@ $title = 'AISAI.M.LEAGUE';
                 麻雀リーグ戦、AISAI.Mリーグ開幕。
                 数多の麻雀プレイヤー達の中から、ほんの一握りの愛西市民だけが出場できるナショナルリーグが始まる。
                 知性に裏打ちされた采配。洗練されたリーグ空間。
-                企業とプロ契約を結ばず、タンクトップを纏ったAISAI.Mリーガー達が威信をかけて知を競い合う。<br><br>
+                企業とプロ契約を結ばず、ユニフォームを纏ったAISAI.Mリーガー達が威信をかけて知を競い合う。<br><br>
             </p>
         </div>
         <h3>さぁ、麻雀をあたらしい時代へ。</h3>
@@ -123,19 +123,8 @@ $title = 'AISAI.M.LEAGUE';
         margin: 0 10px;
     }
     .playerImg img, .playerImg video {
-        /* opacity: 0; */
-        /* transition: opacity 1s ease-in-out; */
         border-radius: 5px;
     }
-    /*
-    .playerImg img.active {
-        opacity: 1;
-    }
-    */
-    /* @keyframes rotate {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    } */
 
     /* 小型スマホ向け */
     @media (max-width: 375px) {

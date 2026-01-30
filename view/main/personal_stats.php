@@ -488,6 +488,10 @@ include __DIR__ . '/../header.php';
         text-align: center;
         margin-bottom:0px;
     }
+   .year-select:hover, .player-select:hover
+    .year-select:focus, .player-select:focus {
+        outline: none; /* デフォルトのアウトラインを無効化 */
+    }
     .table-container {
         margin-bottom: 30px;
     }
@@ -529,9 +533,10 @@ include __DIR__ . '/../header.php';
         border: 1px solid #fff; /* ボーダー */
         text-align: center;          /* 文字を中央揃え */
         text-align-last: center;     /* Firefox 用 */
-        -webkit-appearance: none;    /* iOS/Safari のデフォルト矢印を消す */
-        -moz-appearance: none;       /* Firefox */
-        appearance: none;
+        //-webkit-appearance: none;    /* iOS/Safari のデフォルト矢印を消す */
+        //-moz-appearance: none;       /* Firefox */
+        //appearance: none;
+        padding-left: 5px;
     }
     .player-select {
         padding: 10px 0px 5px 0px;
@@ -539,14 +544,12 @@ include __DIR__ . '/../header.php';
         font-size: 1em; /* フォントサイズ */
         text-align: center;          /* 文字を中央揃え */
         text-align-last: center;     /* Firefox 用 */
-        -webkit-appearance: none;    /* iOS/Safari のデフォルト矢印を消す */
-        -moz-appearance: none;       /* Firefox */
-        appearance: none;
+        //-webkit-appearance: none;    /* iOS/Safari のデフォルト矢印を消す */
+        //-moz-appearance: none;       /* Firefox */
+        //appearance: none;
+        padding-left: 15px;
     }
-    .year-select:hover, .player-select:hover
-    .year-select:focus, .player-select:focus {
-        outline: none; /* デフォルトのアウトラインを無効化 */
-    }
+ 
     .stats-column-2 {
         width: 50%;
         min-width: 90px;
