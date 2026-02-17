@@ -112,15 +112,16 @@ class MainController extends BaseController
      */
     public function history()
     {
-        // POST処理（削除）
-        if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['historyId']) && isset($_POST['userId'])) {
-            $historyId = $_POST['historyId'];
+        // POST処理（ゲーム単位削除）
+        if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['gameId']) && isset($_POST['userId'])) {
+            $this->enforceCsrfToken();
+            $gameId = (string)$_POST['gameId'];
             $userId = $_POST['userId'];
             
             // データ削除処理
             require_once __DIR__ . '/../../model/u_game_history.php';
             $uGameHistoryModel = new UGameHistory();
-            $result = $uGameHistoryModel->deleteData($historyId);
+            $result = $uGameHistoryModel->deleteGameHistoryByGameId($gameId);
             
             if ($result) {
                 header("Location: history?userId=" . urlencode($userId));
@@ -508,30 +509,36 @@ class MainController extends BaseController
         // POST処理
         if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $this->enforceCsrfToken();
-            $requiredFields = ['userId', 'tableId', 'game', 'direction', 'rank', 'score', 'year', 'month', 'day'];
+            $requiredFields = ['tableId', 'game', 'year', 'month', 'day', 'participants'];
             $missingFields = array_filter($requiredFields, fn($field) => !isset($_POST[$field]));
             if (empty($missingFields)) {
-                $userId    = $_POST['userId'];
-                $tableId   = $_POST['tableId'];
-                $game      = $_POST['game'];
-                $direction = $_POST['direction'];
-                $rank      = $_POST['rank'];
-                $score     = $_POST['score'];
-                $mistakeCount = isset($_POST['mistake_count']) ? (int)$_POST['mistake_count'] : 0;
-                $playDate  = sprintf(
-                    '%04d-%02d-%02d %s',
-                    $_POST['year'],
-                    $_POST['month'],
-                    $_POST['day'],
-                    date('H:i:s')
-                );
-                
-                // データ追加処理
-                require_once __DIR__ . '/../../model/u_game_history.php';
-                $uGameHistoryModel = new UGameHistory();
-                $uGameHistoryModel->addData($userId, $tableId, $game, $direction, $rank, $score, $playDate, $mistakeCount);
-                header("Location: history?userId=" . urlencode($userId));
-                exit();
+                try {
+                    $tableId   = (int)$_POST['tableId'];
+                    $game      = (int)$_POST['game'];
+                    $playDate  = sprintf(
+                        '%04d-%02d-%02d %s',
+                        $_POST['year'],
+                        $_POST['month'],
+                        $_POST['day'],
+                        date('H:i:s')
+                    );
+                    $participants = $this->buildParticipantsPayload($_POST['participants'] ?? []);
+                    
+                    // データ追加処理
+                    require_once __DIR__ . '/../../model/u_game_history.php';
+                    $uGameHistoryModel = new UGameHistory();
+                    $uGameHistoryModel->upsertGameHistory([
+                        'play_date' => $playDate,
+                        'game' => $game,
+                        'u_table_id' => $tableId,
+                        'participants' => $participants,
+                    ]);
+                    $firstUserId = $participants[0]['playerId'] ?? 1;
+                    header("Location: history?userId=" . urlencode((string)$firstUserId));
+                    exit();
+                } catch (Exception $e) {
+                    $error_msg = '登録に失敗しました。4人分の入力内容を確認してください。';
+                }
             } else {
                 $error_msg = '登録に失敗しました。以下のフィールドが不足しています: ' . implode(', ', $missingFields);
             }
@@ -559,31 +566,51 @@ class MainController extends BaseController
     {
         // POST処理
         $isFix = false;
+        $editGame = null;
         if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $this->enforceCsrfToken();
-            if (isset($_POST['historyId']) && isset($_POST['rank']) && isset($_POST['score']) && isset($_POST['game']) && isset($_POST['direction']) && isset($_POST['userId'])) {
+            if (isset($_POST['gameId']) && isset($_POST['userId']) && !isset($_POST['participants'])) {
                 $isFix = true;
-                $historyId  = $_POST['historyId'];
-                $rank       = $_POST['rank'];
-                $score      = $_POST['score'];
-                $game       = $_POST['game'];
-                $direction  = $_POST['direction'];
                 $userId     = $_POST['userId'];
-            }
-            if (isset($_POST['historyId']) && isset($_POST['new_rank']) && isset($_POST['new_score']) && isset($_POST['new_game']) && isset($_POST['new_direction']) && isset($_POST['userId'])) {
-                $historyId  = $_POST['historyId'];
-                $rank       = $_POST['new_rank'];
-                $score      = $_POST['new_score'];
-                $game       = $_POST['new_game'];
-                $direction  = $_POST['new_direction'];
-                $userId     = $_POST['userId'];
-                
-                // データ更新処理
+                $gameId     = (string)$_POST['gameId'];
+
                 require_once __DIR__ . '/../../model/u_game_history.php';
                 $uGameHistoryModel = new UGameHistory();
-                $uGameHistoryModel->updateData((int)$historyId, $rank, (int)$score, (int)$game, (int)$direction);
-                header("Location: history?userId=" . $userId);
-                exit();
+                $editGame = $uGameHistoryModel->getGameHistoryByGameId($gameId);
+                if (!$editGame) {
+                    $error_msg = '対象ゲーム（4人分）が見つかりませんでした。';
+                    $isFix = false;
+                }
+            }
+            if (isset($_POST['original_game_id']) && isset($_POST['new_game']) && isset($_POST['new_year']) && isset($_POST['new_month']) && isset($_POST['new_day']) && isset($_POST['participants']) && isset($_POST['userId'])) {
+                try {
+                    $originalGameId = (string)$_POST['original_game_id'];
+                    $game       = (int)$_POST['new_game'];
+                    $userId     = $_POST['userId'];
+                    $tableId    = 1;
+                    $playDate  = sprintf(
+                        '%04d-%02d-%02d %s',
+                        $_POST['new_year'],
+                        $_POST['new_month'],
+                        $_POST['new_day'],
+                        date('H:i:s')
+                    );
+                    $participants = $this->buildParticipantsPayload($_POST['participants'] ?? []);
+                    
+                    // データ更新処理
+                    require_once __DIR__ . '/../../model/u_game_history.php';
+                    $uGameHistoryModel = new UGameHistory();
+                    $uGameHistoryModel->upsertGameHistory([
+                        'play_date' => $playDate,
+                        'game' => $game,
+                        'u_table_id' => $tableId,
+                        'participants' => $participants,
+                    ], $originalGameId);
+                    header("Location: history?userId=" . $userId);
+                    exit();
+                } catch (Exception $e) {
+                    $error_msg = '修正に失敗しました。4人分の入力内容を確認してください。';
+                }
             }
         }
         
@@ -592,6 +619,7 @@ class MainController extends BaseController
         
         // 順位設定の取得
         $rankConfig = $this->statsColumn['rankConfig'] ?? [];
+        $userList = $this->statsService->getUserList();
         
         // タイトルの設定
         $title = '修正';
@@ -601,5 +629,23 @@ class MainController extends BaseController
         $baseUrl = getBaseUrl();
         
         include __DIR__ . '/../../view/main/update.php';
+    }
+
+    private function buildParticipantsPayload(array $participantsRaw): array
+    {
+        $participants = [];
+        for ($seat = 1; $seat <= 4; $seat++) {
+            if (!isset($participantsRaw[$seat]['playerId'], $participantsRaw[$seat]['rank'], $participantsRaw[$seat]['score'])) {
+                throw new InvalidArgumentException('4人分の入力が必要です。');
+            }
+            $participants[] = [
+                'playerId' => (int)$participantsRaw[$seat]['playerId'],
+                'seat' => $seat,
+                'rank' => (string)$participantsRaw[$seat]['rank'],
+                'score' => (int)$participantsRaw[$seat]['score'],
+                'chombo' => isset($participantsRaw[$seat]['chombo']) ? (int)$participantsRaw[$seat]['chombo'] : 0,
+            ];
+        }
+        return $participants;
     }
 }

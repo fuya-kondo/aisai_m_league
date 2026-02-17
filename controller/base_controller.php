@@ -50,6 +50,7 @@ class BaseController
             'mSettingList' => $this->mSetting->getAllData(),
             'uGameHistoryList' => $this->uGameHistory->getAllGameHistory(),
             'uGameHistoryListFlat' => $this->uGameHistory->getAllGameHistoryFlat(),
+            'uGameHistoryByGameList' => $this->uGameHistory->getAllGameHistoryByGame(),
             'uTableList' => $this->uTable->getAllUserTables(),
             'uTierHistoryList' => $this->uTierHistory->getAllTierHistoryFlat(),
             'uTitleList' => $this->uTitle->getAllUserTitles(),

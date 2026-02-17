@@ -196,6 +196,7 @@ include __DIR__ . '/../header.php';
                         <?php foreach($paginated_data as $data):?>
                             <?php
                                 $data['rank_display'] = mb_strlen($data['rank']) == 3 ? "同率".substr($data['rank'], 0,1) : $data['rank'];
+                                $gameId = date('Y-m-d', strtotime($data['play_date'])) . '#' . $data['game'] . '#' . $data['u_table_id'];
                             ?>
                             <tr>
                                 <td class="<?= $data['rank_display'] == 4 ? 'red-text' : '' ?>"><?= h($data['rank_display']) ?></td>
@@ -207,16 +208,12 @@ include __DIR__ . '/../header.php';
                                     <form action="update" method="post" class="inline-form">
                                         <?= csrf_field() ?>
                                         <input type="hidden" name="userId" value="<?= h($data['u_user_id']) ?>">
-                                        <input type="hidden" name="rank" value="<?= h($data['rank']) ?>">
-                                        <input type="hidden" name="score" value="<?= h($data['score']) ?>">
-                                        <input type="hidden" name="game" value="<?= h($data['game']) ?>">
-                                        <input type="hidden" name="direction" value="<?= h($data['m_direction_id']) ?>">
-                                        <button type="submit" name="historyId" value="<?= h($data['u_game_history_id']) ?>" class="action-button edit-button">修正</button>
+                                        <button type="submit" name="gameId" value="<?= h($gameId) ?>" class="action-button edit-button">修正</button>
                                     </form>
-                                    <form action="history" method="post" onSubmit="return check(<?= h($data['rank']) ?>,<?= h($data['score']) ?>,<?= h($data['point']) ?>)" class="inline-form">
+                                    <form action="history" method="post" onSubmit="return check('<?= h($gameId) ?>')" class="inline-form">
                                         <?= csrf_field() ?>
                                         <input type="hidden" name="userId" value="<?= h($data['u_user_id']) ?>">
-                                        <button type="submit" name="historyId" value="<?= h($data['u_game_history_id']) ?>" class="action-button delete-button">削除</button>
+                                        <button type="submit" name="gameId" value="<?= h($gameId) ?>" class="action-button delete-button">削除</button>
                                     </form>
                                 </td>
                             </tr>
@@ -257,8 +254,8 @@ include __DIR__ . '/../header.php';
 </html>
 
 <script>
-    function check(rank, score, point) {
-        if (window.confirm(rank + '位\n' + score + '点\n' + point + 'Pts\n' + '削除しますか？')) {
+    function check(gameId) {
+        if (window.confirm('1ゲーム（4人分）を削除しますか？\n' + gameId)) {
             return true;
         } else {
             window.alert('キャンセルされました');

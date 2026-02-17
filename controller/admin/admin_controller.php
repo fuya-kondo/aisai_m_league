@@ -74,7 +74,7 @@ class AdminController extends BaseController
         
         $data = [
             'title' => 'ゲーム履歴管理 - AISAI.M.LEAGUE',
-            'gameHistory' => $masterData['uGameHistoryListFlat'],
+            'gameHistory' => $masterData['uGameHistoryByGameList'],
             'users' => $masterData['uUserList'],
             'tables' => $masterData['uTableList'],
             'gameDays' => $masterData['mGameDayList'],
@@ -203,26 +203,12 @@ class AdminController extends BaseController
     public function updateGameHistory()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $this->enforceCsrfToken();
-            $gameId = $_POST['game_id'];
-            
-            // 日付と時刻を結合
-            $playTime = !empty($_POST['play_time']) ? $_POST['play_time'] : '00:00';
-            $playDate = $_POST['play_date'] . ' ' . $playTime . ':00';
-            
-            $data = [
-                'play_date' => $playDate,
-                'game' => $_POST['game'],
-                'u_user_id' => $_POST['u_user_id'],
-                'u_table_id' => 1, // 固定値として1を設宁E
-                'rank' => $_POST['rank'],
-                'score' => $_POST['score'],
-                'm_direction_id' => !empty($_POST['m_direction_id']) ? $_POST['m_direction_id'] : 0,
-                'mistake_count' => !empty($_POST['mistake_count']) ? (int)$_POST['mistake_count'] : 0
-            ];
+            $this->enforceCsrfToken();
 
             try {
-                $result = $this->uGameHistory->updateGameHistory($gameId, $data);
+                $data = $this->buildGamePayloadFromPost();
+                $originalGameId = $_POST['game_id'] ?? null;
+                $this->uGameHistory->upsertGameHistory($data, $originalGameId);
                 $this->successResponse(['message' => 'ゲーム履歴を更新しました']);
             } catch (Exception $e) {
                 $this->errorResponse('ゲーム履歴の更新に失敗しました: ' . $e->getMessage());
@@ -238,24 +224,11 @@ class AdminController extends BaseController
     public function addGameHistory()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $this->enforceCsrfToken();
-            // 日付と時刻を結合
-            $playTime = !empty($_POST['play_time']) ? $_POST['play_time'] : '00:00';
-            $playDate = $_POST['play_date'] . ' ' . $playTime . ':00';
-            
-            $data = [
-                'play_date' => $playDate,
-                'game' => $_POST['game'],
-                'u_user_id' => $_POST['u_user_id'],
-                'u_table_id' => 1, // 固定値として1を設宁E
-                'rank' => $_POST['rank'],
-                'score' => $_POST['score'],
-                'm_direction_id' => !empty($_POST['m_direction_id']) ? $_POST['m_direction_id'] : 0,
-                'mistake_count' => !empty($_POST['mistake_count']) ? (int)$_POST['mistake_count'] : 0
-            ];
+            $this->enforceCsrfToken();
 
             try {
-                $result = $this->uGameHistory->addGameHistory($data);
+                $data = $this->buildGamePayloadFromPost();
+                $this->uGameHistory->upsertGameHistory($data, null);
                 $this->successResponse(['message' => 'ゲーム履歴を追加しました']);
             } catch (Exception $e) {
                 $this->errorResponse('ゲーム履歴の追加に失敗しました: ' . $e->getMessage());
@@ -308,7 +281,7 @@ class AdminController extends BaseController
                         $result = $this->uUser->deleteUser($id);
                         break;
                     case 'game_history':
-                        $result = $this->uGameHistory->deleteGameHistory($id);
+                        $result = $this->uGameHistory->deleteGameHistoryByGameId($id);
                         break;
                     default:
                         $result = $this->deleteMasterDataByType($type, $id);
@@ -395,5 +368,35 @@ class AdminController extends BaseController
     {
         $badges = $this->mBadge->getAllBadges();
         return count($badges);
+    }
+
+    private function buildGamePayloadFromPost(): array
+    {
+        $playTime = !empty($_POST['play_time']) ? $_POST['play_time'] : '00:00';
+        $playDate = ($_POST['play_date'] ?? '') . ' ' . $playTime . ':00';
+        $tableId = !empty($_POST['u_table_id']) ? (int)$_POST['u_table_id'] : 1;
+
+        $participants = $_POST['participants'] ?? [];
+        if (!is_array($participants) || count($participants) !== 4) {
+            throw new InvalidArgumentException('参加者は4人分すべて入力してください');
+        }
+
+        $normalized = [];
+        foreach ($participants as $participant) {
+            $normalized[] = [
+                'playerId' => (int)($participant['playerId'] ?? 0),
+                'seat' => (int)($participant['seat'] ?? 0),
+                'rank' => (string)($participant['rank'] ?? ''),
+                'score' => (int)($participant['score'] ?? 0),
+                'chombo' => isset($participant['chombo']) ? (int)$participant['chombo'] : 0
+            ];
+        }
+
+        return [
+            'play_date' => $playDate,
+            'game' => (int)($_POST['game'] ?? 0),
+            'u_table_id' => $tableId,
+            'participants' => $normalized
+        ];
     }
 }
