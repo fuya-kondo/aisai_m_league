@@ -240,3 +240,23 @@ erDiagram
 | name         | VARCHAR(255)         | NO   | -   | 設定名（例: 点数非表示） |
 | value        | SMALLINT(5) UNSIGNED | NO   | 0   | 値             |
 
+
+---
+
+## 認証/認可強化（2026-02）
+
+- `/auth/login` を追加し、JWTクレームに `role`（`admin` / `general`）を付与。
+- `controller=admin` 経由の管理系操作は `role=admin` を必須化。
+- 重要操作（登録・更新・削除）は `AuditLogger` でJSON監査ログを出力（CloudWatch Logs取り込みを想定）。
+- API Gatewayのログイン用スロットリング設定サンプルを `infra/api-gateway-throttling.yaml` に追加。
+
+### 必須環境変数
+
+- `JWT_SECRET`
+- `ADMIN_LOGIN_ID`
+- `ADMIN_LOGIN_PASSWORD`
+- `GENERAL_LOGIN_ID`
+- `GENERAL_LOGIN_PASSWORD`
+- `LOGIN_MAX_ATTEMPTS`（任意、既定: `5`）
+- `LOGIN_WINDOW_SECONDS`（任意、既定: `300`）
+- `JWT_TTL_SECONDS`（任意、既定: `3600`）

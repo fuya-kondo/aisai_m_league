@@ -8,11 +8,13 @@ class Router
 {
     private $mainController;
     private $adminController;
+    private $authController;
 
     public function __construct()
     {
         $this->mainController = new MainController();
         $this->adminController = new AdminController();
+        $this->authController = new AuthController();
     }
 
     /**
@@ -20,11 +22,20 @@ class Router
      */
     public function handleRequest()
     {
+        $path = $this->resolvePath();
+
+        // パスベースのAPIルーティング
+        if ($path === '/auth/login') {
+            $this->authController->login();
+            return;
+        }
+
         $controller = $_GET['controller'] ?? 'main';
         // POSTデータのactionを優先し、なければGETデータのactionを使用
         $action = $_POST['action'] ?? $_GET['action'] ?? 'top';
 
         debug_log('=== handleRequest called ===');
+        debug_log('Path: ' . $path);
         debug_log('Controller: ' . $controller);
         debug_log('Action: ' . $action);
         debug_log('GET data: ' . print_r($_GET, true));
@@ -38,6 +49,8 @@ class Router
                     break;
                 case 'admin':
                     debug_log('Handling admin request');
+                    // /admin/* 相当は role=admin を必須化
+                    $this->adminController->enforceRole('admin');
                     $this->handleAdminRequest($action);
                     break;
                 default:
@@ -48,10 +61,25 @@ class Router
             }
         } catch (Exception $e) {
             // エラーハンドリング
-            error_log("Router error: " . $e->getMessage());
+            error_log('Router error: ' . $e->getMessage());
             http_response_code(500);
-            echo "Internal Server Error";
+            echo 'Internal Server Error';
         }
+    }
+
+    /**
+     * index.php配下でも扱えるようにリクエストパスを正規化。
+     */
+    private function resolvePath(): string
+    {
+        $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+        $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
+
+        if ($basePath !== '' && $basePath !== '/' && strpos($requestPath, $basePath) === 0) {
+            $requestPath = substr($requestPath, strlen($basePath));
+        }
+
+        return $requestPath === '' ? '/' : $requestPath;
     }
 
     /**
@@ -108,7 +136,7 @@ class Router
         debug_log('Action: ' . $action);
         debug_log('POST data: ' . print_r($_POST, true));
         debug_log('GET data: ' . print_r($_GET, true));
-        
+
         switch ($action) {
             case 'top':
                 $this->adminController->top();

@@ -157,6 +157,48 @@ class BaseController
         }
     }
 
+
+    /**
+     * AuthorizationヘッダーからBearerトークンを取得。
+     */
+    protected function getBearerToken(): ?string
+    {
+        $header = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+        if (stripos($header, 'Bearer ') !== 0) {
+            return null;
+        }
+        return trim(substr($header, 7));
+    }
+
+    /**
+     * 指定ロールの権限チェック。
+     */
+    public function enforceRole(string $requiredRole): void
+    {
+        $token = $this->getBearerToken();
+        if (empty($token)) {
+            http_response_code(401);
+            $this->errorResponse('認証トークンが必要です');
+            exit();
+        }
+
+        $secret = getenv('JWT_SECRET') ?: 'local-dev-secret';
+        $claims = JwtHelper::decode($token, $secret);
+        if ($claims === null) {
+            http_response_code(401);
+            $this->errorResponse('認証トークンが無効です');
+            exit();
+        }
+
+        $_SERVER['jwt_claims'] = $claims;
+
+        if (($claims['role'] ?? '') !== $requiredRole) {
+            http_response_code(403);
+            $this->errorResponse('権限がありません');
+            exit();
+        }
+    }
+
     /**
      * JSONレスポンスを返す
      */

@@ -132,10 +132,12 @@ class AdminController extends BaseController
 
                 $result = $this->uUser->updateUser($userId, $data);
                 debug_log('Update result: ' . ($result ? 'success' : 'failed'));
-                
+                AuditLogger::log('update', 'user', $userId, 'success', ['data' => $data]);
+
                 $this->successResponse(['message' => 'ユーザー情報を更新しました']);
             } catch (Exception $e) {
                 error_log('Update error: ' . $e->getMessage());
+                AuditLogger::log('update', 'user', $_POST['user_id'] ?? 'unknown', 'failure', ['error' => $e->getMessage()]);
                 $this->errorResponse('ユーザー情報の更新に失敗しました: ' . $e->getMessage());
             }
         } else {
@@ -166,10 +168,12 @@ class AdminController extends BaseController
 
                 $result = $this->uUser->addUser($data);
                 debug_log('Add result: ' . ($result ? 'success' : 'failed'));
-                
+                AuditLogger::log('create', 'user', $data['last_name'] . ' ' . $data['first_name'], 'success', ['data' => $data]);
+
                 $this->successResponse(['message' => 'ユーザーを追加しました']);
             } catch (Exception $e) {
                 debug_log('Add error: ' . $e->getMessage());
+                AuditLogger::log('create', 'user', 'unknown', 'failure', ['error' => $e->getMessage()]);
                 $this->errorResponse('ユーザーの追加に失敗しました: ' . $e->getMessage());
             }
         } else {
@@ -188,8 +192,10 @@ class AdminController extends BaseController
             try {
                 $userId = $_POST['user_id'];
                 $result = $this->uUser->deleteUser($userId);
+                AuditLogger::log('delete', 'user', $userId, 'success');
                 $this->successResponse(['message' => 'ユーザーを削除しました']);
             } catch (Exception $e) {
+                AuditLogger::log('delete', 'user', $_POST['user_id'] ?? 'unknown', 'failure', ['error' => $e->getMessage()]);
                 $this->errorResponse('ユーザーの削除に失敗しました: ' . $e->getMessage());
             }
         } else {
@@ -223,8 +229,10 @@ class AdminController extends BaseController
 
             try {
                 $result = $this->uGameHistory->updateGameHistory($gameId, $data);
+                AuditLogger::log('update', 'game_history', $gameId, 'success', ['data' => $data]);
                 $this->successResponse(['message' => 'ゲーム履歴を更新しました']);
             } catch (Exception $e) {
+                AuditLogger::log('update', 'game_history', $_POST['game_id'] ?? 'unknown', 'failure', ['error' => $e->getMessage()]);
                 $this->errorResponse('ゲーム履歴の更新に失敗しました: ' . $e->getMessage());
             }
         } else {
@@ -256,8 +264,10 @@ class AdminController extends BaseController
 
             try {
                 $result = $this->uGameHistory->addGameHistory($data);
+                AuditLogger::log('create', 'game_history', 'new', 'success', ['data' => $data]);
                 $this->successResponse(['message' => 'ゲーム履歴を追加しました']);
             } catch (Exception $e) {
+                AuditLogger::log('create', 'game_history', 'new', 'failure', ['error' => $e->getMessage()]);
                 $this->errorResponse('ゲーム履歴の追加に失敗しました: ' . $e->getMessage());
             }
         } else {
@@ -278,8 +288,10 @@ class AdminController extends BaseController
 
             try {
                 $result = $this->updateMasterDataByType($type, $id, $data);
+                AuditLogger::log('update', $type, $id, 'success', ['data' => $data]);
                 $this->successResponse($result);
             } catch (Exception $e) {
+                AuditLogger::log('update', $_POST['type'] ?? 'unknown', $_POST['id'] ?? 'unknown', 'failure', ['error' => $e->getMessage()]);
                 $this->errorResponse($e->getMessage());
             }
         }
@@ -316,9 +328,11 @@ class AdminController extends BaseController
                 }
 
                 debug_log('Delete result: ' . ($result ? 'success' : 'failed'));
+                AuditLogger::log('delete', $type, $id, 'success');
                 $this->successResponse(['message' => 'チE�Eタを削除しました']);
             } catch (Exception $e) {
                 debug_log('Delete error: ' . $e->getMessage());
+                AuditLogger::log('delete', $_POST['type'] ?? 'unknown', $_POST['id'] ?? 'unknown', 'failure', ['error' => $e->getMessage()]);
                 $this->errorResponse('チE�Eタの削除に失敗しました: ' . $e->getMessage());
             }
         } else {
@@ -346,9 +360,11 @@ class AdminController extends BaseController
             try {
                 $result = $this->addMasterDataByType($type, $data);
                 debug_log('Add result: ' . ($result ? 'success' : 'failed'));
+                AuditLogger::log('create', $type, 'new', 'success', ['data' => $data]);
                 $this->successResponse(['message' => 'チE�Eタを追加しました']);
             } catch (Exception $e) {
                 debug_log('Add error: ' . $e->getMessage());
+                AuditLogger::log('create', $_POST['type'] ?? 'unknown', 'new', 'failure', ['error' => $e->getMessage()]);
                 $this->errorResponse($e->getMessage());
             }
         } else {

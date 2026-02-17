@@ -9,6 +9,9 @@ require_once __DIR__ . '/db_connect.php';
 use GeminiAPI\Client;
 use GeminiAPI\Resources\Parts\TextPart;
 require_once __DIR__ . '/../lib/helpers.php';
+require_once __DIR__ . '/../lib/jwt_helper.php';
+require_once __DIR__ . '/../lib/auth_security.php';
+require_once __DIR__ . '/../lib/audit_logger.php';
 require_once __DIR__ . '/../lib/stats_column.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -30,6 +33,7 @@ require_once __DIR__ . '/../model/u_user.php';
 // サービス・コントローラ定義
 require_once __DIR__ . '/../controller/base_controller.php';
 require_once __DIR__ . '/../controller/admin/admin_controller.php';
+require_once __DIR__ . '/../controller/auth/auth_controller.php';
 require_once __DIR__ . '/../controller/main/stats_service.php';
 require_once __DIR__ . '/../controller/main/main_controller.php';
 require_once __DIR__ . '/../controller/router.php';

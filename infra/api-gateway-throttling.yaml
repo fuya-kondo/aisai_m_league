@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AISAI.M.LEAGUE API Gateway throttling settings for login endpoint
+
+Resources:
+  LoginApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: aisai-m-league-api
+
+  LoginStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      StageName: prod
+      RestApiId: !Ref LoginApi
+      DeploymentId: dummy-deployment-id
+      MethodSettings:
+        - ResourcePath: /auth/login
+          HttpMethod: POST
+          ThrottlingBurstLimit: 5
+          ThrottlingRateLimit: 2
+          MetricsEnabled: true
+          LoggingLevel: INFO
+
+  LoginUsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    Properties:
+      UsagePlanName: login-throttle-plan
+      ApiStages:
+        - ApiId: !Ref LoginApi
+          Stage: !Ref LoginStage
+      Throttle:
+        BurstLimit: 20
+        RateLimit: 10
