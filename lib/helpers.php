@@ -102,6 +102,3 @@ function debug_log(string $message): void
     }
     error_log($message);
 }
-
-?>
-

@@ -553,6 +553,173 @@ class MainController extends BaseController
     }
 
     /**
+     * 4人同時登録ページを表示
+     */
+    public function add4()
+    {
+        $tableId = self::AGGREGATE_TABLE_ID;
+        $title = '4人登録';
+        $errorMessages = [];
+
+        $userList = $this->statsService->getUserList();
+        $mDirectionList = $this->masterData['mDirectionList'] ?? [];
+        $rankConfig = $this->statsColumn['rankConfig'] ?? [];
+        $allowedRanks = ['1', '2', '3', '4', '1=1', '2=2', '3=3'];
+
+        $today = new DateTimeImmutable();
+        $selectedYear = (int)($_POST['year'] ?? $_GET['year'] ?? $today->format('Y'));
+        $selectedMonth = (int)($_POST['month'] ?? $_GET['month'] ?? $today->format('n'));
+        $selectedDay = (int)($_POST['day'] ?? $_GET['day'] ?? $today->format('j'));
+        $playDateYmd = sprintf('%04d-%02d-%02d', $selectedYear, $selectedMonth, $selectedDay);
+
+        $uGameHistoryModel = new UGameHistory();
+        $nextGame = $uGameHistoryModel->getNextGameNumberByDate($tableId, $playDateYmd);
+        $latestGameRows = $uGameHistoryModel->getLatestGameByDate($tableId, $playDateYmd);
+        $seatDefaultUsers = $this->getRotatedSeatUserDefaults($latestGameRows);
+
+        $formData = [
+            'year' => $selectedYear,
+            'month' => $selectedMonth,
+            'day' => $selectedDay,
+            'table_id' => $tableId,
+            'game' => $nextGame,
+            'seats' => [
+                1 => ['user_id' => $seatDefaultUsers[1], 'rank' => '', 'score' => '', 'mistake_count' => 0],
+                2 => ['user_id' => $seatDefaultUsers[2], 'rank' => '', 'score' => '', 'mistake_count' => 0],
+                3 => ['user_id' => $seatDefaultUsers[3], 'rank' => '', 'score' => '', 'mistake_count' => 0],
+                4 => ['user_id' => $seatDefaultUsers[4], 'rank' => '', 'score' => '', 'mistake_count' => 0],
+            ],
+        ];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->enforceCsrfToken();
+
+            $formData['game'] = isset($_POST['game']) ? (int)$_POST['game'] : '';
+
+            if (!checkdate($selectedMonth, $selectedDay, $selectedYear)) {
+                $errorMessages[] = '日付が不正です。';
+            }
+            if (!is_int($formData['game']) || $formData['game'] < 1) {
+                $errorMessages[] = '半荘目は1以上の整数で入力してください。';
+            }
+
+            $userIds = [];
+            $ranks = [];
+            $scoreSum = 0;
+            $scoreFormatError = false;
+            $rankError = false;
+
+            for ($direction = 1; $direction <= 4; $direction++) {
+                $userIdKey = 'userId_' . $direction;
+                $rankKey = 'rank_' . $direction;
+                $scoreKey = 'score_' . $direction;
+                $mistakeKey = 'mistake_count_' . $direction;
+
+                $userId = trim((string)($_POST[$userIdKey] ?? ''));
+                $rank = trim((string)($_POST[$rankKey] ?? ''));
+                $score = trim((string)($_POST[$scoreKey] ?? ''));
+                $mistakeRaw = trim((string)($_POST[$mistakeKey] ?? '0'));
+
+                $formData['seats'][$direction]['user_id'] = $userId;
+                $formData['seats'][$direction]['rank'] = $rank;
+                $formData['seats'][$direction]['score'] = $score;
+
+                if ($mistakeRaw === '') {
+                    $mistakeRaw = '0';
+                }
+                $formData['seats'][$direction]['mistake_count'] = $mistakeRaw;
+
+                if ($userId === '' || $rank === '' || $score === '') {
+                    $errorMessages[] = '東南西北すべてに選手・順位・点数を入力してください。';
+                    continue;
+                }
+
+                if (!preg_match('/^\d+$/', $userId) || !isset($userList[(int)$userId])) {
+                    $errorMessages[] = '選手の入力値が不正です。';
+                }
+
+                if (!preg_match('/^\d+$/', $mistakeRaw)) {
+                    $errorMessages[] = 'チョンボ回数は0〜99の整数で入力してください。';
+                } else {
+                    $mistakeCount = (int)$mistakeRaw;
+                    if ($mistakeCount < 0 || $mistakeCount > 99) {
+                        $errorMessages[] = 'チョンボ回数は0〜99の整数で入力してください。';
+                    }
+                    $formData['seats'][$direction]['mistake_count'] = $mistakeCount;
+                }
+
+                $userIds[] = (int)$userId;
+                $ranks[] = $rank;
+
+                if (!in_array($rank, $allowedRanks, true)) {
+                    $rankError = true;
+                    $errorMessages[] = '順位の入力値が不正です。';
+                }
+
+                if (!preg_match('/^-?\d+$/', $score)) {
+                    $scoreFormatError = true;
+                    $errorMessages[] = '点数は100点単位の整数で入力してください。';
+                } else {
+                    $scoreSum += (int)$score;
+                }
+            }
+
+            if (count($userIds) === 4 && count(array_unique($userIds)) !== 4) {
+                $errorMessages[] = '選手は4席で重複できません。';
+            }
+
+            if (count($userIds) === 4 && !$scoreFormatError && $scoreSum !== 1000) {
+                $errorMessages[] = '4人の点数合計は1000（=100000点）である必要があります。';
+            }
+
+            if (count($ranks) === 4 && !$rankError && !$this->isValidAdd4RankCombination($ranks)) {
+                $errorMessages[] = '順位の組み合わせが不正です。';
+            }
+
+            if (empty($errorMessages)) {
+                $game = (int)$formData['game'];
+                if ($uGameHistoryModel->existsGameForDate($tableId, $playDateYmd, $game)) {
+                    $errorMessages[] = '同じ日付・半荘目のデータが既に登録されています。';
+                }
+            }
+
+            if (empty($errorMessages)) {
+                $playDate = sprintf('%s %s', $playDateYmd, date('H:i:s'));
+                $records = [];
+
+                for ($direction = 1; $direction <= 4; $direction++) {
+                    $records[] = [
+                        'u_user_id' => (int)$formData['seats'][$direction]['user_id'],
+                        'u_table_id' => $tableId,
+                        'game' => (int)$formData['game'],
+                        'm_direction_id' => $direction,
+                        'rank' => (string)$formData['seats'][$direction]['rank'],
+                        'score' => (int)$formData['seats'][$direction]['score'] * 100,
+                        'play_date' => $playDate,
+                        'mistake_count' => (int)$formData['seats'][$direction]['mistake_count'],
+                    ];
+                }
+
+                $result = $uGameHistoryModel->addBatchData($records);
+                if ($result) {
+                    header('Location: history');
+                    exit();
+                }
+
+                $errorMessages[] = '登録処理中にエラーが発生しました。';
+            }
+        }
+
+        $directionLabels = [];
+        for ($direction = 1; $direction <= 4; $direction++) {
+            $directionLabels[$direction] = $mDirectionList[$direction]['name'] ?? (string)$direction;
+        }
+        $errorMessages = array_values(array_unique($errorMessages));
+
+        include __DIR__ . '/../../view/main/add4.php';
+    }
+
+    /**
      * 更新ページを表示
      */
     public function update()
@@ -601,5 +768,56 @@ class MainController extends BaseController
         $baseUrl = getBaseUrl();
         
         include __DIR__ . '/../../view/main/update.php';
+    }
+
+    /**
+     * 4人入力の順位組み合わせを検証
+     */
+    private function isValidAdd4RankCombination(array $ranks): bool
+    {
+        if (count($ranks) !== 4) {
+            return false;
+        }
+
+        sort($ranks);
+        $allowedPatterns = [
+            ['1', '2', '3', '4'],
+            ['1=1', '1=1', '3', '4'],
+            ['1', '2=2', '2=2', '4'],
+            ['1', '2', '3=3', '3=3'],
+        ];
+
+        foreach ($allowedPatterns as $pattern) {
+            sort($pattern);
+            if ($ranks === $pattern) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 直近半荘から次局の席順初期値を作成（新東=旧南/新南=旧西/新西=旧北/新北=旧東）
+     */
+    private function getRotatedSeatUserDefaults(array $latestGameRows): array
+    {
+        $defaults = [1 => '', 2 => '', 3 => '', 4 => ''];
+        if (empty($latestGameRows)) {
+            return $defaults;
+        }
+
+        $lastSeatUsers = [1 => '', 2 => '', 3 => '', 4 => ''];
+        foreach ($latestGameRows as $row) {
+            $direction = (int)($row['m_direction_id'] ?? 0);
+            if ($direction >= 1 && $direction <= 4) {
+                $lastSeatUsers[$direction] = (string)($row['u_user_id'] ?? '');
+            }
+        }
+
+        $defaults[1] = $lastSeatUsers[2] ?? '';
+        $defaults[2] = $lastSeatUsers[3] ?? '';
+        $defaults[3] = $lastSeatUsers[4] ?? '';
+        $defaults[4] = $lastSeatUsers[1] ?? '';
+        return $defaults;
     }
 }

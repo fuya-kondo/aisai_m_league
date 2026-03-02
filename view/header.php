@@ -1,8 +1,8 @@
-<div class="header_area">
 <?php
     require_once __DIR__ . '/../config/import_file.php';
     $baseUrl = getBaseUrl();
 ?>
+<div class="header_area">
     <nav id="headerArea">
         <a href="<?= h($baseUrl) ?>/top"><img src="<?= h($baseUrl) ?>/resources/image/aisai_m_league.jpg" alt="AISAI.M.LEAGUE"></a>
     </nav>
@@ -28,6 +28,7 @@
         <a href="<?= h($baseUrl) ?>/personal"><div class="header-button">個人成績</div></a>
         <div class="before-line"></div>
         <a href="<?= h($baseUrl) ?>/add"><div class="header-button">成績 登録</div></a>
+        <a href="<?= h($baseUrl) ?>/add4"><div class="header-button">成績 4人登録</div></a>
         <a href="<?= h($baseUrl) ?>/history"><div class="header-button">成績 履歴</div></a>
         <div class="before-line"></div>
         <a href="<?= h($baseUrl) ?>/rule"><div class="header-button">競技規定</div></a>

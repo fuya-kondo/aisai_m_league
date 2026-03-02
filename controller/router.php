@@ -90,6 +90,9 @@ class Router
             case 'add':
                 $this->mainController->add();
                 break;
+            case 'add4':
+                $this->mainController->add4();
+                break;
             case 'update':
                 $this->mainController->update();
                 break;

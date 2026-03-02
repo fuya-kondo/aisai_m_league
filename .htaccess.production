@@ -39,6 +39,7 @@ RewriteRule ^rule/?$ index.php?controller=main&action=rule [L,QSA]
 RewriteRule ^badge/?$ index.php?controller=main&action=badge [L,QSA]
 RewriteRule ^sound/?$ index.php?controller=main&action=sound [L,QSA]
 RewriteRule ^add/?$ index.php?controller=main&action=add [L,QSA]
+RewriteRule ^add4/?$ index.php?controller=main&action=add4 [L,QSA]
 RewriteRule ^update/?$ index.php?controller=main&action=update [L,QSA]
 
 # さらに短いURL（オプション）
