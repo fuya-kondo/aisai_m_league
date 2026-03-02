@@ -8,8 +8,6 @@
 * データベース：MySQL
 * インフラ/環境：XAMPP（ローカル環境）、Xserver（本番デプロイ）
 
-ローカル開発手順（Docker起動方法など）は [DEVELOPMENT.md](DEVELOPMENT.md) を参照してください。
-
 ---
 
 ## 機能一覧
