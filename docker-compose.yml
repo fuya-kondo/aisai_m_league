@@ -1,0 +1,60 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aisai_m_league_web
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: fuyakondo_aisaimleague
+      DB_USERNAME: aisai_user
+      DB_PASSWORD: aisai_pass
+      TZ: Asia/Tokyo
+      APP_DEBUG: 1
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mariadb:10.5
+    container_name: aisai_m_league_db
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    ports:
+      - "3307:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpass
+      MARIADB_DATABASE: fuyakondo_aisaimleague
+      MARIADB_USER: aisai_user
+      MARIADB_PASSWORD: aisai_pass
+      TZ: Asia/Tokyo
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./fuyakondo_aisaimleague.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5
+    container_name: aisai_m_league_pma
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: rootpass
+      UPLOAD_LIMIT: 256M
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:

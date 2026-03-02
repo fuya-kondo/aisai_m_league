@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DOCKER_EXE="/mnt/c/Program Files/Docker/Docker/resources/bin/docker.exe"
+
+if [ ! -x "$DOCKER_EXE" ]; then
+  echo "docker.exe が見つかりません: $DOCKER_EXE" >&2
+  exit 1
+fi
+
+exec "$DOCKER_EXE" compose "$@"
