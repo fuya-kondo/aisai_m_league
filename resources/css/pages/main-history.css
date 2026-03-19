@@ -1,0 +1,264 @@
+/* 履歴ページ専用スタイル: 個別履歴表と日付別対局履歴の両方を扱う。 */
+/* Responsive rule: mobile-first, desktop overrides use min-width 769px. */
+
+/* 一覧レイアウト: 履歴表・ページネーション・日付ブロックの見た目を定義する。 */
+.table-container {
+  overflow: hidden;
+  border-radius: 4px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.table-wrapper {
+  padding: 15px;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.history-table th,
+.history-table td {
+  padding: 10px 8px;
+  font-size: 0.85em;
+  text-align: center;
+}
+
+@media (min-width: 769px) {
+  .history-table th,
+  .history-table td {
+    padding: 12px;
+    font-size: 1em;
+  }
+}
+
+.history-table th {
+  background-color: #009944;
+  color: #fff;
+  font-weight: 700;
+}
+
+.history-table td {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.history-table tr:last-child td {
+  border-bottom: none;
+}
+
+.red-text {
+  color: #e74c3c;
+}
+
+.inline-form {
+  display: inline-block;
+  margin: 0 5px;
+}
+
+.action-button {
+  min-height: 30px;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+@media (min-width: 769px) {
+  .action-button {
+    min-height: 32px;
+    padding: 5px 12px;
+    font-size: 13px;
+  }
+}
+
+.edit-button,
+.delete-button {
+  margin-bottom: 3px;
+}
+
+.error-message {
+  margin-bottom: 20px;
+  padding: 10px 15px;
+  border: 1px solid #f5c6cb;
+  border-radius: 5px;
+  background-color: #f8d7da;
+  color: #721c24;
+  text-align: center;
+}
+
+.pagination {
+  margin-top: 20px;
+}
+
+.pagination-controls {
+  margin-bottom: 10px;
+}
+
+.page-link {
+  padding: 5px 10px;
+  border-radius: 3px;
+}
+
+.page-link:hover {
+  background-color: #e9e9e9;
+}
+
+.pagination-nav {
+  margin: 20px 0;
+}
+
+.page-info {
+  margin-bottom: 15px;
+  color: #666;
+  font-size: 0.9em;
+}
+
+.game-history-container {
+  padding: 15px;
+  border: 1px solid #eaeaea;
+  border-radius: 5px;
+  background-color: #fbfbfb;
+}
+
+.game-date {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px dashed #ccc;
+}
+
+.game-date:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.date-header {
+  margin-top: 15px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+  color: #333;
+  font-size: 1.1em;
+}
+
+.day-stats {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  margin: 8px 0;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.day-stats-item {
+  display: contents;
+}
+
+.day-stats-item > div {
+  padding: 6px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+.day-stats-item:last-child > div {
+  border-bottom: none;
+}
+
+.game-session {
+  margin-bottom: 20px;
+}
+
+.game-session:last-child {
+  margin-bottom: 0;
+}
+
+.game-session-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 10px 0;
+}
+
+.game-header {
+  margin: 0;
+  padding-left: 10px;
+  border-left: 3px solid #4caf50;
+  color: #555;
+  font-size: 1em;
+}
+
+.game-session-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.game-session-inline-form {
+  margin: 0;
+}
+
+.result-table {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
+}
+
+.result-table th {
+  padding: 8px;
+  border: 1px solid #ddd;
+  background-color: #f5f5f5;
+  text-align: left;
+}
+
+.result-table td {
+  padding: 8px;
+  border: 1px solid #ddd;
+}
+
+.rank-1 {
+  background-color: #98d98e;
+}
+
+.rank-4 {
+  background-color: #f6bfbc;
+}
+
+.direction-cell,
+.rank-cell,
+.name-cell {
+  text-align: center;
+}
+
+.score-cell,
+.point-cell {
+  text-align: right;
+}
+
+.point-cell {
+  font-weight: 700;
+}
+
+.history-warning-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.history-warning {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #d92d20;
+  color: #fff;
+  font-size: 0.85rem;
+}

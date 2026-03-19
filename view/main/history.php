@@ -1,7 +1,26 @@
 <?php
+/**
+ * 履歴ページビュー。
+ * builder が作成した全体履歴または個人履歴を 1 ファイル内で描画する。
+ */
+$renderPagination = static function (array $pagination, ?string $paginationInfoText, string $containerClass = 'pagination'): void {
+    if (!empty($pagination['links'])) {
+        echo '<div class="' . h($containerClass) . '"><div class="pagination-controls">';
+        foreach ($pagination['links'] as $link) {
+            echo '<a href="' . h($link['href']) . '" class="page-link ' . ($link['active'] ? 'active' : '') . '">' . h($link['label']) . '</a>';
+        }
+        echo '</div>';
+        if (!empty($paginationInfoText)) {
+            echo '<div class="page-info">' . h($paginationInfoText) . '</div>';
+        }
+        echo '</div>';
+        return;
+    }
 
-// Include header
-include __DIR__ . '/../header.php';
+    if (!empty($paginationInfoText)) {
+        echo '<div class="' . h($containerClass) . '"><div class="page-info">' . h($paginationInfoText) . '</div></div>';
+    }
+};
 ?>
 
 <!DOCTYPE html>
@@ -13,177 +32,124 @@ include __DIR__ . '/../header.php';
     <link rel="apple-touch-icon" href="<?= h($baseUrl) ?>/favicon.png">
     <link rel="icon" href="<?= h($baseUrl) ?>/favicon.ico" sizes="64x64" type="image/x-icon">
     <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/master.css">
-    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/header.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/bottom_navigation.css">
     <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/app.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/pages/main-history.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
     <title><?= h($title) ?></title>
 </head>
 <body>
+<?php include __DIR__ . '/bottom_navigation.php'; ?>
 <main>
-    <?php if (isset($error_msg)): ?>
-        <div class="error-message"><?= $error_msg ?></div>
+    <?php include __DIR__ . '/page_title.php'; ?>
+    <?php if (!empty($errorMessage)): ?>
+        <div class="error-message"><?= h($errorMessage) ?></div>
     <?php endif; ?>
-    
-    <?php if (!isset($selectUser)): ?>
-        <div class="page-title">個人<?= h($title) ?></div>
-        <div class="select-button-container">
-            <form action="history" method="get">
-                <?php foreach($userList as $userId => $userData): ?>
-                    <button class="select-button" type="submit" name="userId" value="<?=$userId?>"><?=$userData['last_name'].$userData['first_name']?></button>
-                <?php endforeach; ?>
-            </form>
-        </div>
 
-        <div class="page-title">対局履歴</div>
-        <!-- ページネーションナビゲーション（上部） -->
-        <div class="pagination-nav">
-            <div class="pagination-controls">
-                <?php if($total_pages_game > 1): ?>
-                    <?php if($current_page > 1): ?>
-                        <a href="?page=1" class="page-link">最初</a>
-                        <a href="?page=<?=$current_page-1?>" class="page-link">前へ</a>
-                    <?php endif; ?>
-                    <?php
-                    // ページリンクの表示（現在のページの前後2ページずつ表示）
-                    $start_page = max(1, $current_page - 2);
-                    $end_page = min($total_pages_game, $current_page + 2);
-                    for($i = $start_page; $i <= $end_page; $i++): ?>
-                        <a href="?page=<?=$i?>" class="page-link <?=$i == $current_page ? 'active' : ''?>"><?=$i?></a>
-                    <?php endfor; ?>
-                    <?php if($current_page < $total_pages_game): ?>
-                        <a href="?page=<?=$current_page+1?>" class="page-link">次へ</a>
-                        <a href="?page=<?=$total_pages_game?>" class="page-link">最後</a>
-                    <?php endif; ?>
-                <?php endif; ?>
-            </div>
-            <div class="page-info">
-                <?=$total_dates?>日分中 <?=$start_index+1?>～<?=min($start_index+$dates_per_page, $total_dates)?>日目表示 (<?= h($current_page) ?>/<?=$total_pages_game?>ページ)
-            </div>
-        </div>
-        <!-- 対戦記録の表示 -->
+    <?php if (($selectedView ?? 'overview') !== 'personal'): ?>
+        <?php $renderPagination($overviewPagination, $overviewInfoText, 'pagination-nav'); ?>
+
         <div class="game-history-container container">
-            <?php foreach($current_dates as $date): ?>
-                <div class="game-date">
-                    <h4 class="date-header"><?=$date?></h4>
-                    <div class="day-stats">
-                        <?php foreach($dayStatsList[$date] as $userId => $data): ?>
-                            <div class="day-stats-item">
-                                <div class="day-stats-user"><?= $userList[$userId]['last_name'] ?></div>
-                                <div class="day-stats-value"><?= $data ?></div>
+            <?php if (!empty($overviewDateGroups)): ?>
+                <?php foreach ($overviewDateGroups as $dateGroup): ?>
+                    <div class="game-date">
+                        <h4 class="date-header"><?= h($dateGroup['date']) ?></h4>
+                        <div class="day-stats">
+                            <?php foreach ($dateGroup['dayStats'] as $dayStat): ?>
+                                <div class="day-stats-item">
+                                    <div class="day-stats-user"><?= h($dayStat['userName']) ?></div>
+                                    <div class="day-stats-value"><?= h($dayStat['value']) ?></div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+
+                        <?php foreach ($dateGroup['games'] as $gameSession): ?>
+                            <div class="game-session">
+                                <div class="game-session-header">
+                                    <h5 class="game-header"><?= h($gameSession['gameNumber']) ?>半荘目</h5>
+                                    <?php if (!empty($gameSession['canBatchOperate'])): ?>
+                                        <div class="game-session-actions">
+                                            <form action="bulk-update" method="get" class="inline-form game-session-inline-form">
+                                                <input type="hidden" name="tableId" value="<?= h((string)$gameSession['tableId']) ?>">
+                                                <input type="hidden" name="playDate" value="<?= h($gameSession['playDate']) ?>">
+                                                <input type="hidden" name="game" value="<?= h((string)$gameSession['gameNumber']) ?>">
+                                                <?php foreach ($gameSession['historyIds'] as $historyId): ?>
+                                                    <input type="hidden" name="historyIds[]" value="<?= h((string)$historyId) ?>">
+                                                <?php endforeach; ?>
+                                                <button type="submit" class="action-button edit-button">一括修正</button>
+                                            </form>
+                                            <form
+                                                action="history"
+                                                method="post"
+                                                class="inline-form game-session-inline-form"
+                                                data-history-bulk-delete-form
+                                                data-play-date="<?= h($gameSession['playDate']) ?>"
+                                                data-game-number="<?= h((string)$gameSession['gameNumber']) ?>"
+                                            >
+                                                <input type="hidden" name="bulkDelete" value="1">
+                                                <input type="hidden" name="tableId" value="<?= h((string)$gameSession['tableId']) ?>">
+                                                <input type="hidden" name="playDate" value="<?= h($gameSession['playDate']) ?>">
+                                                <input type="hidden" name="game" value="<?= h((string)$gameSession['gameNumber']) ?>">
+                                                <button type="submit" class="action-button delete-button">一括削除</button>
+                                            </form>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+
+                                <table class="result-table">
+                                    <tbody>
+                                        <?php foreach ($gameSession['rows'] as $row): ?>
+                                            <tr class="player-row <?= h($row['rankClass']) ?>">
+                                                <td class="direction-cell"><?= h($row['directionName']) ?></td>
+                                                <td class="rank-cell"><?= h($row['rank']) ?></td>
+                                                <td class="name-cell"><?= h($row['playerName']) ?></td>
+                                                <td class="score-cell"><?= h($row['score']) ?></td>
+                                                <td class="point-cell"><?= h($row['point']) ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+
+                                <?php if (!empty($gameSession['warnings'])): ?>
+                                    <div class="history-warning-list">
+                                        <?php foreach ($gameSession['warnings'] as $warning): ?>
+                                            <span class="history-warning"><?= h($warning) ?></span>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         <?php endforeach; ?>
                     </div>
-
-                    <?php foreach($gameHistoryList[$date] as $game => $gameData): ?>
-                        <div class="game-session">
-                            <h5 class="game-header"><?=$game?>半荘目</h5>
-                            <table class="result-table">
-                                <tbody>
-                                    <?php
-                                    $sum_score = 0;
-                                    $sum_rank = 0;
-                                    $sum_direction = 0;
-                                    $check_flag = true;
-                                    // rankでソート
-                                    usort($gameData, function($a, $b) {
-                                        $rankA = $a['rank'];
-                                        $rankB = $b['rank'];
-                                        if (strlen($rankA) == 3) {
-                                            $rankA = mb_substr($rankA, 0, 1); // マルチバイト文字に対応
-                                        }
-                                        if (strlen($rankB) == 3) {
-                                            $rankB = mb_substr($rankB, 0, 1); // マルチバイト文字に対応
-                                        }
-                                        return $rankA <=> $rankB;
-                                    });
-                                    foreach($gameData as $historyData):
-                                    if (strlen($historyData['rank']) == 3) $check_flag = false; // マルチバイト文字に対応
-                                    if ($check_flag) {
-                                        $sum_score += ($historyData['score']);
-                                        $sum_rank += $historyData['rank'];
-                                        $sum_direction += $historyData['m_direction_id'];
-                                    }
-                                    ?>
-                                        <tr class="player-row rank-<?=$historyData['rank']?>">
-                                            <?php if(isset($mDirectionList[$historyData['m_direction_id']])): ?>
-                                                <td class="direction-cell"><?=$mDirectionList[$historyData['m_direction_id']]['name']?></td>
-                                            <?php endif;?>
-                                            <td class="rank-cell"><?=$historyData['rank']?></td>
-                                            <td class="name-cell"><?=$userList[$historyData['u_user_id']]['last_name']?></td>
-                                            <td class="score-cell"><?=number_format($historyData['score'])?></td>
-                                            <td class="point-cell"><?=$historyData['point']?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                                <?php if($check_flag): ?>
-                                    <?php if($sum_score != 100000): ?>
-                                        <span style="background-color: red; color:white; padding:3px">点数が正しくないです</span><br>
-                                    <?php endif; ?>
-                                    <?php if($sum_rank != 10): ?>
-                                        <span style="background-color: red; color:white; padding:3px">順位が正しくないです</span><br>
-                                    <?php endif; ?>
-                                    <?php if($sum_direction != 10 && $sum_direction != 0): ?>
-                                        <span style="background-color: red; color:white; padding:3px">席が正しくないです</span><br>
-                                    <?php endif; ?>
-                                <?php endif; ?>
-                            </table>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php endforeach; ?>
-        </div>
-        <!-- ページネーションナビゲーション（下部） -->
-        <div class="pagination-nav">
-            <div class="pagination-controls">
-                <?php if($total_pages_game > 1): ?>
-                    <?php if($current_page > 1): ?>
-                        <a href="?page=1" class="page-link">最初</a>
-                        <a href="?page=<?=$current_page-1?>" class="page-link">前へ</a>
-                    <?php endif; ?>
-                    <?php
-                    // ページリンクの表示（現在のページの前後2ページずつ表示）
-                    $start_page = max(1, $current_page - 2);
-                    $end_page = min($total_pages_game, $current_page + 2);
-                    for($i = $start_page; $i <= $end_page; $i++): ?>
-                        <a href="?page=<?=$i?>" class="page-link <?=$i == $current_page ? 'active' : ''?>"><?=$i?></a>
-                    <?php endfor; ?>
-                    <?php if($current_page < $total_pages_game): ?>
-                        <a href="?page=<?=$current_page+1?>" class="page-link">次へ</a>
-                        <a href="?page=<?=$total_pages_game?>" class="page-link">最後</a>
-                    <?php endif; ?>
-                <?php endif; ?>
-            </div>
-            <div class="page-info">
-                <?=$total_dates?>日分中 <?=$start_index+1?>～<?=min($start_index+$dates_per_page, $total_dates)?>日目表示 (<?= h($current_page) ?>/<?=$total_pages_game?>ページ)
-            </div>
-        </div>
-    <?php else: ?>
-        <div class="page-title"><?=$userList[$selectUser]['last_name'].$userList[$selectUser]['first_name']?>の履歴</div>
-        <div class="pagination">
-            <?php if($total_pages > 1): ?>
-                <div class="pagination-controls">
-                    <?php if($current_page > 1): ?>
-                        <a href="?page=1&year=<?= h($selectYear) ?>&userId=<?= h($selectUser) ?>" class="page-link">最初</a>
-                        <a href="?page=<?=$current_page-1?>&year=<?= h($selectYear) ?>&userId=<?= h($selectUser) ?>" class="page-link">前へ</a>
-                    <?php endif; ?>
-                    <?php
-                        // ページリンクの表示（現在のページの前後2ページずつ表示）
-                        $start_page = max(1, $current_page - 2);
-                        $end_page = min($total_pages, $current_page + 2);
-                    ?>
-                    <?php for($i = $start_page; $i <= $end_page; $i++): ?>
-                        <a href="?page=<?=$i?>&year=<?= h($selectYear) ?>&userId=<?= h($selectUser) ?>" class="page-link <?=$i == $current_page ? 'active' : ''?>"><?=$i?></a>
-                    <?php endfor; ?>
-                    <?php if($current_page < $total_pages): ?>
-                        <a href="?page=<?=$current_page+1?>&year=<?= h($selectYear) ?>&userId=<?= h($selectUser) ?>" class="page-link">次へ</a>
-                        <a href="?page=<?= h($total_pages) ?>&year=<?= h($selectYear) ?>&userId=<?= h($selectUser) ?>" class="page-link">最後</a>
-                    <?php endif; ?>
-                </div>
-                <div class="page-info">
-                    <?= h($total_records) ?>件中 <?= h($offset+1) ?>-<?= h(min($offset+$records_per_page, $total_records)) ?>件表示 (<?= h($current_page) ?>/<?= h($total_pages) ?>ページ)
-                </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p class="no-data-message">対局履歴はありません。</p>
             <?php endif; ?>
         </div>
+
+        <?php $renderPagination($overviewPagination, $overviewInfoText, 'pagination-nav'); ?>
+    <?php else: ?>
+        <?php if (!empty($userButtons)): ?>
+            <div class="stats-term-selector history-user-selector">
+                <div class="stats-term-selector__scroll" role="tablist" aria-label="履歴選手">
+                    <?php foreach ($userButtons as $button): ?>
+                        <a
+                            class="stats-term-button<?= (string)$button['userId'] === (string)$selectedUser ? ' is-active' : '' ?>"
+                            href="<?= h('history?' . http_build_query([
+                                'view' => 'personal',
+                                'year' => $selectedYear,
+                                'userId' => $button['userId'],
+                            ])) ?>"
+                        >
+                            <?= h($button['label']) ?>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($selectedUser !== null): ?>
+        <?php $renderPagination($selectedUserPagination, $selectedUserInfoText, 'pagination'); ?>
+
         <div class="table-container container">
             <div class="table-wrapper">
                 <table class="history-table">
@@ -193,281 +159,44 @@ include __DIR__ . '/../header.php';
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach($paginated_data as $data):?>
-                            <?php
-                                $data['rank_display'] = mb_strlen($data['rank']) == 3 ? "同率".substr($data['rank'], 0,1) : $data['rank'];
-                            ?>
+                        <?php if (!empty($selectedUserRows)): ?>
+                            <?php foreach ($selectedUserRows as $row): ?>
+                                <tr>
+                                    <td class="<?= h($row['rankClass']) ?>"><?= h($row['rankDisplay']) ?></td>
+                                    <td class="<?= h($row['scoreClass']) ?>"><?= h($row['score']) ?></td>
+                                    <td class="<?= h($row['pointClass']) ?>"><?= h($row['point']) ?></td>
+                                    <td><?= h($row['playDate']) ?></td>
+                                    <td><?= h($row['game']) ?></td>
+                                    <td>
+                                        <form action="update" method="post" class="inline-form">
+                                            <input type="hidden" name="userId" value="<?= h($row['userId']) ?>">
+                                            <input type="hidden" name="rank" value="<?= h($row['rank']) ?>">
+                                            <input type="hidden" name="score" value="<?= h($row['score']) ?>">
+                                            <input type="hidden" name="game" value="<?= h($row['game']) ?>">
+                                            <input type="hidden" name="direction" value="<?= h($row['direction']) ?>">
+                                            <button type="submit" name="historyId" value="<?= h($row['historyId']) ?>" class="action-button edit-button">修正</button>
+                                        </form>
+                                        <form action="history" method="post" class="inline-form" data-history-delete-form data-rank="<?= h($row['rankDisplay']) ?>" data-score="<?= h($row['score']) ?>" data-point="<?= h($row['point']) ?>">
+                                            <input type="hidden" name="userId" value="<?= h($row['userId']) ?>">
+                                            <button type="submit" name="historyId" value="<?= h($row['historyId']) ?>" class="action-button delete-button">削除</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
                             <tr>
-                                <td class="<?= $data['rank_display'] == 4 ? 'red-text' : '' ?>"><?= h($data['rank_display']) ?></td>
-                                <td class="<?= $data['score'] < 0 ? 'red-text' : '' ?>"><?= h($data['score']) ?></td>
-                                <td class="<?= $data['point'] < 0 ? 'red-text' : '' ?>"><?= h($data['point']) ?></td>
-                                <td><?=date('Y/m/d', strtotime($data['play_date']))?></td>
-                                <td><?= h($data['game']) ?></td>
-                                <td>
-                                    <form action="update" method="post" class="inline-form">
-                                        <?= csrf_field() ?>
-                                        <input type="hidden" name="userId" value="<?= h($data['u_user_id']) ?>">
-                                        <input type="hidden" name="rank" value="<?= h($data['rank']) ?>">
-                                        <input type="hidden" name="score" value="<?= h($data['score']) ?>">
-                                        <input type="hidden" name="game" value="<?= h($data['game']) ?>">
-                                        <input type="hidden" name="direction" value="<?= h($data['m_direction_id']) ?>">
-                                        <button type="submit" name="historyId" value="<?= h($data['u_game_history_id']) ?>" class="action-button edit-button">修正</button>
-                                    </form>
-                                    <form action="history" method="post" onSubmit="return check(<?= h($data['rank']) ?>,<?= h($data['score']) ?>,<?= h($data['point']) ?>)" class="inline-form">
-                                        <?= csrf_field() ?>
-                                        <input type="hidden" name="userId" value="<?= h($data['u_user_id']) ?>">
-                                        <button type="submit" name="historyId" value="<?= h($data['u_game_history_id']) ?>" class="action-button delete-button">削除</button>
-                                    </form>
-                                </td>
+                                <td colspan="6">該当する履歴はありません。</td>
                             </tr>
-                        <?php endforeach; ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
-            <div class="pagination">
-                <?php if($total_pages > 1): ?>
-                    <div class="pagination-controls">
-                        <?php if($current_page > 1): ?>
-                            <a href="?page=1&year=<?= h($selectYear) ?>&userId=<?= h($selectUser) ?>" class="page-link">最初</a>
-                            <a href="?page=<?=$current_page-1?>&year=<?= h($selectYear) ?>&userId=<?= h($selectUser) ?>" class="page-link">前へ</a>
-                        <?php endif; ?>
-                        <?php
-                            // ページリンクの表示（現在のページの前後2ページずつ表示）
-                            $start_page = max(1, $current_page - 2);
-                            $end_page = min($total_pages, $current_page + 2);
-                        ?>
-                        <?php for($i = $start_page; $i <= $end_page; $i++): ?>
-                            <a href="?page=<?=$i?>&year=<?= h($selectYear) ?>&userId=<?= h($selectUser) ?>" class="page-link <?=$i == $current_page ? 'active' : ''?>"><?=$i?></a>
-                        <?php endfor; ?>
 
-                        <?php if($current_page < $total_pages): ?>
-                            <a href="?page=<?=$current_page+1?>&year=<?= h($selectYear) ?>&userId=<?= h($selectUser) ?>" class="page-link">次へ</a>
-                            <a href="?page=<?= h($total_pages) ?>&year=<?= h($selectYear) ?>&userId=<?= h($selectUser) ?>" class="page-link">最後</a>
-                        <?php endif; ?>
-                    </div>
-                    <div class="page-info">
-                        <?= h($total_records) ?>件中 <?= h($offset+1) ?>-<?= h(min($offset+$records_per_page, $total_records)) ?>件表示 (<?= h($current_page) ?>/<?= h($total_pages) ?>ページ)
-                    </div>
-                <?php endif; ?>
-            </div>
+            <?php $renderPagination($selectedUserPagination, $selectedUserInfoText, 'pagination'); ?>
         </div>
-    <?php endif;?>
+        <?php endif; ?>
+    <?php endif; ?>
 </main>
+<script src="<?= h($baseUrl) ?>/resources/js/main/history.js"></script>
 </body>
 </html>
-
-<script>
-    function check(rank, score, point) {
-        if (window.confirm(rank + '位\n' + score + '点\n' + point + 'Pts\n' + '削除しますか？')) {
-            return true;
-        } else {
-            window.alert('キャンセルされました');
-            return false;
-        }
-    }
-</script>
-
-<style>
-    .table-container {
-        background-color: #fff;
-        border-radius: 4px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-    }
-    .table-wrapper {
-        overflow-x: auto;
-        padding: 15px;
-    }
-    .history-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-    .history-table th,
-    .history-table td {
-        padding: 12px;
-        text-align: center;
-    }
-    .history-table th {
-        background-color: #009944;
-        color: white;
-        font-weight: bold;
-    }
-    .history-table td {
-        border-bottom: 1px solid #e0e0e0;
-    }
-    .history-table tr:last-child td {
-        border-bottom: none;
-    }
-    .red-text {
-        color: #e74c3c;
-    }
-    .inline-form {
-        display: inline-block;
-        margin: 0 5px;
-    }
-    .action-button {
-        padding: 8px 12px;
-        font-size: 14px;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-    .edit-button {
-        background-color: #2ecc71;
-        margin-bottom: 3px;
-    }
-    .edit-button:hover {
-        background-color: #27ae60;
-    }
-    .delete-button {
-        background-color: #e74c3c;
-        margin-bottom: 3px;
-    }
-    .delete-button:hover {
-        background-color: #c0392b;
-    }
-    .error-message {
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-        padding: 10px 15px;
-        border-radius: 5px;
-        margin-bottom: 20px;
-        text-align: center;
-    }
-    @media screen and (max-width: 768px) {
-        .history-table th,
-        .history-table td {
-            padding: 10px 8px;
-            font-size: 0.85em;
-        }
-        .action-button {
-            padding: 6px 10px;
-            font-size: 12px;
-        }
-    }
-    .pagination {
-        margin-top: 20px;
-        text-align: center;
-    }
-    .pagination-controls {
-        margin-bottom: 10px;
-    }
-    .page-link {
-        display: inline-block;
-        padding: 5px 10px;
-        margin: 0 3px;
-        border: 1px solid #ddd;
-        background-color: #f8f8f8;
-        color: #333;
-        text-decoration: none;
-        border-radius: 3px;
-    }
-    .page-link:hover {
-        background-color: #e9e9e9;
-    }
-    .page-link.active {
-        background-color: #4CAF50;
-        color: white;
-        border-color: #4CAF50;
-    }
-    .pagination-nav {
-        margin: 20px 0;
-        text-align: center;
-    }
-    .page-info {
-        color: #666;
-        font-size: 0.9em;
-        margin-bottom: 15px;
-    }
-    .game-history-container {
-        border: 1px solid #eaeaea;
-        border-radius: 5px;
-        padding: 15px;
-        background-color: #fbfbfb;
-    }
-    .game-date {
-        margin-bottom: 30px;
-        padding-bottom: 20px;
-        border-bottom: 1px dashed #ccc;
-    }
-    .game-date:last-child {
-        margin-bottom: 0;
-        padding-bottom: 0;
-        border-bottom: none;
-    }
-    .date-header {
-        background-color: #f0f0f0;
-        padding: 8px 12px;
-        border-radius: 4px;
-        margin-bottom: 15px;
-        font-size: 1.1em;
-        color: #333;
-    }
-    .day-stats {
-        display: grid;
-        grid-template-columns: 150px 1fr; /* ユーザー列 / データ列 */
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        overflow: hidden;
-        margin: 8px 0;
-        font-size: 0.95rem;
-    }
-    .day-stats-item {
-        display: contents; /* 各要素をセル化 */
-    }
-    .day-stats-item > div {
-        padding: 6px;
-        border-bottom: 1px solid #eee;
-        text-align: center;
-    }
-    .day-stats-item:last-child > div {
-        border-bottom: none;
-    }
-    .game-session {
-        margin-bottom: 20px;
-    }
-    .game-session:last-child {
-        margin-bottom: 0;
-    }
-    .game-header {
-        margin: 10px 0;
-        font-size: 1em;
-        color: #555;
-        padding-left: 10px;
-        border-left: 3px solid #4CAF50;
-    }
-    .result-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-    }
-    .result-table th {
-        background-color: #f5f5f5;
-        padding: 8px;
-        text-align: left;
-        border: 1px solid #ddd;
-    }
-    .result-table td {
-        padding: 8px;
-        border: 1px solid #ddd;
-    }
-    .rank-1 {
-        background-color: #98d98e;
-    }
-    .rank-4 {
-        background-color: #f6bfbc;
-    }
-    .direction-cell, .rank-cell, .name-cell {
-        text-align: center;
-    }
-    .score-cell, .point-cell {
-        text-align: right;
-    }
-    .point-cell {
-        font-weight: bold;
-    }
-</style>

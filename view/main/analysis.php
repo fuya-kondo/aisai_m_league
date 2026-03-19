@@ -1,11 +1,9 @@
 <?php
-
-// Include header
-include __DIR__ . '/../header.php';
-
-// Include GeminiAPI
+/**
+ * AI 成績分析ページビュー。
+ * 期間・選手選択 UI と、分析開始後の結果表示を担当する。
+ */
 ?>
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -15,102 +13,81 @@ include __DIR__ . '/../header.php';
     <link rel="apple-touch-icon" href="<?= h($baseUrl) ?>/favicon.png">
     <link rel="icon" href="<?= h($baseUrl) ?>/favicon.ico" sizes="64x64" type="image/x-icon">
     <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/master.css">
-    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/header.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/bottom_navigation.css">
     <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/app.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/pages/main-analysis.css">
     <title><?= h($title) ?></title>
 </head>
 <body>
-<main>
+<?php include __DIR__ . '/bottom_navigation.php'; ?>
+<main class="analysis-main">
     <div class="container">
-        <?php if (!isset($selectUser)): ?>
-            <div class="page-title"><?= h($title) ?></div>
-            <div class="select-button-container">
-                <form action="analysis" method="get">
-                    <?php foreach($userList as $userId => $userData): ?>
-                        <button class="select-button" type="submit" name="userId" value="<?= h($userId) ?>"><?= h($userData['last_name'] . $userData['first_name']) ?></button>
+        <?php include __DIR__ . '/page_title.php'; ?>
+
+        <form action="analysis" method="get" class="analysis-form" id="analysisForm">
+            <input type="hidden" name="term" id="analysisTermInput" value="<?= h($selectedTerm ?? '') ?>">
+            <input type="hidden" name="userId" id="analysisUserInput" value="<?= h($selectedUser ?? '') ?>">
+            <input type="hidden" name="run" value="1">
+
+            <div class="analysis-selector-label">期間</div>
+            <div class="stats-term-selector analysis-selector">
+                <div class="stats-term-selector__scroll" role="tablist" aria-label="分析期間">
+                    <?php foreach ($termOptions as $option): ?>
+                        <button
+                            type="button"
+                            class="stats-term-button<?= !empty($option['active']) ? ' is-active' : '' ?>"
+                            data-analysis-term-button
+                            data-value="<?= h((string)$option['value']) ?>"
+                            aria-pressed="<?= !empty($option['active']) ? 'true' : 'false' ?>"
+                        >
+                            <?= h((string)$option['label']) ?>
+                        </button>
                     <?php endforeach; ?>
-                </form>
+                </div>
             </div>
-            <div class="circle-parent" style="display:none">
-                <div class="circle-spin-8"></div>
+
+            <div class="analysis-selector-label">選手</div>
+            <div class="stats-term-selector analysis-selector">
+                <div class="stats-term-selector__scroll" role="tablist" aria-label="分析選手">
+                    <?php foreach ($userOptions as $option): ?>
+                        <button
+                            type="button"
+                            class="stats-term-button<?= !empty($option['active']) ? ' is-active' : '' ?>"
+                            data-analysis-user-button
+                            data-value="<?= h((string)$option['value']) ?>"
+                            aria-pressed="<?= !empty($option['active']) ? 'true' : 'false' ?>"
+                        >
+                            <?= h((string)$option['label']) ?>
+                        </button>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <button class="submit-button btn-primary analysis-submit-button" type="submit">分析開始</button>
+        </form>
+
+        <div class="circle-parent is-hidden" id="analysisLoading">
+            <div class="circle-spin-8"></div>
+        </div>
+
+        <?php if ($analysisError): ?>
+            <div class="error analysis-message-card"><?= h($analysisError) ?></div>
+        <?php elseif ($analysisResultHtml): ?>
+            <div class="analysis-result-card">
+                <div class="analysis-result-heading">
+                    <?= h(($selectedUserName ?? '') . ' / ' . ($selectedTermLabel ?? '')) ?>
+                </div>
+                <div class="analysis-result"><?= $analysisResultHtml ?></div>
+            </div>
+        <?php elseif (!$shouldRun): ?>
+            <div class="analysis-message-card">
+                期間と選手を選んで分析開始してください。
             </div>
         <?php else: ?>
-            <?php if (!empty($analysisError)): ?>
-                <div class="error"><?= h($analysisError) ?></div>
-            <?php elseif (!empty($analysisResultText)): ?>
-                <div class="analysis-result"><?= nl2br(h($analysisResultText)) ?></div>
-            <?php else: ?>
-                <div class="error">????????????????</div>
-            <?php endif; ?>
+            <div class="error analysis-message-card">分析結果を取得できませんでした。</div>
         <?php endif; ?>
     </div>
 </main>
+<script src="<?= h($baseUrl) ?>/resources/js/main/analysis.js"></script>
 </body>
 </html>
-
-<script>
-    document.querySelectorAll('.select-button').forEach(button => {
-        button.addEventListener('click', function() {
-            document.querySelector('.select-button-container').style.display = 'none';
-            document.querySelector('.circle-parent').style.display = 'flex';
-        });
-    });
-</script>
-
-<style>
-    /* ページ固有の微調整がある場合のみここに追加 */
-    .table-responsive {
-        overflow-x: auto;
-        margin-bottom: 20px;
-    }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    th,td {
-        padding: 8px;
-        border: 1px solid #ddd;
-        white-space: nowrap;
-    }
-    .textarea {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-    textarea {
-        width: 100%;
-        max-width: 500px;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-    }
-    @media screen and (max-width: 768px) {
-        textarea {
-            padding: 0;
-        }
-    }
-    .circle-parent {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    .circle-spin-8 {
-        --size: 24px;
-        --color: currentColor;
-        --animation-timing-function: linear;
-        --animation-duration: 2s;
-        width: var(--size);
-        height: var(--size);
-        mask-image: radial-gradient(circle at 50% 50%, transparent calc(var(--size) / 3), black calc(var(--size) / 3));
-        background-image: conic-gradient(transparent, transparent 135deg, currentColor);
-        border-radius: 50%;
-        animation: var(--animation-timing-function) var(--animation-duration) infinite circle-spin-8-animation;
-    }
-    @keyframes circle-spin-8-animation {
-        from {
-            transform: rotate(0deg);
-        }
-        to {
-            transform: rotate(360deg);
-        }
-    }
-</style>

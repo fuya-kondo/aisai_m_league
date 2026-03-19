@@ -1,8 +1,65 @@
 <?php
 /**
- * 環境設定ファイル
- * 開発環境と本番環境を自動判定
+ * 環境判定とベース URL 解決を担う設定ファイル。
+ * ホスト名とスクリプト配置から、ローカル/本番の違いを吸収して各画面で使う URL を組み立てる。
  */
+
+/**
+ * .env ファイルを読み込み、環境変数へ反映します。
+ * 既に設定済みの環境変数は上書きしません。
+ */
+function loadEnvFile(string $envPath): void
+{
+    if (!is_file($envPath) || !is_readable($envPath)) {
+        return;
+    }
+
+    $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if ($lines === false) {
+        return;
+    }
+
+    foreach ($lines as $line) {
+        $line = trim($line);
+
+        if ($line === '' || str_starts_with($line, '#')) {
+            continue;
+        }
+
+        $separatorPos = strpos($line, '=');
+        if ($separatorPos === false) {
+            continue;
+        }
+
+        $name = trim(substr($line, 0, $separatorPos));
+        $value = trim(substr($line, $separatorPos + 1));
+
+        if ($name === '') {
+            continue;
+        }
+
+        if (
+            array_key_exists($name, $_ENV) ||
+            array_key_exists($name, $_SERVER) ||
+            getenv($name) !== false
+        ) {
+            continue;
+        }
+
+        if (
+            (str_starts_with($value, '"') && str_ends_with($value, '"')) ||
+            (str_starts_with($value, "'") && str_ends_with($value, "'"))
+        ) {
+            $value = substr($value, 1, -1);
+        }
+
+        putenv($name . '=' . $value);
+        $_ENV[$name] = $value;
+        $_SERVER[$name] = $value;
+    }
+}
+
+loadEnvFile(__DIR__ . '/.env');
 
 // 環境判定
 function isProduction() {

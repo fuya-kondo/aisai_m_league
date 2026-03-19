@@ -1,0 +1,69 @@
+/* 設定ページ専用スタイル: ON/OFF トグルの見た目と状態遷移を表現する。 */
+
+/* トグル本体: スイッチのサイズ、色、ハンドル位置を定義する。 */
+.toggle-button-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.toggle-button {
+  position: relative;
+  display: flex;
+  width: 100px;
+  height: 40px;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  padding: 0 10px;
+  border: none;
+  border-radius: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.toggle-button.on {
+  background-color: #4caf50;
+}
+
+.toggle-button.off {
+  background-color: #ccc;
+}
+
+.toggle-text {
+  position: absolute;
+  color: #fff;
+  font-size: 1.1em;
+  font-weight: 700;
+  transition: transform 0.3s ease-in-out;
+}
+
+.toggle-button.on .toggle-text {
+  left: 15px;
+}
+
+.toggle-button.off .toggle-text {
+  right: 10px;
+}
+
+.toggle-handle {
+  position: absolute;
+  top: 50%;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transform: translateY(-50%);
+  transition: left 0.3s ease-in-out;
+}
+
+.toggle-button.on .toggle-handle {
+  left: calc(100% - 35px);
+}
+
+.toggle-button.off .toggle-handle {
+  left: 5px;
+}

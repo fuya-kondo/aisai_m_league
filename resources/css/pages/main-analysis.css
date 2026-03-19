@@ -1,0 +1,124 @@
+/* AI分析ページ専用スタイル: 選択 UI と結果カードを整える。 */
+/* Responsive rule: mobile-first, desktop overrides use min-width 769px. */
+
+.analysis-form {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+  min-width: 0;
+}
+
+.analysis-selector-label {
+  margin-top: 8px;
+  color: #333;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.analysis-selector {
+  margin-bottom: 4px;
+  min-width: 0;
+}
+
+.analysis-selector .stats-term-selector__scroll {
+  padding: 2px 0 6px;
+}
+
+.analysis-submit-button {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.analysis-submit-button:disabled {
+  background: #8bc6a2;
+  cursor: default;
+}
+
+.analysis-selector .stats-term-button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.analysis-result-card {
+  padding: 16px;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.analysis-message-card {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #333;
+  line-height: 1.7;
+}
+
+.analysis-result-heading {
+  margin-bottom: 12px;
+  color: #333;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.analysis-result > *:first-child {
+  margin-top: 0;
+}
+
+.analysis-result > *:last-child {
+  margin-bottom: 0;
+}
+
+.analysis-result {
+  overflow-wrap: anywhere;
+}
+
+.analysis-result :where(html, body) {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.analysis-result p,
+.analysis-result li {
+  line-height: 1.7;
+}
+
+.analysis-result ul,
+.analysis-result ol {
+  padding-left: 20px;
+}
+
+.circle-parent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 18px 0;
+}
+
+.is-hidden {
+  display: none;
+}
+
+.circle-spin-8 {
+  --size: 24px;
+  --color: currentColor;
+  --animation-timing-function: linear;
+  --animation-duration: 2s;
+  width: var(--size);
+  height: var(--size);
+  mask-image: radial-gradient(circle at 50% 50%, transparent calc(var(--size) / 3), black calc(var(--size) / 3));
+  background-image: conic-gradient(transparent, transparent 135deg, currentColor);
+  border-radius: 50%;
+  animation: var(--animation-timing-function) var(--animation-duration) infinite circle-spin-8-animation;
+}
+
+@keyframes circle-spin-8-animation {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,4 +1,8 @@
 <?php
+/**
+ * バッジマスターテーブル用のデータアクセス層。
+ * バッジ定義の取得・追加・更新・削除をデータベースに対して行う。
+ */
 
 /**
  * バッジマスターモデルクラス
@@ -15,7 +19,7 @@ class MBadge
     }
 
     /**
-     * すべてのデータを取得
+     * バッジ定義を ID 起点で引ける形に整えて返す。
      */
     public function getAllData()
     {
@@ -29,7 +33,6 @@ class MBadge
             return [];
         }
 
-        // IDをキーに整形
         $result = [];
         foreach ($data as $value) {
             $result[$value[$this->table_name.'_id']] = $value;
@@ -39,7 +42,7 @@ class MBadge
     }
 
     /**
-     * バッジを更新
+     * 管理画面から送られた入力値で既存バッジを更新する。
      */
     public function updateBadge($badgeId, $data)
     {
@@ -47,21 +50,20 @@ class MBadge
             $sql = 'UPDATE m_badge
                     SET name = :name, image = :image, flame = :flame, background = :background
                     WHERE m_badge_id = :badge_id';
-            
+
             $stmt = $this->db->prepare($sql);
-            
-            // 変数に代入してからbindParamに渡す
+
             $name = $data['name'];
             $image = $data['image'] ?? '';
             $flame = $data['flame'] ?? '';
             $background = $data['background'] ?? '';
-            
+
             $stmt->bindParam(':name', $name);
             $stmt->bindParam(':image', $image);
             $stmt->bindParam(':flame', $flame);
             $stmt->bindParam(':background', $background);
             $stmt->bindParam(':badge_id', $badgeId);
-            
+
             return $stmt->execute();
         } catch (Exception $e) {
             error_log('バッジ更新エラー: ' . $e->getMessage());
@@ -70,7 +72,7 @@ class MBadge
     }
 
     /**
-     * バッジを削除
+     * 指定 ID のバッジを削除する。
      */
     public function deleteBadge($badgeId)
     {
@@ -80,7 +82,7 @@ class MBadge
 
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':badge_id', $badgeId);
-            
+
             return $stmt->execute();
         } catch (Exception $e) {
             error_log('バッジ削除エラー: ' . $e->getMessage());
@@ -89,7 +91,7 @@ class MBadge
     }
 
     /**
-     * バッジを追加
+     * 新しいバッジ定義を追加する。
      */
     public function addBadge($data)
     {
@@ -98,18 +100,17 @@ class MBadge
                     VALUES (:name, :image, :flame, :background)';
 
             $stmt = $this->db->prepare($sql);
-            
-            // 変数に代入してからbindParamに渡す
+
             $name = $data['name'];
             $image = $data['image'] ?? '';
             $flame = $data['flame'] ?? '';
             $background = $data['background'] ?? '';
-            
+
             $stmt->bindParam(':name', $name);
             $stmt->bindParam(':image', $image);
             $stmt->bindParam(':flame', $flame);
             $stmt->bindParam(':background', $background);
-            
+
             return $stmt->execute();
         } catch (Exception $e) {
             error_log('バッジ追加エラー: ' . $e->getMessage());

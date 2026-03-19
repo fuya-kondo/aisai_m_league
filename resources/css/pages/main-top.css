@@ -1,0 +1,109 @@
+/* トップページ専用スタイル: ヒーロー領域、開催予定、紹介文の見た目を定義する。 */
+/* Responsive rule: mobile-first, desktop overrides use min-width 769px. */
+
+.top-main {
+  padding-top: 70px;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+#schedule {
+  padding-top: 20px;
+  padding-bottom: 40px;
+  background-image: url("https://m-league.jp/assets/media/img/common/bg-pattern_sp.png");
+  background-repeat: repeat;
+  background-origin: padding-box;
+  text-align: center;
+}
+
+.game-day-container {
+  text-align: center;
+}
+
+.day {
+  position: relative;
+  display: inline-block;
+  margin-right: 10px;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+@media (min-width: 769px) {
+  .day {
+    font-size: 2rem;
+  }
+}
+
+.next-day {
+  position: absolute;
+  right: -70px;
+  bottom: 5px;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+#schedule .playerImg {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  justify-content: center;
+  align-content: center;
+  gap: 20px 15px;
+  padding-inline-start: 0;
+  list-style: none;
+}
+
+@media (min-width: 769px) {
+  #schedule .playerImg {
+    display: block;
+  }
+}
+
+#schedule .playerImg > li {
+  text-align: center;
+}
+
+@media (min-width: 769px) {
+  #schedule .playerImg > li {
+    display: inline;
+  }
+}
+
+#schedule .playerImg > li > img,
+#schedule .playerImg > li > video {
+  display: block;
+  width: 136px;
+  margin: 0 auto;
+}
+
+@media (min-width: 769px) {
+  #schedule .playerImg > li > img,
+  #schedule .playerImg > li > video {
+    display: inline;
+    width: 219px;
+    margin: 0 10px;
+  }
+}
+
+.playerImg img,
+.playerImg video {
+  border-radius: 5px;
+}
+
+#about {
+  margin: 50px 0;
+  text-align: center;
+}
+
+#about > h1 {
+  margin: 20px 30px 10px;
+}
+
+#about > h3 {
+  margin: 0 30px 40px;
+}
+
+.top-intro-text {
+  margin: 0 20px;
+  font-weight: 700;
+  line-height: 1.8;
+}

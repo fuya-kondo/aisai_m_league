@@ -1,98 +1,54 @@
 <?php
-
 /**
- * ティアマスターモデルクラス
- * ティア情報の取得、更新、削除を行う
+ * ティアマスター用の互換ラッパー。
+ * 実処理は TierService / TierRepository へ委譲する。
  */
 class MTier
 {
-    private $db;
-    private $table_name = 'm_tier';
+    private \App\Services\TierService $tierService;
 
     public function __construct()
     {
-        $this->db = Database::getInstance();
+        $this->tierService = \App\Support\ServiceFactory::createTierService();
     }
 
-    /**
-     * すべてのデータを取得
-     */
-    public function getAllData()
+    public function getAllData(): array
     {
         try {
-            $sql = 'SELECT * FROM '.$this->table_name;
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute();
-            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (Exception $e) {
-            error_log($this->table_name.'取得エラー: ' . $e->getMessage());
+            return $this->tierService->getAllIndexed();
+        } catch (Exception $exception) {
+            error_log('m_tier取得エラー: ' . $exception->getMessage());
             return [];
         }
-
-        // IDをキーに整形
-        $result = [];
-        foreach ($data as $value) {
-            $result[$value[$this->table_name.'_id']] = $value;
-        }
-
-        return $result;
     }
 
-    /**
-     * ティアを更新
-     */
-    public function updateTier($tierId, $data)
+    public function updateTier(int $tierId, array $tierData): bool
     {
         try {
-            $sql = 'UPDATE m_tier SET 
-                        name = :name,
-                        color = :color
-                    WHERE m_tier_id = :tier_id';
-            
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':name', $data['name']);
-            $stmt->bindParam(':color', $data['color']);
-            $stmt->bindParam(':tier_id', $tierId);
-            
-            return $stmt->execute();
-        } catch (Exception $e) {
-            error_log('ティア更新エラー: ' . $e->getMessage());
-            throw $e;
+            return $this->tierService->update($tierId, $tierData);
+        } catch (Exception $exception) {
+            error_log('ティア更新エラー: ' . $exception->getMessage());
+            throw $exception;
         }
     }
 
-    /**
-     * ティアを削除
-     */
-    public function deleteTier($tierId)
+    public function deleteTier(int $tierId): bool
     {
         try {
-            $sql = 'DELETE FROM m_tier WHERE m_tier_id = :tier_id';
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':tier_id', $tierId);
-            
-            return $stmt->execute();
-        } catch (Exception $e) {
-            error_log('ティア削除エラー: ' . $e->getMessage());
-            throw $e;
+            return $this->tierService->delete($tierId);
+        } catch (Exception $exception) {
+            error_log('ティア削除エラー: ' . $exception->getMessage());
+            throw $exception;
         }
     }
 
-    /**
-     * ティアを追加
-     */
-    public function addTier($data)
+    public function addTier(array $tierData): bool
     {
         try {
-            $sql = 'INSERT INTO m_tier (name, color) VALUES (:name, :color)';
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':name', $data['name']);
-            $stmt->bindParam(':color', $data['color']);
-            
-            return $stmt->execute();
-        } catch (Exception $e) {
-            error_log('ティア追加エラー: ' . $e->getMessage());
-            throw $e;
+            return $this->tierService->create($tierData);
+        } catch (Exception $exception) {
+            error_log('ティア追加エラー: ' . $exception->getMessage());
+            throw $exception;
         }
     }
 }

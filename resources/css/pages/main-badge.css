@@ -1,0 +1,98 @@
+/* 称号ページ専用スタイル: 現在の称号表示と選択グリッドを調整する。 */
+
+/* セクション枠: 現在値と選択一覧を読みやすく区切る。 */
+.current-badge-container,
+.badge-list-container {
+  margin-bottom: 20px;
+}
+
+.current-badge-container h3,
+.badge-list-container h3 {
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #efefef;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.badge-image {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+.badge-name {
+  color: #333;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.badge-item.current {
+  width: 90%;
+  max-width: 300px;
+  margin: 0 auto;
+  padding: 15px;
+  background-color: #fff;
+}
+
+.badge-item.current .badge-image {
+  width: 60px;
+  height: 60px;
+}
+
+.badge-item.current .badge-name {
+  font-size: 14px;
+}
+
+.badge-grid {
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+}
+
+.badge-button {
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.badge-button:hover .badge-item {
+  transform: translateY(-2px);
+  border-color: #007bff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.badge-button.selected .badge-item {
+  box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+}
+
+.badge-button.selected .badge-item::after {
+  top: 2px;
+  right: 4px;
+  background-color: #28a745;
+  color: #fff;
+  font-weight: 700;
+}
+
+.back-button-container {
+  margin-bottom: 20px;
+  padding-top: 20px;
+  text-align: center;
+}
+
+.back-button {
+  display: inline-block;
+  padding: 10px 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f0f0f0;
+  color: #333;
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.back-button:hover {
+  background-color: #e0e0e0;
+}

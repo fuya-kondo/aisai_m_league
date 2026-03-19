@@ -1,9 +1,10 @@
 <?php
+/**
+ * 称号選択ページビュー。
+ * 現在の称号と選択可能な称号一覧を表示し、送信時に称号を切り替える。
+ */
 
-// Include header
-include __DIR__ . '/../header.php';
 ?>
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -13,12 +14,15 @@ include __DIR__ . '/../header.php';
     <link rel="apple-touch-icon" href="<?= h($baseUrl) ?>/favicon.png">
     <link rel="icon" href="<?= h($baseUrl) ?>/favicon.ico" sizes="64x64" type="image/x-icon">
     <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/master.css">
-    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/header.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/bottom_navigation.css">
     <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/app.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/pages/main-badge.css">
     <title><?= h($title) ?></title>
 </head>
 <body>
+<?php include __DIR__ . '/bottom_navigation.php'; ?>
 <main>
+    <?php include __DIR__ . '/page_title.php'; ?>
 
     <div class="back-button-container">
         <a href="personal?&player=<?= h($userId) ?>" class="back-button">個人成績へ戻る</a>
@@ -45,7 +49,6 @@ include __DIR__ . '/../header.php';
     <div class="badge-list-container">
         <h3>称号を選択</h3>
         <form action="" method="post" class="badge-selection-form">
-            <?= csrf_field() ?>
             <div class="badge-grid">
                 <?php foreach ($mBadgeList as $badgeId => $badgeData): ?>
                     <?php // ユーザーが所持している称号のみ表示
@@ -69,153 +72,3 @@ include __DIR__ . '/../header.php';
 </main>
 </body>
 </html>
-
-<script>
-// JavaScriptでの特別な処理は不要な設計ですが、
-// 今後の拡張のために残しておきます。
-</script>
-
-<style>
-    .page-title {
-        font-size: 22px;
-        font-weight: bold;
-        text-align: center;
-        margin-bottom: 20px;
-    }
-    .divider {
-        border: none;
-        border-top: 1px solid #eee;
-        margin: 25px 0;
-    }
-    .success-message {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-        padding: 10px 15px;
-        border-radius: 5px;
-        margin-bottom: 20px;
-        text-align: center;
-    }
-
-    /* コンテナのスタイル */
-    .current-badge-container,
-    .badge-list-container {
-        margin-bottom: 20px;
-    }
-    .current-badge-container h3,
-    .badge-list-container h3 {
-        font-size: 16px;
-        font-weight: bold;
-        border-bottom: 2px solid #efefef;
-        padding-bottom: 8px;
-        margin-bottom: 15px;
-    }
-
-    /* 称号アイテムの共通スタイル */
-    .badge-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 5px;
-        padding: 10px;
-        background-color: #f9f9f9;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        box-sizing: border-box;
-    }
-    .badge-image {
-        width: 50px;
-        height: 50px;
-        object-fit: contain;
-    }
-    .badge-name {
-        font-size: 12px;
-        font-weight: 600;
-        text-align: center;
-        color: #333;
-    }
-    
-    /* 現在の称号表示用 */
-    .badge-item.current {
-        width: 90%;
-        max-width: 300px;
-        margin: 0 auto;
-        padding: 15px;
-        background-color: #fff;
-    }
-    .badge-item.current .badge-image {
-        width: 60px;
-        height: 60px;
-    }
-     .badge-item.current .badge-name {
-        font-size: 14px;
-    }
-
-    /* 称号選択グリッド */
-    .badge-grid {
-        display: grid;
-        /* 列の最小幅を90pxとし、画面幅に応じて自動で列数を調整 */
-        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-        gap: 10px;
-    }
-    .badge-button {
-        padding: 0;
-        border: 2px solid transparent;
-        border-radius: 10px;
-        background-color: transparent;
-        cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        text-align: left;
-        color: inherit;
-        font-family: inherit;
-    }
-    .badge-button:hover .badge-item {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        border-color: #007bff;
-    }
-
-    /* 選択中の称号スタイル */
-    .badge-button.selected .badge-item {
-        border-color: #28a745;
-        box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
-        position: relative;
-    }
-    .badge-button.selected .badge-item::after {
-        content: '✔';
-        position: absolute;
-        top: 2px;
-        right: 4px;
-        background-color: #28a745;
-        color: white;
-        font-size: 10px;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-    }
-
-    .back-button-container {
-        text-align: center;
-        padding-top: 20px;
-        margin-bottom: 20px;
-    }
-    .back-button {
-        display: inline-block;
-        padding: 10px 20px;
-        font-size: 16px;
-        font-weight: bold;
-        color: #333;
-        background-color: #f0f0f0;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        text-decoration: none;
-        transition: background-color 0.2s ease;
-    }
-    .back-button:hover {
-        background-color: #e0e0e0;
-    }
-</style>

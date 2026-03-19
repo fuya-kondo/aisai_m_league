@@ -1,9 +1,10 @@
 <?php
+/**
+ * トップページビュー。
+ * 開催予定、リーグ紹介、メディア表示を組み合わせたランディング画面を構成する。
+ */
 
-// Include header
-include __DIR__ . '/../header.php';
 
-// Set title
 $title = 'AISAI.M.LEAGUE';
 ?>
 
@@ -17,11 +18,17 @@ $title = 'AISAI.M.LEAGUE';
     <link rel="icon" href="<?= h($baseUrl) ?>/favicon.ico" sizes="64x64" type="image/x-icon">
     <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/master.css">
     <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/header.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/bottom_navigation.css">
     <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/app.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/pages/main-top.css">
     <title><?= h($title) ?></title>
 </head>
 <body>
-<main style="padding-left: 0; padding-right: 0;">
+<?php include __DIR__ . '/bottom_navigation.php'; ?>
+<main class="top-main">
+    <nav id="headerArea">
+        <a href="<?= h($baseUrl) ?>/top"><img src="<?= h($baseUrl) ?>/resources/image/aisai_m_league.jpg" alt="AISAI.M.LEAGUE"></a>
+    </nav>
     <div id="schedule">
         <div class="day-area">
             <div class="game-day-container">
@@ -55,7 +62,7 @@ $title = 'AISAI.M.LEAGUE';
         <h1>What is AISAI.M.LEAGUE</h1>
         <h3>いま、最高の遊びが、最高の競技になる。</h3>
         <div>
-            <p style="font-weight:700">
+            <p class="top-intro-text">
                 麻雀リーグ戦、AISAI.Mリーグ開幕。
                 数多の麻雀プレイヤー達の中から、ほんの一握りの愛西市民だけが出場できるナショナルリーグが始まる。
                 知性に裏打ちされた采配。洗練されたリーグ空間。
@@ -65,150 +72,6 @@ $title = 'AISAI.M.LEAGUE';
         <h3>さぁ、麻雀をあたらしい時代へ。</h3>
     </div>
 </main>
+<script src="<?= h($baseUrl) ?>/resources/js/main/image-sequence.js"></script>
 </body>
 </html>
-
-<script>
-    const images = document.querySelectorAll('.playerImg img');
-    let currentIndex = -1;  // -1から開始
-
-    function showNextImage() {
-        currentIndex++;
-        if (currentIndex < images.length) {
-            images[currentIndex].classList.add('active');
-            setTimeout(showNextImage, 1000);
-        }
-    }
-
-    setTimeout(showNextImage, 1000);
-</script>
-
-<style>
-    /* /対局予定\ */
-    #schedule {
-        background-image: url("https://m-league.jp/assets/media/img/common/bg-pattern_sp.png");
-        background-repeat: repeat;
-        background-origin: padding-box;
-        padding-top: 20px;
-        padding-bottom: 40px;
-        text-align: center;
-    }
-    .game-day-container {
-        text-align: center;
-    }
-    .day {
-        position: relative;
-        font-size: 2rem;
-        font-weight: bold;
-        display: inline-block;
-        margin-right: 10px;
-    }
-    .next-day {
-        position: absolute;
-        font-size: 0.9rem;
-        color: #555;
-        bottom: 5px;
-        right: -70px;
-    }
-    #schedule .playerImg {
-        list-style: none;
-        padding-inline-start: 0px;
-    }
-    #schedule .playerImg > li{
-        display: inline;
-    }
-    #schedule .playerImg > li > img, #schedule .playerImg > li > video {
-        width: 219px;
-        display: inline;
-        margin: 0 10px;
-    }
-    .playerImg img, .playerImg video {
-        border-radius: 5px;
-    }
-
-    /* 小型スマホ向け */
-    @media (max-width: 375px) {
-        #schedule .day {
-            font-size: 2.5rem;
-        }
-        #schedule .playerImg {
-            list-style: none;
-            padding-inline-start: 0px;
-            display: grid;
-            grid-template-columns: repeat(2, auto);
-            gap: 20px 15px; /* 縦横の隙間を10pxに統一 */
-            justify-content: center; /* 水平方向の中央揃え */
-            align-content: center; /* 垂直方向の中央揃え */
-        }
-        #schedule .playerImg > li {
-            text-align: center;
-        }
-        #schedule .playerImg > li > img, #schedule .playerImg > li > video {
-            width: 120px;
-            display: block;
-            margin: 0 auto;
-        }
-    }
-    /* 標準サイズスマホ向け */
-    @media (min-width: 376px) and (max-width: 767px) {
-        #schedule .day {
-            font-size: 2.5rem;
-        }
-        #schedule .playerImg {
-            list-style: none;
-            padding-inline-start: 0px;
-            display: grid;
-            grid-template-columns: repeat(2, auto);
-            gap: 20px 15px; /* 縦横の隙間を10pxに統一 */
-            justify-content: center; /* 水平方向の中央揃え */
-            align-content: center; /* 垂直方向の中央揃え */
-        }
-        #schedule .playerImg > li {
-            text-align: center;
-        }
-        #schedule .playerImg > li > img, #schedule .playerImg > li > video {
-            width: 136px;
-            display: block;
-            margin: 0 auto;
-        }
-    }
-    /* 大型スマホ向け */
-    @media (min-width: 768px) and (max-width: 1024px) {
-        #schedule .day {
-            font-size: 2.5rem;
-        }
-        #schedule .playerImg {
-            list-style: none;
-            padding-inline-start: 0px;
-            display: grid;
-            grid-template-columns: repeat(2, auto);
-            gap: 20px 15px; /* 縦横の隙間を10pxに統一 */
-            justify-content: center; /* 水平方向の中央揃え */
-            align-content: center; /* 垂直方向の中央揃え */
-        }
-        #schedule .playerImg > li {
-            text-align: center;
-        }
-        #schedule .playerImg > li > img, #schedule .playerImg > li > video {
-            width: 136px;
-            display: block;
-            margin: 0 auto;
-        }
-    }
-    /* \対局予定/ */
-
-    #about {
-        text-align: center;
-        margin: 50px 0px;
-    }
-    #about > h1 {
-        margin: 20px 30px 10px 30px;
-    }
-    #about > h3 {
-        margin: 0px 30px 40px 30px;
-    }
-    #about > div > p {
-        line-height: 1.8;
-        margin: 0px 20px;
-    }
-</style>

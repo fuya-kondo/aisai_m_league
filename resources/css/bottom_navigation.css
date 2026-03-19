@@ -1,0 +1,169 @@
+/* 下部ナビゲーション専用スタイル: 固定ナビ本体、各項目、選択状態を定義する。 */
+/* Responsive rule: mobile-first, desktop overrides use min-width 769px. */
+
+/* ナビ外枠: 画面下に固定し、中央寄せでナビ本体を支える。 */
+.bottom_navigation {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    padding: 10px 8px calc(10px + env(safe-area-inset-bottom));
+    pointer-events: none;
+    background: transparent;
+}
+
+@media (min-width: 769px) {
+    .bottom_navigation {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+}
+
+/* ナビ本体: 5分割のグリッドと白い土台を定義する。 */
+.bottom_nav {
+    pointer-events: auto;
+    width: 100%;
+    max-width: 520px;
+    min-height: 68px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: stretch;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 50px;
+    box-shadow: 0 -6px 20px rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+}
+
+@media (min-width: 769px) {
+    .bottom_nav {
+        min-height: 72px;
+    }
+}
+
+/* ナビ項目: アイコンとラベルを縦並びで配置する。 */
+.bottom_nav__item {
+    position: relative;
+    text-decoration: none;
+    color: #9ca3af;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 68px;
+    padding: 7px 4px 9px;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+@media (min-width: 769px) {
+    .bottom_nav__item {
+        min-height: 72px;
+        padding-top: 8px;
+        padding-bottom: 10px;
+    }
+}
+
+/* 選択状態の背景: 項目中央のピル状ハイライトを疑似要素で表現する。 */
+.bottom_nav__item::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 65px;
+    height: 60px;
+    border-radius: 9999px;
+    background: transparent;
+    transition: background-color 0.2s ease, transform 0.2s ease, width 0.2s ease, height 0.2s ease;
+    z-index: 0;
+}
+
+@media (min-width: 769px) {
+    .bottom_nav__item::before {
+        width: 80px;
+    }
+}
+
+.bottom_nav__item:hover {
+    background: #f8fafc;
+}
+
+.bottom_nav__item.is-active {
+    color: #111827;
+    font-weight: 700;
+}
+
+.bottom_nav__item.is-active::before {
+    background: #deffdb;
+    transform: translateX(-50%) translateY(-1px);
+}
+
+/* アイコン領域: SVG の重なり順と配置を制御する。 */
+.bottom_nav__icon {
+    position: relative;
+    z-index: 1;
+    width: 40px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (min-width: 769px) {
+    .bottom_nav__icon {
+        width: 44px;
+        height: 24px;
+    }
+}
+
+.bottom_nav__icon svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+    background: transparent;
+    background-color: transparent;
+    fill: currentColor;
+}
+
+@media (min-width: 769px) {
+    .bottom_nav__icon svg {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+/* ラベル領域: 選択状態に追従する文言表示。 */
+.bottom_nav__label {
+    position: relative;
+    z-index: 1;
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    transition: color 0.2s ease;
+}
+
+@media (min-width: 769px) {
+    .bottom_nav__label {
+        font-size: 11px;
+    }
+}
+
+.bottom_nav__item.is-active .bottom_nav__label {
+    color: #111827;
+}
+
+body {
+    padding-bottom: 92px;
+}
+
+@media (min-width: 769px) {
+    body {
+        padding-bottom: 96px;
+    }
+}

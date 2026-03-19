@@ -1,9 +1,9 @@
 <?php
-
 /**
- * タイトルマスターモデルクラス
- * タイトル情報の取得、更新、削除を行う
+ * タイトルマスターテーブル用のデータアクセス層。
+ * 年度ごとの称号や表示ラベルの定義を管理する。
  */
+
 class MTitle
 {
     private $db;
@@ -15,7 +15,7 @@ class MTitle
     }
 
     /**
-     * すべてのデータを取得
+     * タイトル定義を ID 起点で扱える形に整えて返す。
      */
     public function getAllData()
     {
@@ -29,7 +29,6 @@ class MTitle
             return [];
         }
 
-        // IDをキーに整形
         $result = [];
         foreach ($data as $value) {
             $result[$value[$this->table_name.'_id']] = $value;
@@ -39,7 +38,7 @@ class MTitle
     }
 
     /**
-     * タイトルを追加
+     * 新しいタイトル定義を追加する。
      */
     public function addTitle($data)
     {
@@ -55,7 +54,7 @@ class MTitle
     }
 
     /**
-     * タイトルを更新
+     * タイトル名の定義を更新する。
      */
     public function updateTitle($id, $data)
     {
@@ -72,7 +71,7 @@ class MTitle
     }
 
     /**
-     * タイトルを削除
+     * 指定 ID のタイトル定義を削除する。
      */
     public function deleteTitle($id)
     {

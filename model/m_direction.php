@@ -1,9 +1,9 @@
 <?php
-
 /**
- * 方向マスターモデルクラス
- * 方向情報の取得、更新、削除を行う
+ * 方角マスターテーブル用のデータアクセス層。
+ * 東南西北などの席情報を画面や集計で再利用できる形で取得・管理する。
  */
+
 class MDirection
 {
     private $db;
@@ -15,7 +15,7 @@ class MDirection
     }
 
     /**
-     * すべてのデータを取得
+     * 方角定義を ID 起点で扱える形に整えて返す。
      */
     public function getAllData()
     {
@@ -29,7 +29,6 @@ class MDirection
             return [];
         }
 
-        // IDをキーに整形
         $result = [];
         foreach ($data as $value) {
             $result[$value[$this->table_name.'_id']] = $value;
@@ -39,7 +38,7 @@ class MDirection
     }
 
     /**
-     * 方向を追加
+     * 新しい方角定義を追加する。
      */
     public function addDirection($data)
     {
@@ -55,7 +54,7 @@ class MDirection
     }
 
     /**
-     * 方向を更新
+     * 方角名の定義を更新する。
      */
     public function updateDirection($id, $data)
     {
@@ -72,7 +71,7 @@ class MDirection
     }
 
     /**
-     * 方向を削除
+     * 指定 ID の方角定義を削除する。
      */
     public function deleteDirection($id)
     {

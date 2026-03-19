@@ -1,9 +1,10 @@
 <?php
+/**
+ * 単独成績登録ページビュー。
+ * 1人分の結果を選手・席・順位・点数単位で入力するフォームを表示する。
+ */
 
-// Include header
-include __DIR__ . '/../header.php';
 ?>
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -13,29 +14,30 @@ include __DIR__ . '/../header.php';
     <link rel="apple-touch-icon" href="<?= h($baseUrl) ?>/favicon.png">
     <link rel="icon" href="<?= h($baseUrl) ?>/favicon.ico" sizes="64x64" type="image/x-icon">
     <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/master.css">
-    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/header.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/bottom_navigation.css">
     <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/app.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/pages/main-add.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
     <title><?= h($title) ?></title>
 </head>
 <body>
+<?php include __DIR__ . '/bottom_navigation.php'; ?>
 <main>
-    <div class="page-title"><?= h($title) ?></div>
+    <?php include __DIR__ . '/page_title.php'; ?>
     <div class="form-container container">
-        <form action="add" method="post" class="registration-form" onsubmit="return validateForm()">
-            <?= csrf_field() ?>
+        <form id="addForm" action="add" method="post" class="registration-form" data-games='<?= h(json_encode($games, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT)) ?>'>
             <div class="form-group player">
                 <select id="userId" class="input" name="userId" required>
                     <option value="">-</option>
-                    <?php foreach($userList as $userId => $userData): ?>
+                    <?php foreach ($userList as $userId => $userData): ?>
                         <option value="<?= h($userId) ?>"><?= h($userData['last_name'] . $userData['first_name']) ?></option>
-                    <?php endforeach;?>
+                    <?php endforeach; ?>
                 </select>
                 <label for="userId">選手</label>
             </div>
-            <div class="form-group" style="display:none;">
+            <div class="form-group form-group--hidden">
                 <label for="tableId">卓</label>
-                <input id="tableId" class="input" type="number" name="tableId" required value="1" style="width: 70%;">
+                <input id="tableId" class="input table-id-input" type="number" name="tableId" required value="1">
             </div>
             <div class="form-group game">
                 <div class="date-inputs game">
@@ -45,29 +47,29 @@ include __DIR__ . '/../header.php';
             </div>
             <div class="form-group direction">
                 <div class="button-container">
-                    <?php foreach($mDirectionList as $directionId => $directionData): ?>
-                        <button class="direction-button" type="button" name="direction" value="<?= h($directionId) ?>" onclick="selectButton(this)"><?= h($directionData['name']) ?></button>
-                    <?php endforeach;?>
+                    <?php foreach ($mDirectionList as $directionId => $directionData): ?>
+                        <button class="direction-button" type="button" name="direction" value="<?= h($directionId) ?>" data-direction-button><?= h($directionData['name']) ?></button>
+                    <?php endforeach; ?>
                     <input type="hidden" id="direction" name="direction" value="" required>
                 </div>
             </div>
             <div class="form-group rank">
                 <select id="rank" class="input" name="rank" required>
                     <option value="" selected>-</option>
-                    <?php foreach($rankConfig as $value => $name): ?>
+                    <?php foreach ($rankConfig as $value => $name): ?>
                         <option value="<?= h($value) ?>"><?= h($name) ?></option>
-                        <?php endforeach;?>
+                    <?php endforeach; ?>
                 </select>
                 <label for="rank">位</label>
             </div>
             <div class="form-group score">
-                 <input id="score" class="input" type="text" name="score" required inputmode="text" placeholder="例:25300" pattern="-?[0-9]*\.?[0-9]*">
-                 <label for="score">点</label>
-             </div>
-             <div class="form-group mistake">
-                 <input id="mistakeCount" class="input" type="number" name="mistake_count" min="0" max="99" value="0" inputmode="numeric">
-                 <label for="mistakeCount">ﾁｮﾝﾎﾞ</label>
-             </div>
+                <input id="score" class="input" type="text" name="score" required inputmode="text" placeholder="例:25300" pattern="-?[0-9]*\.?[0-9]*">
+                <label for="score">点</label>
+            </div>
+            <div class="form-group mistake">
+                <input id="mistakeCount" class="input" type="number" name="mistake_count" min="0" max="99" value="0" inputmode="numeric">
+                <label for="mistakeCount">ﾁｮﾝﾎﾞ</label>
+            </div>
             <div class="form-group date-group">
                 <div class="date-inputs">
                     <select class="input play_date year" name="year" required>
@@ -92,99 +94,14 @@ include __DIR__ . '/../header.php';
                 </div>
             </div>
 
-            <button class="submit-button btn-primary" type="submit">登録する</button>
         </form>
     </div>
+    <button class="submit-button btn-primary" type="submit" form="addForm">登録する</button>
 </main>
+
+<?php renderScriptTags($baseUrl, [
+    'resources/js/main/form-common.js',
+    'resources/js/main/form-add.js',
+]); ?>
 </body>
 </html>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const buttons = document.querySelectorAll('.direction-button');
-        buttons.forEach(btn => btn.classList.remove('selected'));
-        document.getElementById('direction').value = '';
-    });
-
-    let userId  = document.querySelector('[name="userId"]');
-    let game    = document.querySelector('[name="game"]');
-    let games   = <?=json_encode($games);?>;
-    userId.onchange = event => {
-        const selectedUserId    = userId.value;
-        const currentGameValue  = games[selectedUserId] !== undefined ? games[selectedUserId] : 0;
-        game.value = currentGameValue + 1;
-    };
-
-   function validateForm() {
-        const directionInput = document.getElementById('direction');
-        if (directionInput.value === '') {
-            alert('席を選択してください。'); // エラーメッセージを表示
-            return false; // フォーム送信をキャンセル
-        }
-        
-        // スコアの数値検証
-        const scoreInput = document.getElementById('score');
-        const scoreValue = scoreInput.value.trim();
-        if (scoreValue !== '' && !/^-?\d*\.?\d*$/.test(scoreValue)) {
-            alert('スコアには数値のみ入力してください。');
-            scoreInput.focus();
-            return false;
-        }
-        
-        return true; // フォームを送信
-    }
-
-    function selectButton(button) {
-        const buttons = document.querySelectorAll('.direction-button');
-        buttons.forEach(btn => btn.classList.remove('selected'));
-        button.classList.add('selected');
-        document.getElementById('direction').value = button.value;
-    }
-</script>
-
-<style>
-    .form-container.container {
-        text-align: right;
-    }
-    .play_date.year { width: 100px; }
-    .play_date.month { width: 80px; }
-    .play_date.day { width: 80px; }
-    .form-group.game, .form-group.rank, .form-group.score, .form-group.player, .form-group.direction, .form-group.mistake {
-         text-align: right;
-         display: grid;
-         gap: 0px;
-         justify-content: end;
-     }
-    .form-group {
-        margin: 10px 0;
-    }
-    .form-group.game, .form-group.player,.form-group.rank, .form-group.score, .form-group.mistake {
-         grid-template-columns: 1fr 60px;
-     }
-    .form-group.direction {
-        justify-content: space-evenly;
-    }
-    .form-group.game > input,
-    .form-group.player > select,
-    .form-group.rank > select,
-    .form-group.score > input, {
-        text-align: right;
-        padding: 5px 10px;
-    }
-    .form-group label {
-        font-weight: bold;
-        color: #333;
-        display: flex;
-        justify-content: flex-end;
-        align-items: flex-end;
-    }
-    /* 入力欄の共通スタイル */
-    .input, select, input[type="tel"], input[type="number"] {
-        width: 100%;
-        padding: 8px 10px !important;
-        font-size: 14px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        text-align: right;
-        box-sizing: border-box;
-    }
-</style>

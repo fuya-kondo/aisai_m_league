@@ -1,4 +1,8 @@
 <?php
+/**
+ * ユーザー別タイトル履歴テーブル用のデータアクセス層。
+ * 獲得済みタイトルの参照や一覧化に使うデータ取得を担う。
+ */
 
 
 /**
@@ -44,11 +48,11 @@ class UTitle
                     FROM u_title 
                     WHERE u_user_id = :user_id AND del_flag = 0
                     ORDER BY created_at DESC';
-            
+
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':user_id', $userId);
             $stmt->execute();
-            
+
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             error_log('ユーザータイトル取得エラー: ' . $e->getMessage());
@@ -69,11 +73,11 @@ class UTitle
                         created_at
                     FROM u_title 
                     WHERE u_title_id = :user_title_id AND del_flag = 0';
-            
+
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':user_title_id', $userTitleId);
             $stmt->execute();
-            
+
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             error_log('ユーザータイトル取得エラー: ' . $e->getMessage());
@@ -91,7 +95,7 @@ class UTitle
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':title_id', $data['title_id']);
             $stmt->bindParam(':user_title_id', $userTitleId);
-            
+
             return $stmt->execute();
         } catch (Exception $e) {
             error_log('ユーザータイトル更新エラー: ' . $e->getMessage());
@@ -108,7 +112,7 @@ class UTitle
             $sql = 'UPDATE u_title SET del_flag = 1 WHERE u_title_id = :user_title_id';
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':user_title_id', $userTitleId);
-            
+
             return $stmt->execute();
         } catch (Exception $e) {
             error_log('ユーザータイトル削除エラー: ' . $e->getMessage());
@@ -126,7 +130,7 @@ class UTitle
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':user_id', $data['user_id']);
             $stmt->bindParam(':title_id', $data['title_id']);
-            
+
             return $stmt->execute();
         } catch (Exception $e) {
             error_log('ユーザータイトル追加エラー: ' . $e->getMessage());

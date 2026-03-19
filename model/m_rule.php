@@ -1,9 +1,9 @@
 <?php
-
 /**
- * ルールマスターモデルクラス
- * ルール情報の取得、更新、削除を行う
+ * ルールマスターテーブル用のデータアクセス層。
+ * 配点や持ち点など、成績計算に必要なルール設定を永続化する。
  */
+
 class MRule
 {
     private $db;
@@ -15,7 +15,7 @@ class MRule
     }
 
     /**
-     * すべてのデータを取得
+     * ルール定義を ID 起点で引ける形に整えて返す。
      */
     public function getAllData()
     {
@@ -29,7 +29,6 @@ class MRule
             return [];
         }
 
-        // IDをキーに整形
         $result = [];
         foreach ($data as $value) {
             $result[$value[$this->table_name.'_id']] = $value;
@@ -39,7 +38,7 @@ class MRule
     }
 
     /**
-     * ルールを追加
+     * 点数計算に必要なルール定義を追加する。
      */
     public function addRule($data)
     {
@@ -47,8 +46,7 @@ class MRule
             $sql = 'INSERT INTO m_rule (name, start_score, end_score, point_1, point_2, point_3, point_4) 
                     VALUES (:name, :start_score, :end_score, :point_1, :point_2, :point_3, :point_4)';
             $stmt = $this->db->prepare($sql);
-            
-            // 変数に代入してからbindParamに渡す
+
             $name = $data['name'];
             $start_score = $data['start_score'] ?? 0;
             $end_score = $data['end_score'] ?? 0;
@@ -56,7 +54,7 @@ class MRule
             $point_2 = $data['point_2'] ?? 0;
             $point_3 = $data['point_3'] ?? 0;
             $point_4 = $data['point_4'] ?? 0;
-            
+
             $stmt->bindParam(':name', $name);
             $stmt->bindParam(':start_score', $start_score);
             $stmt->bindParam(':end_score', $end_score);
@@ -72,7 +70,7 @@ class MRule
     }
 
     /**
-     * ルールを更新
+     * 既存ルールの持ち点と順位点を更新する。
      */
     public function updateRule($id, $data)
     {
@@ -81,8 +79,7 @@ class MRule
                     point_1 = :point_1, point_2 = :point_2, point_3 = :point_3, point_4 = :point_4 
                     WHERE m_rule_id = :id';
             $stmt = $this->db->prepare($sql);
-            
-            // 変数に代入してからbindParamに渡す
+
             $name = $data['name'];
             $start_score = $data['start_score'] ?? 0;
             $end_score = $data['end_score'] ?? 0;
@@ -90,7 +87,7 @@ class MRule
             $point_2 = $data['point_2'] ?? 0;
             $point_3 = $data['point_3'] ?? 0;
             $point_4 = $data['point_4'] ?? 0;
-            
+
             $stmt->bindParam(':name', $name);
             $stmt->bindParam(':start_score', $start_score);
             $stmt->bindParam(':end_score', $end_score);
@@ -107,7 +104,7 @@ class MRule
     }
 
     /**
-     * ルールを削除
+     * 指定 ID のルール定義を削除する。
      */
     public function deleteRule($id)
     {

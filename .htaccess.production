@@ -3,6 +3,9 @@ SetEnvIf Request_URI ".*" Ngx_Cache_AllCacheMode
 
 RewriteEngine on
 
+# .env などのドットファイルを直接公開しない
+RewriteRule "(^|/)\.(?!well-known/)" - [F,L]
+
 # HTTPSリダイレクト（本番環境用）
 RewriteCond %{HTTPS} !on
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
@@ -42,13 +45,12 @@ RewriteRule ^add/?$ index.php?controller=main&action=add [L,QSA]
 RewriteRule ^add4/?$ index.php?controller=main&action=add4 [L,QSA]
 RewriteRule ^update/?$ index.php?controller=main&action=update [L,QSA]
 
-# さらに短いURL（オプション）
-RewriteRule ^s/?$ index.php?controller=main&action=stats [L,QSA]
-RewriteRule ^h/?$ index.php?controller=main&action=history [L,QSA]
-RewriteRule ^p/?$ index.php?controller=main&action=personal_stats [L,QSA]
-RewriteRule ^a/?$ index.php?controller=main&action=analysis [L,QSA]
-RewriteRule ^r/?$ index.php?controller=main&action=rule [L,QSA]
-RewriteRule ^b/?$ index.php?controller=main&action=badge [L,QSA]
-
 # デフォルトページ
 RewriteRule ^$ index.php?controller=main&action=top [L,QSA]
+
+# Basic認証（本番環境用）
+AuthUserFile "/home/fuyakondo/aisai-m-league.com/htpasswd/.htpasswd"
+AuthName "Member Site"
+AuthType BASIC
+require valid-user
+

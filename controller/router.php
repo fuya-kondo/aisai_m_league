@@ -1,13 +1,12 @@
 <?php
-
 /**
- * アプリケーションルーター
- * リクエストに基づいて適切なコントローラーとアクションを呼び出す
+ * ルーティング定義の実体。
+ * controller/action の組み合わせから、メイン画面と管理画面の処理へ振り分ける。
  */
 class Router
 {
-    private $mainController;
-    private $adminController;
+    private MainController $mainController;
+    private AdminController $adminController;
 
     public function __construct()
     {
@@ -16,146 +15,98 @@ class Router
     }
 
     /**
-     * リクエストを処理
+     * リクエストを処理する。
      */
-    public function handleRequest()
+    public function handleRequest(): void
     {
-        $controller = $_GET['controller'] ?? 'main';
-        // POSTデータのactionを優先し、なければGETデータのactionを使用
-        $action = $_POST['action'] ?? $_GET['action'] ?? 'top';
-
-        debug_log('=== handleRequest called ===');
-        debug_log('Controller: ' . $controller);
-        debug_log('Action: ' . $action);
-        debug_log('GET data: ' . print_r($_GET, true));
-        debug_log('POST data: ' . print_r($_POST, true));
+        $controller = $this->resolveControllerName();
+        $action = $this->resolveActionName();
 
         try {
-            switch ($controller) {
-                case 'main':
-                    debug_log('Handling main request');
-                    $this->handleMainRequest($action);
-                    break;
-                case 'admin':
-                    debug_log('Handling admin request');
-                    $this->handleAdminRequest($action);
-                    break;
-                default:
-                    debug_log('Default case - calling main top');
-                    // デフォルトはメインコントローラーのtopアクション
-                    $this->mainController->top();
-                    break;
+            if ($controller === 'admin') {
+                $this->handleAdminRequest($action);
+                return;
             }
+
+            $this->handleMainRequest($action);
         } catch (Exception $e) {
-            // エラーハンドリング
-            error_log("Router error: " . $e->getMessage());
+            error_log('Router error: ' . $e->getMessage());
             http_response_code(500);
-            echo "Internal Server Error";
+            echo 'Internal Server Error';
         }
     }
 
     /**
-     * メインコントローラーのリクエストを処理
+     * メイン画面向けの action を解決して実行する。
      */
-    private function handleMainRequest($action)
+    private function handleMainRequest(string $action): void
     {
-        switch ($action) {
-            case 'top':
-                $this->mainController->top();
-                break;
-            case 'stats':
-                $this->mainController->stats();
-                break;
-            case 'history':
-                $this->mainController->history();
-                break;
-            case 'personal_stats':
-                $this->mainController->personalStats();
-                break;
-            case 'analysis':
-                $this->mainController->analysis();
-                break;
-            case 'setting':
-                $this->mainController->setting();
-                break;
-            case 'rule':
-                $this->mainController->rule();
-                break;
-            case 'badge':
-                $this->mainController->badge();
-                break;
-            case 'sound':
-                $this->mainController->sound();
-                break;
-            case 'add':
-                $this->mainController->add();
-                break;
-            case 'add4':
-                $this->mainController->add4();
-                break;
-            case 'update':
-                $this->mainController->update();
-                break;
-            default:
-                $this->mainController->top();
-                break;
-        }
+        $mainActionMap = [
+            'top' => 'top',
+            'stats' => 'stats',
+            'history' => 'history',
+            'personal' => 'personalStats',
+            'analysis' => 'analysis',
+            'setting' => 'setting',
+            'rule' => 'rule',
+            'badge' => 'badge',
+            'sound' => 'sound',
+            'add' => 'add',
+            'bulk-add' => 'bulkAdd',
+            'bulk-update' => 'bulkUpdate',
+            'update' => 'update',
+        ];
+
+        $this->dispatchAction($this->mainController, $action, $mainActionMap, 'top');
     }
 
     /**
-     * 管理コントローラーのリクエストを処理
+     * 管理画面向けの action を解決して実行する。
      */
-    private function handleAdminRequest($action)
+    private function handleAdminRequest(string $action): void
     {
-        debug_log('=== handleAdminRequest called ===');
-        debug_log('Action: ' . $action);
-        debug_log('POST data: ' . print_r($_POST, true));
-        debug_log('GET data: ' . print_r($_GET, true));
-        
-        switch ($action) {
-            case 'top':
-                $this->adminController->top();
-                break;
-            case 'users':
-                $this->adminController->user();
-                break;
-            case 'game_history':
-                $this->adminController->history();
-                break;
-            case 'master_data':
-                $this->adminController->master();
-                break;
-            case 'update_user':
-                debug_log('Calling updateUser');
-                $this->adminController->updateUser();
-                break;
-            case 'add_user':
-                debug_log('Calling addUser');
-                $this->adminController->addUser();
-                break;
-            case 'delete_user':
-                debug_log('Calling deleteUser');
-                $this->adminController->deleteUser();
-                break;
-            case 'update_game_history':
-                $this->adminController->updateGameHistory();
-                break;
-            case 'add_game_history':
-                $this->adminController->addGameHistory();
-                break;
-            case 'update_master_data':
-                $this->adminController->updateMasterData();
-                break;
-            case 'delete_data':
-                $this->adminController->deleteData();
-                break;
-            case 'add_master_data':
-                $this->adminController->addMasterData();
-                break;
-            default:
-                debug_log('Default case - calling top');
-                $this->adminController->top();
-                break;
-        }
+        $adminActionMap = [
+            'top' => 'top',
+            'users' => 'user',
+            'game_history' => 'history',
+            'master_data' => 'master',
+            'update_user' => 'updateUser',
+            'add_user' => 'addUser',
+            'delete_user' => 'deleteUser',
+            'update_game_history' => 'updateGameHistory',
+            'add_game_history' => 'addGameHistory',
+            'update_master_data' => 'updateMasterData',
+            'delete_data' => 'deleteData',
+            'add_master_data' => 'addMasterData',
+        ];
+
+        $this->dispatchAction($this->adminController, $action, $adminActionMap, 'top');
+    }
+
+    /**
+     * action 名から実行メソッドを引き当て、存在しなければ既定メソッドへフォールバックする。
+     */
+    private function dispatchAction(object $controller, string $action, array $actionMap, string $defaultMethod): void
+    {
+        $methodName = $actionMap[$action] ?? $defaultMethod;
+        $controller->{$methodName}();
+    }
+
+    /**
+     * controller 名は main を既定値とする。
+     */
+    private function resolveControllerName(): string
+    {
+        return (string)($_GET['controller'] ?? 'main');
+    }
+
+    /**
+     * POST の action を優先し、未指定時は GET、さらに未指定なら top を採用する。
+     */
+    private function resolveActionName(): string
+    {
+        return (string)($_POST['action'] ?? $_GET['action'] ?? 'top');
     }
 }
+
+

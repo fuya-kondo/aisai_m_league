@@ -1,4 +1,8 @@
 <?php
+/**
+ * ビューとコントローラーから共通利用する軽量ヘルパー関数群。
+ * 配列整形・エスケープ・デバッグ出力など、依存を増やさず使える補助処理をまとめる。
+ */
 
 /**
  * 共通ヘルパー関数群
@@ -52,45 +56,29 @@ function h($value): string
 }
 
 /**
- * Ensure session is started for CSRF protection.
+ * ローカル JS ファイル配列から script タグ群を描画する。
  */
-function ensureSession(): void
+function renderScriptTags(string $baseUrl, array $scriptPaths): void
 {
-    if (session_status() !== PHP_SESSION_ACTIVE) {
-        session_start();
+    foreach ($scriptPaths as $scriptPath) {
+        echo '<script src="' . h($baseUrl) . '/' . ltrim($scriptPath, '/') . '"></script>' . PHP_EOL;
     }
 }
 
 /**
- * Get or create CSRF token.
+ * 外部 JS URL 配列から script タグ群を描画する。
  */
-function csrf_token(): string
+function renderExternalScriptTags(array $scriptUrls): void
 {
-    ensureSession();
-    if (empty($_SESSION['csrf_token'])) {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    foreach ($scriptUrls as $scriptUrl) {
+        echo '<script src="' . h($scriptUrl) . '"></script>' . PHP_EOL;
     }
-    return $_SESSION['csrf_token'];
 }
 
 /**
- * Render hidden CSRF input field.
+ * Session/CSRF helpers are intentionally disabled in this app.
+ * Keep the function signatures so existing views/controllers keep working.
  */
-function csrf_field(): string
-{
-    return '<input type="hidden" name="csrf_token" value="' . h(csrf_token()) . '">';
-}
-
-/**
- * Verify CSRF token for POST requests.
- */
-function verify_csrf(): bool
-{
-    ensureSession();
-    $token = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
-    return !empty($token) && hash_equals((string)($_SESSION['csrf_token'] ?? ''), (string)$token);
-}
-
 /**
  * Debug log (disabled in production unless APP_DEBUG=1).
  */
