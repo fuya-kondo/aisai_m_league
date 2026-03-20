@@ -145,6 +145,7 @@
     line-height: 1;
     letter-spacing: 0.02em;
     white-space: nowrap;
+    color: #9ca3af;
     transition: color 0.2s ease;
 }
 
