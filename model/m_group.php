@@ -1,9 +1,9 @@
 <?php
-
 /**
- * グループマスターモデルクラス
- * グループ情報の取得、更新、削除を行う
+ * グループマスターテーブル用のデータアクセス層。
+ * ルールとの関連を持つグループ定義の取得・更新・追加・削除を担う。
  */
+
 class MGroup
 {
     private $db;
@@ -15,7 +15,7 @@ class MGroup
     }
 
     /**
-     * すべてのデータを取得
+     * グループ定義を ID 起点で扱える形に整えて返す。
      */
     public function getAllData()
     {
@@ -29,7 +29,6 @@ class MGroup
             return [];
         }
 
-        // IDをキーに整形
         $result = [];
         foreach ($data as $value) {
             $result[$value[$this->table_name.'_id']] = $value;
@@ -39,18 +38,17 @@ class MGroup
     }
 
     /**
-     * グループを追加
+     * ルールとの関連を含むグループ定義を追加する。
      */
     public function addGroup($data)
     {
         try {
             $sql = 'INSERT INTO m_group (name, m_rule_id) VALUES (:name, :m_rule_id)';
             $stmt = $this->db->prepare($sql);
-            
-            // 変数に代入してからbindParamに渡す
+
             $name = $data['name'];
             $m_rule_id = $data['m_rule_id'] ?? 0;
-            
+
             $stmt->bindParam(':name', $name);
             $stmt->bindParam(':m_rule_id', $m_rule_id);
             return $stmt->execute();
@@ -61,18 +59,17 @@ class MGroup
     }
 
     /**
-     * グループを更新
+     * グループ名と紐づくルールを更新する。
      */
     public function updateGroup($id, $data)
     {
         try {
             $sql = 'UPDATE m_group SET name = :name, m_rule_id = :m_rule_id WHERE m_group_id = :id';
             $stmt = $this->db->prepare($sql);
-            
-            // 変数に代入してからbindParamに渡す
+
             $name = $data['name'];
             $m_rule_id = $data['m_rule_id'] ?? 0;
-            
+
             $stmt->bindParam(':name', $name);
             $stmt->bindParam(':m_rule_id', $m_rule_id);
             $stmt->bindParam(':id', $id);
@@ -84,7 +81,7 @@ class MGroup
     }
 
     /**
-     * グループを削除
+     * 指定 ID のグループ定義を削除する。
      */
     public function deleteGroup($id)
     {

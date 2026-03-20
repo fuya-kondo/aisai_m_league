@@ -1,0 +1,497 @@
+/* 管理画面専用スタイル: 管理トップ・一覧・アコーディオン・モーダルの共通UIを定義する。 */
+/* Responsive rule: mobile-first, desktop overrides use min-width 769px. */
+
+/* 管理画面共通レイアウト */
+.admin-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+@media (min-width: 769px) {
+  .admin-container {
+    padding: 20px;
+  }
+}
+
+.page-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+@media (min-width: 769px) {
+  .page-header {
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+  }
+}
+
+.page-title {
+  margin: 0;
+  color: #009944;
+  font-size: 1.8rem;
+}
+
+.back-link {
+  padding: 8px 16px;
+  border-radius: 6px;
+  background: #6c757d;
+  color: #fff;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.back-link:hover {
+  background: #5a6268;
+}
+
+.success-message,
+.error-message {
+  display: none;
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.success-message {
+  background: #d4edda;
+  color: #155724;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* セクション共通 */
+.user-section,
+.game-section,
+.master-section {
+  margin-bottom: 20px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.master-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.section-title {
+  margin: 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px;
+  background: #009944;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.section-header:hover {
+  background: #007a37;
+}
+
+.section-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-header .toggle-icon {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.section-header.collapsed .toggle-icon {
+  transform: rotate(-90deg);
+}
+
+.section-content {
+  max-height: 2000px;
+  overflow: hidden;
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+.section-content.collapsed {
+  max-height: 0;
+  opacity: 0;
+}
+
+.master-section .section-content {
+  padding: 15px;
+}
+
+.master-section .section-content.collapsed {
+  padding: 0 15px;
+}
+
+/* テーブルと操作ボタン */
+.table-container {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.admin-container table,
+.master-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.master-table {
+  min-width: 600px;
+}
+
+.admin-container th,
+.admin-container td,
+.master-table th,
+.master-table td {
+  padding: 6px 4px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  font-size: 0.8rem;
+}
+
+@media (min-width: 769px) {
+  .admin-container th,
+  .admin-container td,
+  .master-table th,
+  .master-table td {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+}
+
+.admin-container th,
+.master-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+@media (min-width: 769px) {
+  .action-buttons {
+    flex-direction: row;
+    gap: 6px;
+  }
+}
+
+.btn-edit,
+.btn-delete,
+.btn-save,
+.btn-cancel {
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-edit,
+.btn-delete {
+  padding: 3px 6px;
+  font-size: 0.7rem;
+}
+
+@media (min-width: 769px) {
+  .btn-edit,
+  .btn-delete {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
+}
+
+.btn-edit {
+  background: #28a745;
+  color: #fff;
+}
+
+.btn-edit:hover {
+  background: #218838;
+}
+
+.btn-delete {
+  background: #dc3545;
+  color: #fff;
+}
+
+.btn-delete:hover {
+  background: #c82333;
+}
+
+.btn-save,
+.btn-cancel {
+  padding: 10px 20px;
+  font-size: 1rem;
+}
+
+.btn-save {
+  background: #009944;
+  color: #fff;
+}
+
+.btn-save:hover {
+  background: #007a37;
+}
+
+.btn-cancel {
+  background: #6c757d;
+  color: #fff;
+}
+
+.btn-cancel:hover {
+  background: #5a6268;
+}
+
+/* モーダルとフォーム */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  width: 88%;
+  max-height: 90vh;
+  margin: 2% auto;
+  padding: 15px;
+  overflow-y: auto;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+@media (min-width: 769px) {
+  .modal-content {
+    width: 95%;
+    margin: 5% auto;
+    padding: 20px;
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-title {
+  color: #333;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.close {
+  color: #aaa;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: #000;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+}
+
+@media (min-width: 769px) {
+  .form-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 5px;
+  color: #333;
+  font-weight: 600;
+}
+
+.form-input,
+.form-select,
+.form-color {
+  width: 100%;
+  max-width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+  background: #fff;
+  font-size: 16px;
+}
+
+@media (min-width: 769px) {
+  .form-input,
+  .form-select,
+  .form-color {
+    font-size: 1rem;
+  }
+}
+
+.form-color {
+  width: 60px;
+  height: 40px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.game-section .form-actions {
+  grid-column: 1 / -1;
+}
+
+.score-inputs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+@media (min-width: 769px) {
+  .score-inputs {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.color-preview {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  border-radius: 50%;
+  vertical-align: middle;
+  background-color: var(--dynamic-bg-color, transparent);
+}
+
+.is-hidden-form {
+  display: none;
+}
+
+/* 管理トップ固有 */
+.admin-top .admin-header {
+  padding: 20px;
+  text-align: center;
+}
+
+.admin-top .admin-title {
+  margin-bottom: 10px;
+  color: #009944;
+  font-size: 1.5rem;
+}
+
+@media (min-width: 769px) {
+  .admin-top .admin-title {
+    font-size: 2rem;
+  }
+}
+
+.admin-top .admin-subtitle {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.admin-top .nav-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 769px) {
+  .admin-top .nav-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+
+.admin-top .nav-card {
+  padding: 25px;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-top .nav-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.admin-top .nav-icon {
+  margin-bottom: 15px;
+  font-size: 3rem;
+}
+
+.admin-top .nav-title {
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.admin-top .nav-description {
+  color: #666;
+  line-height: 1.5;
+}
+
+.admin-top__footer {
+  text-align: center;
+}
+
+/* 画面別補助 */
+.admin-users .modal-content {
+  max-width: 500px;
+}
+
+.admin-game-history .modal-content {
+  max-width: 800px;
+  margin: 2% auto;
+}
+
+.admin-master .modal-content {
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+}

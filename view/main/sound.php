@@ -1,9 +1,10 @@
 <?php
+/**
+ * 発声ページビュー。
+ * 麻雀用効果音の再生ボタンを並べ、ワンタップで再生できるようにする。
+ */
 
-// Include header
-include __DIR__ . '/../header.php';
 ?>
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -13,12 +14,15 @@ include __DIR__ . '/../header.php';
     <link rel="apple-touch-icon" href="<?= h($baseUrl) ?>/favicon.png">
     <link rel="icon" href="<?= h($baseUrl) ?>/favicon.ico" sizes="64x64" type="image/x-icon">
     <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/master.css">
-    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/header.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/bottom_navigation.css">
     <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/app.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/pages/main-sound.css">
     <title><?= h($title) ?></title>
 </head>
 <body>
+<?php include __DIR__ . '/bottom_navigation.php'; ?>
 <main>
+    <?php include __DIR__ . '/page_title.php'; ?>
     <div class="button-container grid-2">
         <button class="sound-button blue" data-sound="<?= h($baseUrl) ?>/resources/sound/pon.mp3">ポン</button>
         <button class="sound-button red" data-sound="<?= h($baseUrl) ?>/resources/sound/chi.mp3">チー</button>
@@ -30,38 +34,6 @@ include __DIR__ . '/../header.php';
 
     <audio id="audioPlayer"></audio>
 </main>
+<script src="<?= h($baseUrl) ?>/resources/js/main/sound-player.js"></script>
 </body>
 </html>
-
-<script>
-    // JavaScriptでボタンと音を紐付ける
-    document.addEventListener('DOMContentLoaded', () => {
-        const buttons = document.querySelectorAll('.sound-button');
-        const audioPlayer = document.getElementById('audioPlayer');
-
-        buttons.forEach(button => {
-            button.addEventListener('click', function() {
-                const soundFile = this.dataset.sound; // data-sound属性からファイル名を取得
-                if (soundFile) {
-                    audioPlayer.src = soundFile;
-                    audioPlayer.play();
-                }
-            });
-        });
-    });
-</script>
-
-<style>
-    .button-container {
-        margin-top: 25px;
-    }
-    /* Sound buttons */
-    .button-container.grid-2 { display:grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .sound-button { font-size: 1.1rem; padding: 14px; color:#fff; }
-    .sound-button.blue { background:#007bff; }
-    .sound-button.red{ background:#dc3545; }
-    .sound-button.green{ background:#28a745; }
-    .sound-button.yellow{ background:#ffc107; color:#333; }
-    .sound-button.purple{ background:#6f42c4; }
-    .sound-button.orange{ background:#fd7e14; }
-</style>

@@ -1,0 +1,37 @@
+/* 発声ページ専用スタイル: 効果音ボタンを色別に並べる。 */
+
+/* ボタン配置: 2 列グリッドで再生ボタンを並べる。 */
+.button-container {
+  margin-top: 25px;
+}
+
+.button-container.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.sound-button.blue {
+  background: #007bff;
+}
+
+.sound-button.red {
+  background: #dc3545;
+}
+
+.sound-button.green {
+  background: #28a745;
+}
+
+.sound-button.yellow {
+  background: #ffc107;
+  color: #333;
+}
+
+.sound-button.purple {
+  background: #6f42c4;
+}
+
+.sound-button.orange {
+  background: #fd7e14;
+}

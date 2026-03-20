@@ -1,142 +1,78 @@
 <?php
-
-
 /**
- * ユーザーモデルクラス
- * ユーザー情報の取得、更新、削除を行う
+ * ユーザーテーブル用のデータアクセス互換ラッパー。
+ * 旧呼び出しを維持しつつ、実処理は UserService / UserRepository へ委譲する。
  */
 class UUser
 {
-    private $db;
-    private $table_name = 'u_user';
+    private \App\Services\UserService $userService;
 
     public function __construct()
     {
-        $this->db = Database::getInstance();
+        $this->userService = \App\Support\ServiceFactory::createUserService();
     }
 
-    /**
-     * すべてのデータを取得
-     */
-    public function getAllData()
+    public function getAllData(): array
     {
         try {
-            $sql = 'SELECT * FROM '.$this->table_name;
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute();
-            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (Exception $e) {
-            error_log($this->table_name.'取得エラー: ' . $e->getMessage());
+            return $this->userService->getAllIndexed();
+        } catch (Exception $exception) {
+            error_log('u_user取得エラー: ' . $exception->getMessage());
             return [];
         }
-
-        // IDをキーに整形
-        $result = [];
-        foreach ($data as $value) {
-            $result[$value[$this->table_name.'_id']] = $value;
-        }
-
-        return $result;
     }
 
-    /**
-     * Alias for legacy usage.
-     */
-    public function getAllUsers()
+    public function getAllUsers(): array
     {
         return $this->getAllData();
     }
 
-    /**
-     * 指定されたIDのユーザーを取得
-     */
-    public function getUserById($userId)
+    public function getUserById(int $userId): ?array
     {
         try {
-            $sql = 'SELECT * FROM u_user WHERE u_user_id = :user_id';
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':user_id', $userId);
-            $stmt->execute();
-            return $stmt->fetch(PDO::FETCH_ASSOC);
-        } catch (Exception $e) {
-            error_log('ユーザー取得エラー: ' . $e->getMessage());
+            return $this->userService->getById($userId);
+        } catch (Exception $exception) {
+            error_log('ユーザー取得エラー: ' . $exception->getMessage());
             return null;
         }
     }
 
-    /**
-     * ユーザー情報を更新
-     */
-    public function updateUser($userId, array $data)
+    public function updateUser(int $userId, array $userData): bool
     {
         try {
-            $sql = 'UPDATE u_user SET 
-                last_name = :last_name,
-                first_name = :first_name,
-                m_badge_id = :badge_id,
-                m_tier_id = :tier_id
-            WHERE u_user_id = :user_id';
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':last_name', $data['last_name']);
-            $stmt->bindParam(':first_name', $data['first_name']);
-            $stmt->bindParam(':badge_id', $data['m_badge_id']);
-            $stmt->bindParam(':tier_id', $data['m_tier_id']);
-            $stmt->bindParam(':user_id', $userId);
-            return $stmt->execute();
-        } catch (Exception $e) {
-            error_log('ユーザー更新エラー: ' . $e->getMessage());
-            throw $e;
+            return $this->userService->update($userId, $userData);
+        } catch (Exception $exception) {
+            error_log('ユーザー更新エラー: ' . $exception->getMessage());
+            throw $exception;
         }
     }
 
-    /**
-     * ユーザーを追加
-     */
-    public function addUser(array $data)
+    public function addUser(array $userData): bool
     {
         try {
-            $sql = 'INSERT INTO u_user (last_name, first_name, m_badge_id, m_tier_id) VALUES (:last_name, :first_name, :badge_id, :tier_id)';
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':last_name', $data['last_name']);
-            $stmt->bindParam(':first_name', $data['first_name']);
-            $stmt->bindParam(':badge_id', $data['m_badge_id']);
-            $stmt->bindParam(':tier_id', $data['m_tier_id']);
-            return $stmt->execute();
-        } catch (Exception $e) {
-            error_log('ユーザー追加エラー: ' . $e->getMessage());
-            throw $e;
+            return $this->userService->create($userData);
+        } catch (Exception $exception) {
+            error_log('ユーザー追加エラー: ' . $exception->getMessage());
+            throw $exception;
         }
     }
 
-    /**
-     * ユーザーを削除
-     */
-    public function deleteUser($userId)
+    public function deleteUser(int $userId): bool
     {
         try {
-            $sql = 'DELETE FROM u_user WHERE u_user_id = :user_id';
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':user_id', $userId);
-            return $stmt->execute();
-        } catch (Exception $e) {
-            error_log('ユーザー削除エラー: ' . $e->getMessage());
-            throw $e;
+            return $this->userService->delete($userId);
+        } catch (Exception $exception) {
+            error_log('ユーザー削除エラー: ' . $exception->getMessage());
+            throw $exception;
         }
     }
 
-    /**
-     * バッジを更新（既存の関数との互換性のため）
-     */
-    public function updateUserBadge($userId, $badgeId)
+    public function updateUserBadge(int $userId, int $badgeId): bool
     {
         try {
-            $sql = 'UPDATE u_user SET m_badge_id = :badge_id WHERE u_user_id = :user_id';
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':badge_id', $badgeId);
-            $stmt->bindParam(':user_id', $userId);
-            return $stmt->execute();
-        } catch (Exception $e) {
-            error_log('バッジ更新エラー: ' . $e->getMessage());
+            return $this->userService->updateBadge($userId, $badgeId);
+        } catch (Exception $exception) {
+            error_log('バッジ更新エラー: ' . $exception->getMessage());
             return false;
         }
     }

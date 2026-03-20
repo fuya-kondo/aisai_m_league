@@ -1,7 +1,8 @@
-<?php
-
-// Include header
-include __DIR__ . '/../header.php';
+﻿<?php
+/**
+ * 競技ルールページビュー。
+ * ルール本文をこのファイルに集約し、単発の partial 分割をなくす。
+ */
 ?>
 
 <!DOCTYPE html>
@@ -13,18 +14,20 @@ include __DIR__ . '/../header.php';
     <link rel="apple-touch-icon" href="<?= h($baseUrl) ?>/favicon.png">
     <link rel="icon" href="<?= h($baseUrl) ?>/favicon.ico" sizes="64x64" type="image/x-icon">
     <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/master.css">
-    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/header.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/bottom_navigation.css">
     <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/app.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/pages/main-rule.css">
     <title><?= h($title) ?></title>
 </head>
 <body>
-<main>
+<?php include __DIR__ . '/bottom_navigation.php'; ?>
+<main class="rule-main">
+    <?php include __DIR__ . '/page_title.php'; ?>
     <div class="p-rule__body">
         <section class="p-rule__group">
-        <h3 class="c-title">
-            <span>第1章 競技の基本</span>
-        </h3>
-            <h3 class="c-title"></h3>
+            <h3 class="c-title">
+                <span>第1章 競技の基本</span>
+            </h3>
             <div class="p-rule__contents">
                 <h4 class="c-title -dot">第1条 競技の構成</h4>
                 <p class="p-rule__text">競技は1卓4人で行う、東南二風の半荘を以って1回戦とする。半荘に於いて、1周目を東場、2周目を南場とする。</p>
@@ -713,193 +716,4 @@ include __DIR__ . '/../header.php';
 </body>
 </html>
 
-<script>
-    const images = document.querySelectorAll('.playerImg img');
-    let currentIndex = -1;  // -1から開始
 
-    function showNextImage() {
-        currentIndex++;
-        if (currentIndex < images.length) {
-            images[currentIndex].classList.add('active');
-            setTimeout(showNextImage, 1000);
-        }
-    }
-
-    setTimeout(showNextImage, 1000);
-</script>
-
-<style>
-    .main {
-        padding: 20px;
-    }
-    .p-rule__body {
-        max-width: 960px; /* 全体の最大幅 */
-        margin: 0 auto; /* 中央寄せ */
-        background-color: #fff;
-        padding: 30px;
-    }
-
-    /* セクションのグループ */
-    .p-rule__group {
-        margin-bottom: 40px;
-        padding-bottom: 30px;
-        border-bottom: 1px dashed #e0e0e0; /* 破線で区切り */
-    }
-
-    .p-rule__group:last-child {
-        border-bottom: none; /* 最後のセクションには区切りなし */
-        margin-bottom: 0;
-        padding-bottom: 0;
-    }
-
-
-    /* 節タイトル (h4.c-title -dot) */
-    .c-title.-dot {
-        padding-top: 22px;
-        font-size: 1.9rem;
-        text-align: center;
-    }
-
-    .c-title.-dot::before {
-        content: "";
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 50%;
-        width: 150px;
-        height: 12px;
-        border-radius: 6px;
-        background-color: #eee;
-        -webkit-transform: translateX(-50%);
-        transform: translateX(-50%);
-    }
-
-    .p-rule__contents .c-title {
-        margin: 60px auto 30px;
-    }
-    /* テキスト段落 */
-    .p-rule__text {
-        margin-bottom: 1.5em;
-        font-size: 1.05em;
-        line-height: 1.8;
-    }
-
-    .p-rule__text ol {
-        margin: 0;
-        padding-left: 25px; /* リストのインデント */
-    }
-
-    .p-rule__text li {
-        margin-bottom: 0.8em;
-        position: relative;
-    }
-
-    /* リストアイテムの行頭記号をカスタマイズ */
-    .p-rule__text ol li::marker {
-        color: #5cb85c; /* 緑の番号 */
-        font-weight: bold;
-    }
-
-    /* テーブルスタイル */
-    .p-rule__table {
-        width: 100%;
-        border-collapse: separate; /* border-spacing を使うために separate に */
-        border-spacing: 0; /* ボーダーの間隔をなくす */
-        margin: 20px 0;
-        font-size: 0.95em;
-        border: 1px solid #ddd;
-        border-radius: 8px; /* テーブル全体の角丸 */
-        overflow: hidden; /* 角丸を適用するためにはみ出しを隠す */
-    }
-
-    .p-rule__table th,
-    .p-rule__table td {
-        padding: 12px 15px;
-        text-align: left;
-        border-bottom: 1px solid #eee;
-        border-right: 1px solid #eee; /* 右側のボーダー */
-    }
-
-    .p-rule__table th {
-        background-color: #eef4f9; /* ヘッダーの背景色 */
-        color: #444;
-        font-weight: bold;
-    }
-
-    /* 最後の列の右ボーダーをなくす */
-    .p-rule__table th:last-child,
-    .p-rule__table td:last-child {
-        border-right: none;
-    }
-
-    /* 最後の行の下ボーダーをなくす */
-    .p-rule__table tbody tr:last-child td {
-        border-bottom: none;
-    }
-
-    /* ホバーエフェクト */
-    .p-rule__table tbody tr:hover {
-        background-color: #f9f9f9;
-    }
-
-    /* 全幅テーブルの場合の調整 */
-    .p-rule__table.-full {
-        margin-top: 30px;
-        margin-bottom: 30px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* 少し強めの影 */
-    }
-
-    /* 注釈や特別なテキストのスタイル */
-    .p-rule__text strong {
-        color: #d9534f; /* 強調したい文字は赤 */
-    }
-
-    .p-rule__text em {
-        font-style: normal;
-        background-color: #ffffe0; /* ハイライト */
-        padding: 2px 4px;
-        border-radius: 3px;
-    }
-
-    /* レスポンシブ対応 */
-    @media (max-width: 768px) {
-        .p-rule__body {
-            padding: 15px;
-            border-radius: 8px;
-        }
-
-        .c-title {
-            font-size: 1.5em;
-            margin-bottom: 20px;
-        }
-
-        .c-title::before {
-            width: 90%;
-        }
-
-        .c-title.-dot {
-            font-size: 1.1em;
-            margin-top: 20px;
-        }
-        .c-title.-dot::after {
-            top: 6px;
-            width: 7px;
-            height: 7px;
-        }
-        .p-rule__text {
-            font-size: 0.95em;
-        }
-
-        .p-rule__table {
-            font-size: 0.85em;
-            display: block; /* テーブルをブロック要素にして横スクロールを可能にする */
-            overflow-x: auto; /* テーブルがはみ出したら横スクロール */
-            white-space: nowrap; /* セル内のテキストは改行しない */
-        }
-
-        .p-rule__table th,
-        .p-rule__table td {
-            padding: 8px 10px;
-        }
-    }
-</style>

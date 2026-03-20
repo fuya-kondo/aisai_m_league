@@ -1,173 +1,84 @@
 <?php
-
-
 /**
- * ユーザーティア履歴モデルクラス
- * ユーザーのティア履歴情報の取得、更新、削除を行う
+ * ティア履歴用の互換ラッパー。
+ * 実処理は TierHistoryService / TierHistoryRepository へ委譲する。
  */
 class UTierHistory
 {
-    private $db;
+    private \App\Services\TierHistoryService $tierHistoryService;
 
     public function __construct()
     {
-        $this->db = Database::getInstance();
+        $this->tierHistoryService = \App\Support\ServiceFactory::createTierHistoryService();
     }
 
-    /**
-     * すべてのティア履歴を取得
-     */
-    public function getAllTierHistory()
+    public function getAllTierHistory(): array
     {
         try {
-            $sql = 'SELECT * FROM u_tier_history';
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (Exception $e) {
-            error_log('ティア履歴取得エラー: ' . $e->getMessage());
+            return $this->tierHistoryService->getAll();
+        } catch (Exception $exception) {
+            error_log('ティア履歴取得エラー: ' . $exception->getMessage());
             return [];
         }
     }
 
-    /**
-     * マスターデータ管理用のフラットなティア履歴を取得
-     */
-    public function getAllTierHistoryFlat()
+    public function getAllTierHistoryFlat(): array
     {
         try {
-            $sql = 'SELECT 
-                        u_user_tier_history_id,
-                        u_user_id,
-                        m_tier_id,
-                        change_date as year
-                    FROM u_tier_history 
-                    ORDER BY change_date DESC';
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (Exception $e) {
-            error_log('ティア履歴取得エラー: ' . $e->getMessage());
+            return $this->tierHistoryService->getAllFlat();
+        } catch (Exception $exception) {
+            error_log('ティア履歴取得エラー: ' . $exception->getMessage());
             return [];
         }
     }
 
-    /**
-     * 指定されたユーザーのティア履歴を取得
-     */
-    public function getTierHistoryByUserId($userId)
+    public function getTierHistoryByUserId(int $userId): array
     {
         try {
-            $sql = 'SELECT 
-                        u_user_tier_history_id as id,
-                        u_user_id as user_id,
-                        m_tier_id as tier_id,
-                        change_date as year
-                    FROM u_tier_history 
-                    WHERE u_user_id = :user_id
-                    ORDER BY change_date DESC';
-            
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':user_id', $userId);
-            $stmt->execute();
-            
-            $tierHistory = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            // 年でグループ化
-            $groupedHistory = [];
-            foreach ($tierHistory as $history) {
-                $groupedHistory[$history['year']] = $history;
-            }
-
-            return $groupedHistory;
-        } catch (Exception $e) {
-            error_log('ユーザーティア履歴取得エラー: ' . $e->getMessage());
+            return $this->tierHistoryService->getByUserId($userId);
+        } catch (Exception $exception) {
+            error_log('ユーザーティア履歴取得エラー: ' . $exception->getMessage());
             return [];
         }
     }
 
-    /**
-     * 指定されたIDのティア履歴を取得
-     */
-    public function getTierHistoryById($tierHistoryId)
+    public function getTierHistoryById(int $tierHistoryId): ?array
     {
         try {
-            $sql = 'SELECT 
-                        u_user_tier_history_id as id,
-                        u_user_id as user_id,
-                        m_tier_id as tier_id,
-                        change_date as year
-                    FROM u_tier_history 
-                    WHERE u_user_tier_history_id = :tier_history_id';
-            
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':tier_history_id', $tierHistoryId);
-            $stmt->execute();
-            
-            return $stmt->fetch(PDO::FETCH_ASSOC);
-        } catch (Exception $e) {
-            error_log('ティア履歴取得エラー: ' . $e->getMessage());
+            return $this->tierHistoryService->getById($tierHistoryId);
+        } catch (Exception $exception) {
+            error_log('ティア履歴取得エラー: ' . $exception->getMessage());
             return null;
         }
     }
 
-    /**
-     * ティア履歴を更新
-     */
-    public function updateTierHistory($tierHistoryId, $data)
+    public function updateTierHistory(int $tierHistoryId, array $tierHistoryData): bool
     {
         try {
-            $sql = 'UPDATE u_tier_history SET 
-                        u_user_id = :u_user_id,
-                        m_tier_id = :m_tier_id,
-                        change_date = :year
-                    WHERE u_user_tier_history_id = :tier_history_id';
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':u_user_id', $data['u_user_id']);
-            $stmt->bindParam(':m_tier_id', $data['m_tier_id']);
-            $stmt->bindParam(':year', $data['year']);
-            $stmt->bindParam(':tier_history_id', $tierHistoryId);
-            
-            return $stmt->execute();
-        } catch (Exception $e) {
-            error_log('ティア履歴更新エラー: ' . $e->getMessage());
-            throw $e;
+            return $this->tierHistoryService->update($tierHistoryId, $tierHistoryData);
+        } catch (Exception $exception) {
+            error_log('ティア履歴更新エラー: ' . $exception->getMessage());
+            throw $exception;
         }
     }
 
-    /**
-     * ティア履歴を削除
-     */
-    public function deleteTierHistory($tierHistoryId)
+    public function deleteTierHistory(int $tierHistoryId): bool
     {
         try {
-            $sql = 'DELETE FROM u_tier_history WHERE u_user_tier_history_id = :tier_history_id';
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':tier_history_id', $tierHistoryId);
-            
-            return $stmt->execute();
-        } catch (Exception $e) {
-            error_log('ティア履歴削除エラー: ' . $e->getMessage());
-            throw $e;
+            return $this->tierHistoryService->delete($tierHistoryId);
+        } catch (Exception $exception) {
+            error_log('ティア履歴削除エラー: ' . $exception->getMessage());
+            throw $exception;
         }
     }
 
-    /**
-     * 新しいティア履歴を追加
-     */
-    public function addTierHistory($data)
+    public function addTierHistory(array $tierHistoryData): bool
     {
         try {
-            $sql = 'INSERT INTO u_tier_history (u_user_id, m_tier_id, change_date) VALUES (:u_user_id, :m_tier_id, :year)';
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':u_user_id', $data['u_user_id']);
-            $stmt->bindParam(':m_tier_id', $data['m_tier_id']);
-            $stmt->bindParam(':year', $data['year']);
-            
-            return $stmt->execute();
-        } catch (Exception $e) {
-            error_log('ティア履歴追加エラー: ' . $e->getMessage());
-            throw $e;
+            return $this->tierHistoryService->create($tierHistoryData);
+        } catch (Exception $exception) {
+            error_log('ティア履歴追加エラー: ' . $exception->getMessage());
+            throw $exception;
         }
     }
 }

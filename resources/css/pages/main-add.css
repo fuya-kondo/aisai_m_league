@@ -1,0 +1,96 @@
+/* 単独成績登録ページ専用スタイル: 入力フォームを右寄せ基調で整える。 */
+
+/* レイアウト: 項目とラベルの横並びグリッドを定義する。 */
+.form-container.container {
+  text-align: right;
+}
+
+.play_date.year {
+  width: 100px;
+}
+
+.play_date.month,
+.play_date.day {
+  width: 80px;
+}
+
+.form-group.game,
+.form-group.rank,
+.form-group.score,
+.form-group.player,
+.form-group.direction,
+.form-group.mistake {
+  display: grid;
+  gap: 0;
+  justify-content: end;
+  text-align: right;
+}
+
+.form-group {
+  margin: 10px 0;
+}
+
+.form-group.game,
+.form-group.player,
+.form-group.rank,
+.form-group.score,
+.form-group.mistake {
+  grid-template-columns: 1fr 60px;
+}
+
+.form-group.direction {
+  justify-content: space-evenly;
+}
+
+.form-group.game > input,
+.form-group.player > .input--readonly,
+.form-group.player > select,
+.form-group.rank > select,
+.form-group.score > input {
+  padding: 5px 10px;
+  text-align: right;
+}
+
+.input--readonly {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 38px;
+  background: #f8f9fa;
+}
+
+.form-group label {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  color: #333;
+  font-weight: 700;
+}
+
+.input,
+select,
+input[type="tel"],
+input[type="number"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px !important;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  text-align: right;
+}
+
+.form-group--hidden {
+  display: none;
+}
+
+.table-id-input {
+  width: 70%;
+}
+
+.submit-button {
+  width: 100%;
+  max-width: 980px;
+  display: block;
+  margin: 20px auto 0;
+}

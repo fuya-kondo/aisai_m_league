@@ -1,113 +1,100 @@
 <?php
 /**
- * 麻雀成績出力サービス
- *
- * このクラスは麻雀プレイヤーの成績を計算し、分析データを生成します。
+ * 成績集計・分析向けのドメインロジックをまとめるサービスクラス。
+ * 集計・履歴再編成・スケジュール抽出を専用 service へ分離し、このクラスは orchestrator として振る舞う。
  */
-class StatsService {
-    /* --- プロパティの定義 --- */
-    private $userList               = [];
-    private $tableData              = [];
-    private $groupData              = [];
-    private $ruleData               = [];
-    private $mTitle                 = [];
-    private $uTitle                 = [];
-    private $mDirectionDataList     = [];
-    private $mGameDayDataList       = [];
-    private $uGameHistoryDataList   = [];
-    private $mTierDataList          = [];
-    private $uTierHistoryDataList   = [];
-    private $mBadgeDataList         = [];
-    private $years                  = [];
-    private $baseScore              = null;
-    private const START_YEAR        = 2022;
-    private const ALL_TERM          = '全期間';
+class StatsService
+{
+    private array $userList = [];
+    private array $tableData = [];
+    private array $groupData = [];
+    private array $ruleData = [];
+    private array $titleDefinitions = [];
+    private array $userTitles = [];
+    private array $directionDefinitions = [];
+    private array $scheduledGameDays = [];
+    private array $gameHistoryByUser = [];
+    private array $tierDefinitions = [];
+    private array $tierHistoryRecords = [];
+    private array $badgeDefinitions = [];
+    private array $availableTerms = [];
+    private int $baseScore;
+    private StatsPresenter $statsPresenter;
+    private \App\Services\StatsScoreAggregator $scoreAggregator;
+    private \App\Services\StatsHistoryOrganizer $historyOrganizer;
+    private \App\Services\ScheduleService $scheduleService;
 
-    /**
-     * コンストラクタ
-     */
-    public function __construct( $user, $table, $group, $rule, $mDirection, $mGameDay, $mTitle, $uGameHistory, $uTitle, $mTier, $uTierHistory, $mBadge ) {
-        $this->userList             = $user;
-        $this->tableData            = $table;
-        $this->groupData            = $group;
-        $this->ruleData             = $rule;
-        $this->mTitle               = $mTitle;
-        $this->uTitle               = $uTitle;
-        $this->mDirectionDataList   = $mDirection;
-        $this->mGameDayDataList     = $mGameDay;
-        $this->uGameHistoryDataList = $uGameHistory;
-        $this->mTierDataList        = $mTier;
-        $this->uTierHistoryDataList = $uTierHistory;
-        $this->mBadgeDataList       = $mBadge;
-        $this->baseScore            = is_array($rule) && isset($rule['start_score']) ? $rule['start_score'] : 25000;
-        $this->_setYears();
+    public function __construct(StatsSourceSet $sourceSet)
+    {
+        $this->userList = $sourceSet->userList;
+        $this->tableData = $sourceSet->tableData;
+        $this->groupData = $sourceSet->groupData;
+        $this->ruleData = $sourceSet->ruleData;
+        $this->titleDefinitions = $sourceSet->titleDefinitions;
+        $this->userTitles = $sourceSet->userTitles;
+        $this->directionDefinitions = $sourceSet->directionList;
+        $this->scheduledGameDays = $sourceSet->gameDayList;
+        $this->gameHistoryByUser = $sourceSet->gameHistoryByUser;
+        $this->tierDefinitions = $sourceSet->tierDefinitions;
+        $this->tierHistoryRecords = $sourceSet->tierHistoryRecords;
+        $this->badgeDefinitions = $sourceSet->badgeDefinitions;
+        $this->baseScore = isset($sourceSet->ruleData['start_score']) ? (int) $sourceSet->ruleData['start_score'] : 25000;
+        $this->statsPresenter = \App\Support\StatsComponentFactory::createPresenter();
+        $this->scoreAggregator = \App\Support\StatsComponentFactory::createScoreAggregator($this->baseScore);
+        $this->historyOrganizer = \App\Support\StatsComponentFactory::createHistoryOrganizer();
+        $this->scheduleService = \App\Support\StatsComponentFactory::createScheduleService();
+        $this->initializeAvailableTerms();
     }
 
-    /* -------- GETメソッド -------- */
-
-    /**
-     * 集計対象の年を取得
-     *
-     * @return array 集計対象の年リスト
-     */
     public function getUserList(): array
     {
-        foreach ($this->userList as $userId => &$userData) {
-            if ( isset($this->mTierDataList[$userData['m_tier_id']]) ) {
-                $userData['tier'] = $this->mTierDataList[$userData['m_tier_id']];
+        $userList = $this->userList;
+        foreach ($userList as $userId => &$userData) {
+            if (isset($this->tierDefinitions[$userData['m_tier_id']])) {
+                $userData['tier'] = $this->tierDefinitions[$userData['m_tier_id']];
             }
-            if ( isset($this->mBadgeDataList[$userData['m_badge_id']]) ) {
-                $userData['badge'] = $this->mBadgeDataList[$userData['m_badge_id']];
+            if (isset($this->badgeDefinitions[$userData['m_badge_id']])) {
+                $userData['badge'] = $this->badgeDefinitions[$userData['m_badge_id']];
             }
         }
-        return $this->userList;
+        unset($userData);
+
+        return $userList;
     }
 
-    /**
-     * 集計対象の年を取得
-     *
-     * @return array 集計対象の年リスト
-     */
     public function getYears(): array
     {
-        return $this->years;
+        return $this->availableTerms;
     }
 
-    /**
-     * タイトル保持者の取得
-     *
-     * @return array タイトル保持者リスト
-     */
+    public function getYearTerms(): array
+    {
+        return array_values(array_filter(
+            $this->availableTerms,
+            static fn(string $term): bool => $term !== \App\Support\Constants\AppConstants::ALL_TERM_LABEL
+        ));
+    }
+
     public function getTitleHolder(): array
     {
-        $mTitleMap = [];
-        foreach ($this->mTitle as $title) {
-            $mTitleMap[$title['m_title_id']] = $title['name'];
+        $titleNameMap = [];
+        foreach ($this->titleDefinitions as $titleDefinition) {
+            $titleNameMap[$titleDefinition['m_title_id']] = $titleDefinition['name'];
         }
 
-        $uUserMap = [];
-        foreach ($this->userList as $user) {
-            $uUserMap[$user['u_user_id']] = $user['last_name'].$user['first_name'];
+        $userNameMap = [];
+        foreach ($this->userList as $userData) {
+            $userNameMap[$userData['u_user_id']] = $userData['last_name'] . $userData['first_name'];
         }
 
         $groupedTitles = [];
-        foreach ($this->uTitle as $uTitleItem) {
-            $year = $uTitleItem['year'];
-            $mTitleId = $uTitleItem['m_title_id'];
-            $uUserId = $uTitleItem['u_user_id'];
-            $titleName = isset($mTitleMap[$mTitleId]) ? $mTitleMap[$mTitleId] : '不明なタイトル';
-            $name = isset($uUserMap[$uUserId]) ? $uUserMap[$uUserId] : '不明なユーザー';
-
-            // 年ごとに配列を初期化
-            if (!isset($groupedTitles[$year])) {
-                $groupedTitles[$year] = [];
-            }
-
+        foreach ($this->userTitles as $userTitle) {
+            $year = $userTitle['year'];
             $groupedTitles[$year][] = [
-                'u_title_id' => $uTitleItem['u_title_id'],
-                'title_name' => $titleName,
-                'u_user_id' => $name,
-                'value' => $uTitleItem['value']
+                'u_title_id' => $userTitle['u_title_id'],
+                'title_name' => $titleNameMap[$userTitle['m_title_id']] ?? '不明なタイトル',
+                'u_user_id' => $userNameMap[$userTitle['u_user_id']] ?? '不明なユーザー',
+                'value' => $userTitle['value'],
             ];
         }
         krsort($groupedTitles);
@@ -115,560 +102,253 @@ class StatsService {
         return $groupedTitles;
     }
 
-    /*
-     * ランク履歴の取得
-     *
-     * @return array ランク履歴リスト
-     */
     public function getRankHistory(): array
     {
-        $tmp = [];
-        $result = [];
-        
-        // デバッグログ
-        error_log('getRankHistory: uTierHistoryDataList count: ' . count($this->uTierHistoryDataList));
-        error_log('getRankHistory: mTierDataList count: ' . count($this->mTierDataList));
-        
-        // データをまとめる
-        foreach ($this->uTierHistoryDataList as $row) {
-            $userId = $row["u_user_id"] ?? 0;
-            $year   = $row["year"] ?? '';  // change_dateではなくyearキーを使用
-            $tier   = $row["m_tier_id"] ?? 0;
+        $tierHistoryByUser = [];
+        $rankHistory = [];
 
-            error_log("getRankHistory: Processing row - userId: $userId, year: $year, tier: $tier");
+        foreach ($this->tierHistoryRecords as $tierHistoryRecord) {
+            $userId = $tierHistoryRecord['u_user_id'] ?? 0;
+            $year = $tierHistoryRecord['year'] ?? '';
+            $tierId = $tierHistoryRecord['m_tier_id'] ?? 0;
 
-            if ($year && $tier && isset($this->mTierDataList[$tier])) {
-                $tmp[$userId][$year]['tier'] = $tier;
-                $tmp[$userId][$year]['name'] = $this->mTierDataList[$tier]['name'];
-                $tmp[$userId][$year]['color'] = $this->mTierDataList[$tier]['color'];
-                error_log("getRankHistory: Added to tmp - userId: $userId, year: $year, tier: $tier");
-            } else {
-                error_log("getRankHistory: Skipped row - userId: $userId, year: $year, tier: $tier, tier exists: " . (isset($this->mTierDataList[$tier]) ? 'yes' : 'no'));
+            if ($year && $tierId && isset($this->tierDefinitions[$tierId])) {
+                $tierHistoryByUser[$userId][$year] = [
+                    'tier' => $tierId,
+                    'name' => $this->tierDefinitions[$tierId]['name'],
+                    'color' => $this->tierDefinitions[$tierId]['color'],
+                ];
             }
         }
-        
-        error_log('getRankHistory: tmp count: ' . count($tmp));
-        
-        foreach ($tmp as $userId => $yearList) {
-            error_log("getRankHistory: Processing userId: $userId, yearList count: " . count($yearList));
-            foreach ($yearList as $year => $dataList) {
-                $prevYear = (int)$year - 1;
-                if (isset($yearList[$prevYear]))  {
-                    // 前年のデータが存在する場合
-                    $result[$userId][$year]['before']['tier'] = $yearList[$prevYear]['tier'];
-                    $result[$userId][$year]['before']['name'] = $yearList[$prevYear]['name'];
-                    $result[$userId][$year]['before']['color'] = $yearList[$prevYear]['color'];
-                    $result[$userId][$year]['after']['tier'] = $dataList['tier'];
-                    $result[$userId][$year]['after']['name'] = $dataList['name'];
-                    $result[$userId][$year]['after']['color'] = $dataList['color'];
-                    error_log("getRankHistory: Added result with previous year - userId: $userId, year: $year");
-                } else {
-                    // 前年のデータが存在しない場合（最初の年など）
-                    $result[$userId][$year]['before']['tier'] = 0;
-                    $result[$userId][$year]['before']['name'] = '未設定';
-                    $result[$userId][$year]['before']['color'] = '#999999';
-                    $result[$userId][$year]['after']['tier'] = $dataList['tier'];
-                    $result[$userId][$year]['after']['name'] = $dataList['name'];
-                    $result[$userId][$year]['after']['color'] = $dataList['color'];
-                    error_log("getRankHistory: Added result without previous year - userId: $userId, year: $year");
-                }
+
+        foreach ($tierHistoryByUser as $userId => $yearList) {
+            foreach ($yearList as $year => $tierData) {
+                $previousYear = (int) $year - 1;
+                $previousTierData = $yearList[$previousYear] ?? [
+                    'tier' => 0,
+                    'name' => 'なし',
+                    'color' => \App\Support\Constants\AppConstants::DEFAULT_TIER_COLOR,
+                ];
+
+                $rankHistory[$userId][$year] = [
+                    'before' => $previousTierData,
+                    'after' => $tierData,
+                ];
             }
         }
-        
-        error_log('getRankHistory: Final result count: ' . count($result));
-        return $result;
+
+        return $rankHistory;
     }
 
-    /**
-     * 本日の成績の取得
-     *
-     * @return array 本日の成績リスト
-     */
     public function getTodayStatsList(): array
     {
-        return $this->_addRankings($this->_getScore(self::ALL_TERM, true));
+        return $this->statsPresenter->addRankings(
+            $this->statsPresenter->formatUserStats(
+                $this->calculateScoreStats(\App\Support\Constants\AppConstants::ALL_TERM_LABEL, true)
+            )
+        );
     }
 
-    /**
-     * 年毎の成績の取得
-     *
-     * @return array 年毎の成績リスト
-     */
+    public function hasTodayStats(): bool
+    {
+        $todayStatsList = $this->getTodayStatsList();
+        $firstRow = reset($todayStatsList);
+
+        return (int)($firstRow['play_count'] ?? 0) > 0;
+    }
+
     public function getYearlyStatsList(): array
     {
-        $result = [];
-        foreach ($this->years as $year) {
-            $result[$year] = $this->_addRankings($this->_getScore($year));
+        $statsByTerm = [];
+        foreach ($this->availableTerms as $term) {
+            $statsByTerm[$term] = $this->statsPresenter->addRankings(
+                $this->statsPresenter->formatUserStats($this->calculateScoreStats($term))
+            );
         }
-        return $result;
+
+        return $statsByTerm;
     }
 
-    /**
-     * 各家の対戦結果（上家とのスコア・ポイント差を集計）
-     *
-     * @return array
-     */
-    public function getRelativeScoreByDirection(): array
+    public function getStatsByTermList(): array
     {
-        $uDirectionGameHistoryDataList = [];
-        foreach ($this->uGameHistoryDataList as $userId => $gameHistoryDataList) {
-            foreach ($gameHistoryDataList as $gameHistoryData) {
-                if ($gameHistoryData['m_direction_id'] != 0) {
-                    $playDate = new DateTime($gameHistoryData['play_date']);
-                    $playDateYMD = $playDate->format('Y-m-d');
-                    $uDirectionGameHistoryDataList[$playDateYMD][$gameHistoryData['game']][$gameHistoryData['m_direction_id']] = $gameHistoryData;
-                }
-            }
+        $statsByTerm = $this->getYearlyStatsList();
+        if ($this->hasTodayStats()) {
+            $statsByTerm[\App\Support\Constants\AppConstants::TODAY_TERM] = $this->getTodayStatsList();
         }
 
-        $directionStats = [
-            'upper' => [],
-            'lower' => []
-        ];
-
-        foreach ($uDirectionGameHistoryDataList as $playDate => $directionGameHistoryDataList) {
-            foreach ($directionGameHistoryDataList as $game => $directionGameHistoryData) {
-                if (count($directionGameHistoryData) === 4) {
-                    foreach ($directionGameHistoryData as $directionId => $gameHistoryData) {
-                        $currentUserId = $gameHistoryData['u_user_id'];
-
-                        // --- 上家処理 ---
-                        $upperDirectionId = $this->_getUpperDirection($directionId);
-                        $upperUserId = $directionGameHistoryData[$upperDirectionId]['u_user_id'];
-
-                        if (!isset($directionStats['upper'][$currentUserId][$upperUserId])) {
-                            $directionStats['upper'][$currentUserId][$upperUserId] = ['sub_score' => 0, 'sub_point' => 0];
-                        }
-
-                        $directionStats['upper'][$currentUserId][$upperUserId]['sub_score'] += $gameHistoryData['score'] - $directionGameHistoryData[$upperDirectionId]['score'];
-                        $directionStats['upper'][$currentUserId][$upperUserId]['sub_point'] = round(
-                            $directionStats['upper'][$currentUserId][$upperUserId]['sub_point'] + ($gameHistoryData['point'] - $directionGameHistoryData[$upperDirectionId]['point']),
-                            1
-                        );
-
-                        // --- 下家処理 ---
-                        $lowerDirectionId = $this->_getLowerDirection($directionId);
-                        $lowerUserId = $directionGameHistoryData[$lowerDirectionId]['u_user_id'];
-
-                        if (!isset($directionStats['lower'][$currentUserId][$lowerUserId])) {
-                            $directionStats['lower'][$currentUserId][$lowerUserId] = ['sub_score' => 0, 'sub_point' => 0];
-                        }
-
-                        $directionStats['lower'][$currentUserId][$lowerUserId]['sub_score'] += $gameHistoryData['score'] - $directionGameHistoryData[$lowerDirectionId]['score'];
-                        $directionStats['lower'][$currentUserId][$lowerUserId]['sub_point'] = round(
-                            $directionStats['lower'][$currentUserId][$lowerUserId]['sub_point'] + ($gameHistoryData['point'] - $directionGameHistoryData[$lowerDirectionId]['point']),
-                            1
-                        );
-                    }
-                }
-            }
-        }
-
-        return $directionStats;
+        return $statsByTerm;
     }
 
-    /**
-     * AI分析用データの取得
-     *
-     * @return array AI分析用データリスト
-     */
-    public function getAnalysisDataList(): array
+
+    public function getAnalysisTerms(): array
     {
-        return $this->_getScore(self::ALL_TERM);
+        return array_merge(
+            [\App\Support\Constants\AppConstants::ALL_TERM_LABEL],
+            $this->getYearTerms()
+        );
     }
 
-    /**
-     * 年毎のグラフ用データの取得
-     *
-     * @return array 年毎のグラフ用データリスト
-     */
-    public function getYearlyChartList(): array
+    public function isValidAnalysisTerm(string $term): bool
     {
-        $result = [];
-        foreach ($this->years as $year) {
-            $statsData = []; // 年ごとに初期化
-            foreach ($this->userList as $userId => $userData) {
-                if ( isset($this->uGameHistoryDataList[$userId]) ) {
-                    foreach ($this->uGameHistoryDataList[$userId] as $data) {
-                        // 年の条件をチェック
-                        if ($year == self::ALL_TERM || date('Y', strtotime($data['play_date'])) == $year) {
-                            // 該当する年のデータを追加
-                            $statsData[$userId][] = $data;
-                        }
-                    }
-                }
-            }
-            // 年ごとの結果を格納
-            $result[$year] = $statsData;
-        }
-        return $result;
+        return in_array($term, $this->getAnalysisTerms(), true);
     }
 
-    /**
-     * 次とその次の対局日時を最大2件取得します。
-     *
-     * @return array 次とその次の対局日時。フォーマットは 'n/j(曜日)'。予定がない場合は空の配列を返します。
-     */
-    public function getNextTwoGameDays(): array
+    public function getAnalysisDataByTerm(string $term): array
     {
-        $todayStart = (new DateTimeImmutable())->setTime(0, 0, 0);
-        $futureGameDateObjects = [];
+        $statsByUser = $this->calculateScoreStats($term);
+        $analysisDataByUser = [];
 
-        // 未来の対局日時のみを抽出し、DateTimeImmutableオブジェクトの配列を作成
-        foreach ($this->mGameDayDataList as $gameDayData) {
-            if (!isset($gameDayData['game_day']) || !is_string($gameDayData['game_day'])) {
-                error_log("Invalid game_day data structure: " . json_encode($gameDayData));
-                continue;
-            }
-            $dateString = $gameDayData['game_day'];
-            try {
-                $gameDateTime = new DateTimeImmutable($dateString);
+        foreach ($this->userList as $userId => $userData) {
+            $filteredHistoryRows = $this->filterGameHistoryRowsByTerm($this->gameHistoryByUser[$userId] ?? [], $term);
+            usort($filteredHistoryRows, static function (array $left, array $right): int {
+                $leftTimestamp = strtotime((string)($left['play_date'] ?? '')) ?: 0;
+                $rightTimestamp = strtotime((string)($right['play_date'] ?? '')) ?: 0;
 
-                if ($gameDateTime->setTime(0, 0, 0) >= $todayStart) {
-                    $futureGameDateObjects[] = $gameDateTime;
+                if ($leftTimestamp !== $rightTimestamp) {
+                    return $rightTimestamp <=> $leftTimestamp;
                 }
-            } catch (Exception $e) {
-                error_log("Failed to parse game_day date string: '{$dateString}' - " . $e->getMessage());
-            }
+
+                $leftGame = (int)($left['game'] ?? 0);
+                $rightGame = (int)($right['game'] ?? 0);
+                if ($leftGame !== $rightGame) {
+                    return $rightGame <=> $leftGame;
+                }
+
+                return (int)($right['u_game_history_id'] ?? 0) <=> (int)($left['u_game_history_id'] ?? 0);
+            });
+
+            $trimmedHistoryRows = array_slice($filteredHistoryRows, 0, 500);
+            $analysisDataByUser[$userId] = array_merge(
+                $statsByUser[$userId] ?? [],
+                [
+                    'history_total_count' => count($filteredHistoryRows),
+                    'history_included_count' => count($trimmedHistoryRows),
+                    'recent_games' => array_map(
+                        fn(array $historyRow): array => $this->normalizeAnalysisHistoryRow($historyRow),
+                        $trimmedHistoryRows
+                    ),
+                ]
+            );
         }
 
-        // 未来の対局日時が一件もない場合
-        if (empty($futureGameDateObjects)) {
-            return [];
-        }
-
-        // 最も近い対局日時を特定するためにソート
-        usort($futureGameDateObjects, function (DateTimeImmutable $a, DateTimeImmutable $b) {
-            return $a <=> $b;
-        });
-
-        // 曜日を取得するための配列
-        $weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-        $nextTwoGameDays = [];
-
-        // 最初の2件をフォーマットして配列に追加
-        foreach ($futureGameDateObjects as $index => $closestDateTime) {
-            if ($index >= 2) {
-                break; // 2件取得したらループを終了
-            }
-            $weekday = $weekdays[(int)$closestDateTime->format('w')];
-            $nextTwoGameDays[] = $closestDateTime->format('n/j') . "(" . $weekday . ")";
-        }
-
-        return $nextTwoGameDays;
+        return $analysisDataByUser;
     }
 
-    /**
-     * 日ごとの対局履歴の取得
-     *
-     * @return array 対局履歴リスト
-     */
     public function getDayStats(): array
     {
-        $result = [];
-        foreach ($this->userList as $userId => $userData) {
-            if ( isset($this->uGameHistoryDataList[$userId]) ) {
-                foreach ($this->uGameHistoryDataList[$userId] as $uGameHistoryData) {
-                    if (!empty($uGameHistoryData['game'])) {
-                        $playDate = new DateTime($uGameHistoryData['play_date']);
-                        $dateKey = $playDate->format('Y-m-d');
-                        if ( !isset($result[$dateKey][$userId]) ) {
-                            $result[$dateKey][$userId] = 0;
-                        }
-                        $result[$dateKey][$userId] += $uGameHistoryData['point'];
-                    }
-                }
-            }
-        }
-        return $result;
+        return $this->historyOrganizer->buildDayStats($this->userList, $this->gameHistoryByUser);
     }
 
-    /**
-     * 対局履歴の取得
-     *
-     * @return array 対局履歴リスト
-     */
     public function getGameHistoryList(): array
     {
-        $result = [];
-        foreach ($this->userList as $userId => $userData) {
-            if ( isset($this->uGameHistoryDataList[$userId]) ) {
-                foreach ($this->uGameHistoryDataList[$userId] as $uGameHistoryData) {
-                    if (!empty($uGameHistoryData['game'])) {
-                        $playDate = new DateTime($uGameHistoryData['play_date']);
-                        $dateKey = $playDate->format('Y-m-d');
-                        $result[$dateKey][$uGameHistoryData['game']][$userId] = $uGameHistoryData;
-                    }
-                }
-            }
-        }
-        foreach ($result as $dateKey => &$games) {
-            uksort($games, function ($a, $b) {
-                $numA = intval($a);
-                $numB = intval($b);
-                if ($numA == $numB) return 0;
-                return ($numA > $numB) ? -1 : 1;
-            });
-        }
-        unset($games);
-        return $result;
+        return $this->historyOrganizer->buildGameHistoryList($this->userList, $this->gameHistoryByUser);
     }
 
-    /**
-     * 指定年度の成績を取得する
-     *
-     * @param string $year 指定年度
-     * @param boolean $today 本日のデータを取得するかどうか
-     * @return array 指定年度の成績データ
-     */
-    private function _getScore($year, bool $today = false): array
+    public function getYearlyChartList(): array
     {
-        $result = [];
-        $userGameHistoryData = [];
-        foreach ( $this->userList as $userId => $userData ) {
-            $result[$userId] = $this->_initializeUserStats($userData);
-            $userGameHistoryData = $this->_getGameHistory($this->uGameHistoryDataList[$userId] ?? [], $year, $today);
-            $result[$userId] = $this->_calculateUserStats($result[$userId], $userGameHistoryData);
-        }
-        return $this->_formatUserStats($result);
+        return $this->historyOrganizer->buildYearlyChartList($this->availableTerms, $this->userList, $this->gameHistoryByUser);
     }
 
-    /**
-     * ユーザー統計の初期値を設定する
-     *
-     * @param string $userData ユーザーデータ
-     * @return array 初期化された統計データ
-     */
-    private function _initializeUserStats(array $userData): array
+    public function getChartByTermList(): array
+    {
+        $terms = $this->availableTerms;
+        if ($this->hasTodayStats()) {
+            $terms[] = \App\Support\Constants\AppConstants::TODAY_TERM;
+        }
+
+        return $this->historyOrganizer->buildYearlyChartList($terms, $this->userList, $this->gameHistoryByUser);
+    }
+
+    public function getRelativeScoreByDirection(): array
+    {
+        return $this->historyOrganizer->buildRelativeScoreByDirection($this->gameHistoryByUser);
+    }
+
+    public function getNextTwoGameDays(): array
+    {
+        return $this->scheduleService->nextTwoGameDays($this->scheduledGameDays);
+    }
+
+    public function getDefaultStatsTerm(): string
+    {
+        if ($this->hasTodayStats()) {
+            return \App\Support\Constants\AppConstants::TODAY_TERM;
+        }
+
+        $yearTerms = $this->getYearTerms();
+        if (!empty($yearTerms)) {
+            return (string)$yearTerms[0];
+        }
+
+        return \App\Support\Constants\AppConstants::ALL_TERM_LABEL;
+    }
+
+    public function getScoreTotalUnits(): int
+    {
+        return (int)(($this->baseScore * \App\Support\Constants\AppConstants::PLAYER_COUNT) / \App\Support\Constants\AppConstants::SCORE_INPUT_MULTIPLIER);
+    }
+
+    public function getScoreTotal(): int
+    {
+        return $this->baseScore * \App\Support\Constants\AppConstants::PLAYER_COUNT;
+    }
+
+    public function isValidStatsTerm(string $term): bool
+    {
+        if ($term === \App\Support\Constants\AppConstants::TODAY_TERM) {
+            return $this->hasTodayStats();
+        }
+
+        return in_array($term, $this->availableTerms, true);
+    }
+
+    private function calculateScoreStats(string $term, bool $today = false): array
+    {
+        return $this->scoreAggregator->calculate($this->userList, $this->gameHistoryByUser, $term, $today);
+    }
+
+    private function filterGameHistoryRowsByTerm(array $historyRows, string $term): array
+    {
+        if ($term === \App\Support\Constants\AppConstants::ALL_TERM_LABEL) {
+            return $historyRows;
+        }
+
+        return array_values(array_filter($historyRows, static function (array $historyRow) use ($term): bool {
+            $historyTimestamp = strtotime((string)($historyRow['play_date'] ?? ''));
+            if ($historyTimestamp === false) {
+                return false;
+            }
+
+            return date('Y', $historyTimestamp) === $term;
+        }));
+    }
+
+    private function normalizeAnalysisHistoryRow(array $historyRow): array
     {
         return [
-            'u_user_id'                 => $userData['u_user_id'],
-            'name'                      => $userData['last_name'].$userData['first_name'],
-            'play_count'                => 0, // 対局数
-            'rank_count'                => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 順位カウント
-            'rank_probability'          => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 順位率
-            'average_rank'              => 0, // 平均順位
-            'sum_base_score'            => 0, // 素点
-            'average_score'             => 0, // 平均点
-            'sum_point'                 => 0, // 合計ポイント
-            'average_point'             => 0, // 平均ポイント
-            'hight_score'               => 0, // 最高点
-            'play_count_direction'      => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 対局数(各家)
-            'rank_count_direction'      => [ 1 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], 2 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], 3 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], 4 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ] ], // 順位カウント(各家)
-            'rank_probability_direction'=> [ 1 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], 2 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], 3 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], 4 => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ] ], // 順位率(各家)
-            'average_rank_direction'    => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 平均順位(各家)
-            'sum_base_score_direction'  => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 素点(各家)
-            'average_score_direction'   => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 平均点(各家)
-            'sum_point_direction'       => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 合計ポイント(各家)
-            'average_point_direction'   => [ 1 => 0, 2 => 0, 3 => 0, 4 => 0 ], // 平均ポイント(各家)
-            'over_second_probability'   => 0, // 連対率
-            'over_third_probability'    => 0, // 4着回避率
-            'mistake_count'             => 0, // チョンボ数
+            'play_date' => date('Y-m-d', strtotime((string)($historyRow['play_date'] ?? ''))),
+            'game' => (int)($historyRow['game'] ?? 0),
+            'direction' => $this->directionDefinitions[(int)($historyRow['m_direction_id'] ?? 0)]['name'] ?? '',
+            'rank' => (string)($historyRow['rank'] ?? ''),
+            'score' => (int)($historyRow['score'] ?? 0),
+            'point' => round((float)($historyRow['point'] ?? 0), 1),
+            'mistake_count' => (int)($historyRow['mistake_count'] ?? 0),
         ];
     }
 
-    /**
-     * ユーザーの統計を計算する
-     *
-     * @param array $stats 初期化された統計データ
-     * @param array $uGameHistoryDataList ユーザーの対局履歴
-     * @param string $year 計算対象年度
-     * @param boolean $today 本日のデータを取得するかどうか
-     * @return array 計算された統計データ
-     */
-    private function _getGameHistory(array $uGameHistoryDataList, $year, bool $today = false): array
+    private function initializeAvailableTerms(): void
     {
-        if (!is_array($uGameHistoryDataList)) {
-            return [];
-        }
-        
-        $result = [];
-        foreach ($uGameHistoryDataList as $uGameHistoryData) {
-            $isGet = false;
-            if ($today && date('Y-m-d', strtotime($uGameHistoryData['play_date'])) == date('Y-m-d')) {
-                $isGet = true;
-            } elseif (!$today && $year === '全期間') {
-                $isGet = true;
-            } elseif (!$today && date('Y', strtotime($uGameHistoryData['play_date'])) == $year) {
-                $isGet = true;
-            }
-            if ($isGet) {
-                $result[] = $uGameHistoryData;
-            }
-        }
-        return $result;
-    }
-
-    /**
-     * ユーザーの統計を計算する
-     *
-     * @param array $uGameHistoryDataList ユーザーの対局履歴
-     * @return array 計算された統計データ
-     */
-    private function _calculateUserStats(array $stats, array $uGameHistoryDataList): array
-    {
-        // 平均や各家ごとの合計値の算出に用いるワーク変数
-        $sumRank = 0; // 平均順位の算出に使用
-        $sumScore = 0; // 平均点の算出に使用
-        $sumRankDirection = [1 => 0, 2 => 0, 3 => 0, 4 => 0]; // 各家の平均順位の算出に使用
-        $sumScoreDirection = [1 => 0, 2 => 0, 3 => 0, 4 => 0]; // 各家の平均点の算出に使用
-        foreach ($uGameHistoryDataList as $uGameHistoryData) {
-            $stats['play_count']++;
-            $stats['sum_point'] += $uGameHistoryData['point'];
-            $sumScore += $uGameHistoryData['score'];
-            $stats['sum_base_score'] += ($uGameHistoryData['score'] - $this->baseScore) / 1000;
-            $stats['mistake_count'] += $uGameHistoryData['mistake_count'];
-            $stats['hight_score'] = max($uGameHistoryData['score'], $stats['hight_score']);
-            // 順位の統計
-            $rank = substr($uGameHistoryData['rank'], 0, 1); // 同率の場合は上位でカウントする
-            $sumRank += $rank;
-            $stats['rank_count'][$rank]++;
-            // 各家の統計
-            if (!empty($uGameHistoryData['m_direction_id'])) {
-                $directionId = $uGameHistoryData['m_direction_id'];
-                $stats['play_count_direction'][$directionId]++; // 対局数(各家)
-                $stats['rank_count_direction'][$directionId][$rank]++; // 順位(各家)
-                $sumRankDirection[$directionId] += $rank; // 順位(各家)
-                $stats['sum_base_score_direction'][$directionId] += ($uGameHistoryData['score'] - $this->baseScore) / 1000; // 素点(各家)
-                $sumScoreDirection[$directionId] += $uGameHistoryData['score']; // 平均点(各家)
-                $stats['sum_point_direction'][$directionId] += $uGameHistoryData['point']; // 合計ポイント(各家)
-            }
-        }
-        if (isset($stats['play_count']) && $stats['play_count'] > 0) {
-             // 各順位率
-            foreach ($stats['rank_count'] as $rank => $count) {
-                $stats['rank_probability'][$rank] = !empty($count) ? $count / $stats['play_count'] * 100 : 0;
-            }
-            $stats['average_rank'] = !empty($sumRank) ? $sumRank / $stats['play_count'] : 0; // 平均順位
-            $stats['average_score'] = !empty($sumScore) ? $sumScore / $stats['play_count'] : 0; // 平均点
-            $stats['average_point'] = !empty($stats['sum_point']) ? $stats['sum_point'] / $stats['play_count'] : 0; // 平均ポイント
-            $stats['over_second_probability'] = !empty($stats['rank_count'][1] + $stats['rank_count'][2]) ? ($stats['rank_count'][1] + $stats['rank_count'][2]) / $stats['play_count'] * 100 : 0; // 連対率
-            $stats['over_third_probability'] = !empty($stats['rank_count'][4]) ? 100 - ($stats['rank_count'][4] / $stats['play_count'] * 100) : 0; // 4着回避率
-        }
-        // 各家の統計がある場合
-        if (isset($stats['play_count_direction']) && $stats['play_count_direction'][1] > 0) {
-            // 平均順位(各家)
-            foreach ($sumRankDirection as $directionId => $data) {
-                $stats['average_rank_direction'][$directionId] = !empty($data) ? $data / $stats['play_count_direction'][$directionId] : 0;
-            }
-            // 順位率(各家)
-            foreach ($stats['rank_count_direction'] as $directionId => $data) {
-                foreach ($data as $rank => $value) {
-                    $stats['rank_probability_direction'][$directionId][$rank] = !empty($value) ? $value / $stats['play_count_direction'][$directionId] * 100 : 0;
-                }
-            }
-            // 平均点(各家)
-            foreach ($sumScoreDirection as $directionId => $data) {
-                $stats['average_score_direction'][$directionId] = !empty($data) ? $data / $stats['play_count_direction'][$directionId] : 0;
-            }
-            // 平均ポイント(各家)
-            foreach ($stats['sum_point_direction'] as $directionId => $data) {
-                $stats['average_point_direction'][$directionId] = !empty($data) ? $data / $stats['play_count_direction'][$directionId] : 0;
+        $yearSet = [];
+        foreach ($this->gameHistoryByUser as $historyRows) {
+            foreach ($historyRows as $historyRow) {
+                $yearSet[(string)date('Y', strtotime($historyRow['play_date']))] = true;
             }
         }
 
-        // チョンボの精算
-        for ($i = 1; $i <= $stats['mistake_count']; $i++) {
-            $stats['sum_point'] -= 20;
-        }
-
-        return $stats;
-    }
-
-    /**
-     * ユーザー統計データをフォーマットする
-     *
-     * @param array $statsData 統計データ
-     * @return array フォーマットされた統計データ
-     */
-    private function _formatUserStats(array $statsData): array
-    {
-        foreach ($statsData as &$userData) {
-            if (isset($userData['play_count']) && $userData['play_count'] > 0) {
-                $userData['sum_point']                  = number_format($userData['sum_point'], 1);
-                $userData['sum_point']                  = floatval(str_replace(',', '', $userData['sum_point']));
-                foreach ($userData['rank_probability'] as $rank => $probability) {
-                    $userData['rank_probability'][$rank]= number_format($probability, 2).'%';
-                }
-                $userData['average_point']              = number_format($userData['average_point'], 1);
-                $userData['sum_base_score']             = number_format($userData['sum_base_score'], 1);
-                $userData['average_score']              = str_replace(',', '', number_format($userData['average_score'], 0));
-                $userData['average_rank']               = number_format($userData['average_rank'], 2);
-                $userData['over_second_probability']    = number_format($userData['over_second_probability'], 2).'%';
-                $userData['over_third_probability']     = number_format($userData['over_third_probability'], 2).'%';
-            }
-            // 各家の統計がある場合
-            if (isset($userData['play_count']) && $userData['play_count'] > 0) {
-                // 平均順位(各家)
-                foreach ($userData['average_rank_direction'] as $directionId => $value) {
-                    $userData['average_rank_direction'][$directionId] = number_format($value, 2);
-                }
-                // 順位率(各家)
-                foreach ($userData['rank_probability_direction'] as $directionId => $data) {
-                    foreach ($data as $rank => $value) {
-                        $userData['rank_probability_direction'][$directionId][$rank] = number_format($value, 2).'%';
-                    }
-                }
-                // 平均点(各家)
-                foreach ($userData['average_score_direction'] as $directionId => $value) {
-                    $userData['average_score_direction'][$directionId] = number_format($value, 0);
-                }
-                // 平均順位(各家)
-                foreach ($userData['average_point_direction'] as $directionId => $value) {
-                    $userData['average_point_direction'][$directionId] = number_format($value, 1);
-                }
-            }
-        }
-        unset($userData);
-        return $statsData;
-    }
-
-    /**
-     * 統計データにランキングを追加する
-     *
-     * @param array $statsData 統計データ
-     * @return array $statsData ランキング付きの統計データ
-     */
-    private function _addRankings($statsData): array
-    {
-        uasort($statsData, function ($a, $b) {
-            $valA = floatval(str_replace(['%', ','], '', $a['sum_point']));
-            $valB = floatval(str_replace(['%', ','], '', $b['sum_point']));
-            if ($valA == $valB) {
-                return 0;
-            }
-            return ($valA > $valB) ? -1 : 1; // 降順
-        });
-        $rank = 1;
-        foreach ($statsData as &$userData) {
-            $userData['ranking'] = $rank++;
-        }
-        return $statsData;
-    }
-
-    /**
-     * START_YEARから現在の年までの期間と、全期間を$yearsプロパティに設定
-     */
-    private function _setYears(): void
-    {
-        $currentYear = (int)date('Y');
-        for ($year = self::START_YEAR; $year <= $currentYear; $year++) {
-            $this->years[] = $year;
-        }
-        $this->years[] = self::ALL_TERM;
-    }
-
-    /**
-     * 上家の方向IDを取得（1のときは4）
-     */
-    private function _getUpperDirection(int $directionId): int
-    {
-        return $directionId === 1 ? 4 : $directionId - 1;
-    }
-
-    private function _getLowerDirection(int $directionId): int
-    {
-        return $directionId === 4 ? 1 : $directionId + 1;
+        $this->availableTerms = array_map('strval', array_keys($yearSet));
+        rsort($this->availableTerms);
+        $this->availableTerms[] = \App\Support\Constants\AppConstants::ALL_TERM_LABEL;
     }
 }
-?>
+
+

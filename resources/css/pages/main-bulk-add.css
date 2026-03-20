@@ -1,0 +1,233 @@
+/* 一括登録ページ専用スタイル: 卓入力テーブルとエラー表示を最適化する。 */
+/* Responsive rule: mobile-first, desktop overrides use min-width 769px. */
+
+/* レイアウト: 卓情報と日付入力をまとまりごとに整理する。 */
+.form-container.container {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.error-box {
+  max-width: 980px;
+  margin: 10px auto 20px;
+  padding: 10px 14px;
+  border: 1px solid #e74c3c;
+  border-radius: 6px;
+  background: #fff4f2;
+  color: #c0392b;
+}
+
+.error-box ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.meta-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (min-width: 769px) {
+  .meta-row {
+    justify-content: flex-end;
+  }
+}
+
+.date-inputs {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.play_date.year {
+  width: 72px;
+  min-width: 72px;
+}
+
+.play_date.month,
+.play_date.day {
+  width: 52px;
+  min-width: 52px;
+}
+
+.date-inputs > span {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.form-group.game-group {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  min-width: 0;
+  max-width: none;
+  width: auto;
+  margin-left: auto;
+}
+
+@media (min-width: 769px) {
+  .form-group.game-group {
+    width: auto;
+  }
+}
+
+.form-group.game-group > label {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 0;
+  font-weight: 700;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.form-group.game-group > .input {
+  width: 56px;
+  min-width: 56px;
+  padding: 8px 6px;
+  text-align: right;
+}
+
+.score-total {
+  margin: 4px 0 12px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #f8f8f8;
+  font-weight: 700;
+}
+
+.score-total.ok {
+  background: #eaf8ef;
+  color: #0b7a38;
+}
+
+.score-total.ng {
+  background: #fdf0ee;
+  color: #b03a2e;
+}
+
+.compact-table-wrap {
+  overflow-x: auto;
+  margin-bottom: 12px;
+}
+
+.compact-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.compact-caption {
+  margin-bottom: 6px;
+  color: #666;
+  font-size: 12px;
+  text-align: left;
+  caption-side: top;
+}
+
+.compact-table th,
+.compact-table td {
+  padding: 4px;
+  border: 1px solid #ddd;
+  background: #fff;
+  text-align: center;
+}
+
+@media (min-width: 769px) {
+  .compact-table th,
+  .compact-table td {
+    padding: 6px;
+  }
+}
+
+.compact-table thead th {
+  background: #f3f9f5;
+  color: #009944;
+  font-weight: 700;
+}
+
+.score-input-wrap {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px;
+  align-items: center;
+}
+
+.score-suffix {
+  color: #666;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.form-group > label {
+  display: block;
+  margin-bottom: 4px;
+  color: #333;
+  font-weight: 600;
+}
+
+.form-group.date-group-bottom {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.form-group.date-group-bottom > label {
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+.form-group.date-group-bottom .date-inputs {
+  width: auto;
+  justify-content: flex-end;
+}
+
+.input,
+select,
+input[type="text"],
+input[type="number"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  text-align: right;
+}
+
+.date-inputs .input {
+  padding: 8px 6px;
+  font-size: 13px;
+}
+
+.compact-table .input {
+  padding: 6px 4px;
+  font-size: 12px;
+}
+
+@media (min-width: 769px) {
+  .compact-table .input {
+    padding: 9px 10px;
+    font-size: 14px;
+  }
+}
+
+.submit-button {
+  width: 100%;
+  max-width: 980px;
+  display: block;
+  margin: 20px auto 0;
+}
+
+

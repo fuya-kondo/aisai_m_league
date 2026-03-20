@@ -1,8 +1,9 @@
 <?php
-
 /**
- * ゲーム日マスターモデルクラス
+ * 対局日マスターテーブル用のデータアクセス層。
+ * 開催日の一覧取得と管理画面からのメンテナンスを担当する。
  */
+
 class MGameDay
 {
 	private $db;
@@ -14,7 +15,7 @@ class MGameDay
 	}
 
     /**
-     * すべてのデータを取得
+     * 開催日を日付文字列で引ける形に整えて返す。
      */
     public function getAllData()
     {
@@ -28,7 +29,6 @@ class MGameDay
             return [];
         }
 
-        // 日付をキーに整形
         $result = [];
         foreach ($data as $value) {
             $result[$value['game_day']] = $value;
@@ -37,7 +37,9 @@ class MGameDay
         return $result;
     }
 
-	/** ゲーム日を追加 */
+	/**
+     * 新しい開催日を追加する。
+     */
 	public function addGameDay(array $data)
 	{
 		try {
@@ -51,7 +53,9 @@ class MGameDay
 		}
 	}
 
-	/** ゲーム日を削除 */
+	/**
+     * 指定した開催日を削除する。
+     */
 	public function deleteGameDay(string $gameDay)
 	{
 		try {
@@ -65,7 +69,9 @@ class MGameDay
 		}
 	}
 
-	/** ゲーム日を更新 */
+	/**
+     * 既存開催日を別の日付へ更新する。
+     */
 	public function updateGameDay(string $gameDay, array $data)
 	{
 		try {

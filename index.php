@@ -1,6 +1,9 @@
 <?php
-require_once __DIR__ . '/config/import_file.php';
+/**
+ * アプリケーションのフロントコントローラ。
+ * app 配下の bootstrap と router を読み込み、全リクエストを新 runtime へ委譲する。
+ */
+require_once __DIR__ . '/app/bootstrap.php';
 
-// ルーターを使用してリクエストを処理
-$router = new Router();
-$router->handleRequest();
+$router = new \App\Http\Router();
+$router->dispatch(\App\Http\Request::capture());
