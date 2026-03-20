@@ -10,7 +10,7 @@
 
 .analysis-selector-label {
   margin-top: 8px;
-  color: #333;
+  color: var(--color-text);
   font-size: 0.95rem;
   font-weight: 700;
 }
@@ -42,21 +42,21 @@
 .analysis-result-card {
   padding: 16px;
   border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: var(--color-surface);
+  box-shadow: var(--color-shadow-panel);
 }
 
 .analysis-message-card {
   padding: 0;
   background: transparent;
   box-shadow: none;
-  color: #333;
+  color: var(--color-text);
   line-height: 1.7;
 }
 
 .analysis-result-heading {
   margin-bottom: 12px;
-  color: #333;
+  color: var(--color-text);
   font-size: 0.95rem;
   font-weight: 700;
 }

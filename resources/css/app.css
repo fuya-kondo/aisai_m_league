@@ -6,9 +6,9 @@
 .card,
 .form-container,
 .charts-container .chart-card {
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--color-shadow-md);
 }
 
 .table-container {
@@ -26,7 +26,7 @@
 
 .charts-container .chart-card h3 {
   margin: 4px 0 10px;
-  color: #009944;
+  color: var(--color-primary);
   text-align: center;
 }
 
@@ -78,13 +78,13 @@ table {
 .score-table th,
 .history-table th,
 .result-table th {
-  background: #e9ecef;
+  background: var(--color-surface-soft);
   font-weight: 700;
 }
 
 .score-table--panel thead th {
-  background: #009944;
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
 }
 
 .score-table--panel th {
@@ -102,11 +102,11 @@ table {
 .score-table td,
 .history-table td,
 .result-table td {
-  border-bottom: 1px solid #eef0f2;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .score-table--panel td {
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .score-table--panel tr:last-child td:first-child {
@@ -119,12 +119,12 @@ table {
 
 .history-table .red-text,
 .result-table .red-text {
-  color: #e74c3c;
+  color: var(--color-danger);
 }
 
 .history-table .green-text,
 .result-table .green-text {
-  color: #0b7a38;
+  color: var(--color-primary);
   font-weight: 700;
 }
 
@@ -147,7 +147,7 @@ table {
   font-weight: 700;
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.06s ease, box-shadow 0.2s ease;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: var(--color-transparent);
 }
 
 @media (min-width: 769px) {
@@ -191,67 +191,67 @@ table {
   .direction-button:hover,
   .sound-button:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--color-shadow-lg);
   }
 }
 
 .btn-primary,
 .submit-button {
-  background: #009944;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
 }
 
 .btn-primary:hover,
 .submit-button:hover {
-  background: #007a37;
+  background: var(--color-primary-strong);
 }
 
 .btn-secondary {
-  background: #f0f0f0;
-  color: #333;
+  background: var(--color-surface-soft);
+  color: var(--color-text);
 }
 
 .btn-danger,
 .delete-button {
-  background: #e74c3c;
-  color: #fff;
+  background: var(--color-danger);
+  color: var(--color-text-inverse);
 }
 
 .btn-danger:hover,
 .delete-button:hover {
-  background: #c0392b;
+  background: var(--color-danger-strong);
 }
 
 .edit-button {
-  background: #2ecc71;
+  background: var(--color-primary);
 }
 
 .edit-button:hover {
-  background: #27ae60;
+  background: var(--color-primary-strong);
 }
 
 .select-button {
   width: 200px;
   margin: 6px 0;
-  border: 1px solid #dbe5df;
-  background: #fff;
-  color: #009944;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-primary);
 }
 
 .direction-button {
   margin-right: 8px;
-  border: 1px solid #ddd;
-  background: #f7f7f7;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-soft);
 }
 
 .direction-button.selected {
-  border-color: #1e90ff;
-  background: #1e90ff;
-  color: #fff;
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
 }
 
 .action-button {
-  color: #fff;
+  color: var(--color-text-inverse);
 }
 
 .sound-button {
@@ -277,8 +277,8 @@ table {
 .year-title {
   margin: 0;
   padding: 12px;
-  background-color: #009944;
-  color: #fff;
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
   font-size: 1.2em;
 }
 
@@ -312,7 +312,7 @@ input[type="text"],
 textarea {
   width: 100%;
   padding: 3px;
-  border: 1px solid #dfe3e6;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   font-size: 1rem;
 }
@@ -321,7 +321,7 @@ textarea {
 select.input:hover,
 .year-select:hover,
 .player-select:hover {
-  border-color: #dfe3e6;
+  border-color: var(--color-border-strong);
 }
 
 @media (min-width: 769px) {
@@ -329,7 +329,7 @@ select.input:hover,
   select.input:hover,
   .year-select:hover,
   .player-select:hover {
-    border-color: #009944;
+    border-color: var(--color-primary);
   }
 }
 
@@ -337,15 +337,15 @@ select.input:hover,
   width: 100px;
   padding: 5px 10px;
   border: 0;
-  background: #fff;
-  color: #000;
+  background: var(--color-surface);
+  color: var(--color-text);
   font-weight: 700;
 }
 
 .player-select {
   width: 200px;
-  border: 1px solid #fff;
-  background: #fff;
+  border: 1px solid var(--color-surface);
+  background: var(--color-surface);
   text-align: center;
   text-align-last: center;
 }
@@ -362,13 +362,13 @@ select.input:hover,
 }
 
 .year-title .year-select {
-  background-color: #009944;
-  color: #fff;
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
 }
 
 .section-title {
   margin: 0 0 12px;
-  color: #009944;
+  color: var(--color-primary);
   text-align: center;
 }
 
@@ -386,9 +386,9 @@ select.input:hover,
 }
 
 .points-chart-section {
-    background: #fff;
+    background: var(--color-surface);
     border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--color-shadow-md);
     height: 400px;
     margin-bottom: 96px;
     padding: 12px;
@@ -410,8 +410,8 @@ select.input:hover,
 .year-header {
   margin-bottom: 10px;
   padding-bottom: 8px;
-  border-bottom: 2px solid #eee;
-  color: #3498db;
+  border-bottom: 2px solid var(--color-border);
+  color: var(--color-primary);
   font-size: 1.3em;
 }
 
@@ -441,9 +441,9 @@ select.input:hover,
   align-items: center;
   gap: 4px;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: #f9f9f9;
+  background: var(--color-surface-soft);
 }
 
 .badge-button {
@@ -456,8 +456,8 @@ select.input:hover,
 
 .badge-button.selected .badge-item {
   position: relative;
-  border-color: #28a745;
-  box-shadow: 0 0 10px rgba(40, 167, 69, 0.3);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 10px rgba(0, 153, 68, 0.2);
 }
 
 .badge-button.selected .badge-item::after {
@@ -471,8 +471,8 @@ select.input:hover,
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #28a745;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
   font-size: 10px;
 }
 
@@ -482,8 +482,8 @@ select.input:hover,
   padding: 15px;
   overflow: hidden;
   border-radius: 8px;
-  background-color: #fff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  background-color: var(--color-surface);
+  box-shadow: var(--color-shadow-sm);
 }
 
 .title-item {
@@ -492,7 +492,7 @@ select.input:hover,
   align-items: flex-start;
   justify-content: space-between;
   padding: 10px 0;
-  border-bottom: 1px dashed #eee;
+  border-bottom: 1px dashed var(--color-border);
 }
 
 @media (min-width: 769px) {
@@ -508,13 +508,13 @@ select.input:hover,
 
 .title-name {
   flex-grow: 1;
-  color: #555;
+  color: var(--color-text);
   font-weight: 700;
 }
 
 .user-info {
   margin-top: 5px;
-  color: #777;
+  color: var(--color-text-muted);
   font-size: 0.9em;
   text-align: left;
 }
@@ -531,7 +531,7 @@ select.input:hover,
 }
 
 .user-info .value {
-  color: #e74c3c;
+  color: var(--color-danger);
   font-weight: 700;
 }
 
@@ -540,17 +540,17 @@ select.input:hover,
   display: inline-block;
   margin: 0 3px;
   padding: 6px 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 6px;
-  background: #f8f8f8;
-  color: #333;
+  background: var(--color-surface-soft);
+  color: var(--color-text);
   text-decoration: none;
 }
 
 .page-link.active {
-  border-color: #4caf50;
-  background: #4caf50;
-  color: #fff;
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
 }
 
 /* 汎用テーブル: admin 画面などで使うベーシックな表コンポーネント。 */
@@ -564,7 +564,7 @@ select.input:hover,
 .table th,
 .table td {
   padding: 0.5rem;
-  border-top: 1px solid #dee2e6;
+  border-top: 1px solid var(--color-border);
   text-align: left;
 }
 
@@ -580,7 +580,7 @@ select.input:hover,
 }
 
 .table th {
-  background-color: #f8f9fa;
+  background-color: var(--color-surface-soft);
   font-weight: 700;
 }
 
@@ -593,27 +593,27 @@ select.input:hover,
 }
 
 .alert-success {
-  border-color: #c3e6cb;
-  background-color: #d4edda;
-  color: #155724;
+  border-color: var(--color-success-border);
+  background-color: var(--color-success-bg);
+  color: var(--color-success-text);
 }
 
 .alert-danger {
-  border-color: #f5c6cb;
-  background-color: #f8d7da;
-  color: #721c24;
+  border-color: var(--color-danger-border);
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger-text);
 }
 
 .alert-warning {
-  border-color: #ffeaa7;
-  background-color: #fff3cd;
-  color: #856404;
+  border-color: var(--color-warning-border);
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning-text);
 }
 
 .alert-info {
-  border-color: #bee5eb;
-  background-color: #d1ecf1;
-  color: #0c5460;
+  border-color: var(--color-info-border);
+  background-color: var(--color-info-bg);
+  color: var(--color-info-text);
 }
 
 /* 動的色と空状態: data-* ベースの色反映とメッセージ表示を共通化する。 */
@@ -627,7 +627,7 @@ select.input:hover,
 
 .no-data-message {
   margin: 12px 0;
-  color: #666;
+  color: var(--color-text-muted);
   text-align: center;
 }
 
@@ -638,16 +638,16 @@ select.input:hover,
   align-items: center;
   justify-content: center;
   padding: 5px 16px;
-  border: 1px solid #b8d7c4;
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: #f6fbf8;
-  color: #0a6a35;
+  background: var(--color-surface);
+  color: var(--color-primary);
   font-size: 1rem;
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.06s ease, box-shadow 0.2s ease;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: var(--color-transparent);
 }
 
 @media (min-width: 769px) {
@@ -666,7 +666,7 @@ select.input:hover,
 @media (min-width: 769px) {
   .stats-term-button:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--color-shadow-lg);
   }
 }
 
@@ -675,9 +675,9 @@ select.input:hover,
 }
 
 .stats-term-button.is-active {
-  border-color: #009944;
-  background: #009944;
-  color: #fff;
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
 }
 
 .stats-term-selector {
@@ -701,7 +701,7 @@ select.input:hover,
 }
 
 .stats-table-title {
-  color: #009944;
+  color: var(--color-primary);
   font-size: 1rem;
   font-weight: 700;
 }

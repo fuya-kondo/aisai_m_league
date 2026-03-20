@@ -6,7 +6,7 @@
   margin: 0 auto;
   padding: 15px;
   border-radius: 8px;
-  background-color: #fff;
+  background-color: var(--color-surface);
 }
 
 @media (min-width: 769px) {
@@ -20,7 +20,7 @@
   position: relative;
   margin-bottom: 40px;
   padding-bottom: 30px;
-  border-bottom: 1px dashed #e0e0e0;
+  border-bottom: 1px dashed var(--color-border);
 }
 
 .p-rule__group:last-child {
@@ -45,7 +45,7 @@
   width: 90%;
   height: 12px;
   border-radius: 6px;
-  background-color: #eee;
+  background-color: var(--color-border);
   -webkit-transform: translateX(-50%);
   transform: translateX(-50%);
 }
@@ -59,7 +59,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #d9534f;
+  background-color: var(--color-danger);
   -webkit-transform: translateX(-50%);
   transform: translateX(-50%);
 }
@@ -121,7 +121,7 @@
 }
 
 .p-rule__text ol li::marker {
-  color: #5cb85c;
+  color: var(--color-primary);
   font-weight: 700;
 }
 
@@ -131,7 +131,7 @@
   display: block;
   overflow-x: auto;
   white-space: nowrap;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   border-collapse: separate;
   border-spacing: 0;
@@ -149,8 +149,8 @@
 .p-rule__table th,
 .p-rule__table td {
   padding: 8px 10px;
-  border-right: 1px solid #eee;
-  border-bottom: 1px solid #eee;
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
   text-align: left;
 }
 
@@ -162,8 +162,8 @@
 }
 
 .p-rule__table th {
-  background-color: #eef4f9;
-  color: #444;
+  background-color: var(--color-accent-soft);
+  color: var(--color-text);
   font-weight: 700;
 }
 
@@ -177,7 +177,7 @@
 }
 
 .p-rule__table tbody tr:hover {
-  background-color: #f9f9f9;
+  background-color: var(--color-surface-soft);
 }
 
 .p-rule__table.-full {
@@ -187,7 +187,7 @@
 }
 
 .p-rule__text strong {
-  color: #d9534f;
+  color: var(--color-danger);
 }
 
 .p-rule__text em {

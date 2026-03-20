@@ -10,7 +10,7 @@
 .badge-list-container h3 {
   margin-bottom: 15px;
   padding-bottom: 8px;
-  border-bottom: 2px solid #efefef;
+  border-bottom: 2px solid var(--color-border);
   font-size: 16px;
   font-weight: 700;
 }
@@ -22,7 +22,7 @@
 }
 
 .badge-name {
-  color: #333;
+  color: var(--color-text);
   font-size: 12px;
   font-weight: 600;
   text-align: center;
@@ -33,7 +33,7 @@
   max-width: 300px;
   margin: 0 auto;
   padding: 15px;
-  background-color: #fff;
+  background-color: var(--color-surface);
 }
 
 .badge-item.current .badge-image {
@@ -58,8 +58,8 @@
 
 .badge-button:hover .badge-item {
   transform: translateY(-2px);
-  border-color: #007bff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-color: var(--color-accent);
+  box-shadow: var(--color-shadow-card);
 }
 
 .badge-button.selected .badge-item {
@@ -69,8 +69,8 @@
 .badge-button.selected .badge-item::after {
   top: 2px;
   right: 4px;
-  background-color: #28a745;
-  color: #fff;
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
   font-weight: 700;
 }
 
@@ -83,10 +83,10 @@
 .back-button {
   display: inline-block;
   padding: 10px 20px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-strong);
   border-radius: 8px;
-  background-color: #f0f0f0;
-  color: #333;
+  background-color: var(--color-surface-soft);
+  color: var(--color-text);
   font-size: 16px;
   font-weight: 700;
   text-decoration: none;
@@ -94,5 +94,5 @@
 }
 
 .back-button:hover {
-  background-color: #e0e0e0;
+  background-color: var(--color-border);
 }
