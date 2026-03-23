@@ -16,8 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const chartData = JSON.parse(dataElement.textContent || '{}');
         const datasets = chartData.datasets || [];
         const dates = chartData.dates || [];
+        const labels = chartData.labels || [];
+        const xAxisType = chartData.xAxisType || 'date';
 
-        if (dates.length > 0) {
+        if (xAxisType === 'date' && dates.length > 0) {
             const originDate = new Date(dates[0]);
             originDate.setMonth(originDate.getMonth() - 1);
             const originDateString = originDate.toISOString().split('T')[0];
@@ -33,17 +35,23 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        new Chart(chartCanvas.getContext('2d'), {
-            type: 'line',
-            data: { datasets },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: false,
+        const chartConfig = xAxisType === 'game'
+            ? {
+                data: {
+                    labels,
+                    datasets,
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: '半荘数',
+                        },
                     },
                 },
+            }
+            : {
+                data: { datasets },
                 scales: {
                     x: {
                         type: 'time',
@@ -55,6 +63,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         },
                     },
                 },
+            };
+
+        new Chart(chartCanvas.getContext('2d'), {
+            type: 'line',
+            data: chartConfig.data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: false,
+                    },
+                },
+                scales: chartConfig.scales,
                 elements: {
                     line: {
                         spanGaps: true,

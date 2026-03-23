@@ -198,7 +198,18 @@ class StatsPageDataBuilder extends MainPageDataBuilder
     private function buildStatsChartData(array $userList, array $chartByTerm, string $selectedTerm, string $selectedTermLabel): array
     {
         if (empty($chartByTerm[$selectedTerm])) {
-            return ['datasets' => [], 'dates' => [], 'selectedTerm' => $selectedTerm, 'selectedTermLabel' => $selectedTermLabel];
+            return [
+                'datasets' => [],
+                'dates' => [],
+                'labels' => [],
+                'xAxisType' => 'date',
+                'selectedTerm' => $selectedTerm,
+                'selectedTermLabel' => $selectedTermLabel,
+            ];
+        }
+
+        if ($selectedTerm === \App\Support\Constants\AppConstants::TODAY_TERM) {
+            return $this->buildTodayStatsChartData($userList, $chartByTerm[$selectedTerm], $selectedTerm, $selectedTermLabel);
         }
 
         $playerPointHistory = [];
@@ -247,6 +258,81 @@ class StatsPageDataBuilder extends MainPageDataBuilder
         return [
             'datasets' => $datasets,
             'dates' => $dates,
+            'labels' => [],
+            'xAxisType' => 'date',
+            'selectedTerm' => $selectedTerm,
+            'selectedTermLabel' => $selectedTermLabel,
+        ];
+    }
+
+    private function buildTodayStatsChartData(array $userList, array $todayChartByUser, string $selectedTerm, string $selectedTermLabel): array
+    {
+        $playerPointHistory = [];
+        $allGames = [];
+        $colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'];
+
+        foreach ($userList as $userId => $userData) {
+            $historyRows = $todayChartByUser[$userId] ?? [];
+            usort($historyRows, static function (array $left, array $right): int {
+                $leftGame = (int)($left['game'] ?? 0);
+                $rightGame = (int)($right['game'] ?? 0);
+                if ($leftGame !== $rightGame) {
+                    return $leftGame <=> $rightGame;
+                }
+
+                $leftTimestamp = strtotime((string)($left['play_date'] ?? '')) ?: 0;
+                $rightTimestamp = strtotime((string)($right['play_date'] ?? '')) ?: 0;
+                if ($leftTimestamp !== $rightTimestamp) {
+                    return $leftTimestamp <=> $rightTimestamp;
+                }
+
+                return (int)($left['u_game_history_id'] ?? 0) <=> (int)($right['u_game_history_id'] ?? 0);
+            });
+
+            foreach ($historyRows as $historyRow) {
+                $gameNumber = (int)($historyRow['game'] ?? 0);
+                if ($gameNumber <= 0) {
+                    continue;
+                }
+
+                $point = filter_var($historyRow['point'], FILTER_VALIDATE_FLOAT);
+                if ($point === false) {
+                    $point = 0;
+                }
+
+                $playerPointHistory[$userId][$gameNumber] = ($playerPointHistory[$userId][$gameNumber] ?? 0) + $point;
+                $allGames[$gameNumber] = true;
+            }
+        }
+
+        ksort($allGames);
+        $gameNumbers = array_keys($allGames);
+        $datasets = [];
+
+        foreach ($playerPointHistory as $userId => $pointsByGame) {
+            $dataPoints = [0];
+            $totalPoint = 0;
+            foreach ($gameNumbers as $gameNumber) {
+                if (isset($pointsByGame[$gameNumber])) {
+                    $totalPoint += $pointsByGame[$gameNumber];
+                }
+
+                $dataPoints[] = $totalPoint;
+            }
+
+            $datasets[] = [
+                'label' => $userList[$userId]['last_name'] ?? (string)$userId,
+                'data' => $dataPoints,
+                'borderColor' => $colors[$userId % count($colors)],
+                'fill' => false,
+            ];
+        }
+
+        return [
+            'datasets' => $datasets,
+            'dates' => [],
+            'labels' => array_merge(['0'], array_map('strval', $gameNumbers)),
+            'xAxisType' => 'game',
             'selectedTerm' => $selectedTerm,
             'selectedTermLabel' => $selectedTermLabel,
         ];
