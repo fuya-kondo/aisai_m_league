@@ -19,26 +19,32 @@
 
 ## 主な画面
 
-### 機能一覧
-<img width="329" height="508" alt="image" src="https://github.com/user-attachments/assets/b39f1091-ae7f-4dec-b10d-3cb5be04f439" />
-
 ### 全体成績
-<img width="327" height="643" alt="image" src="https://github.com/user-attachments/assets/8ae98331-b8fd-42c8-9ca4-3ba68ba175b6" />
+<img width="410" height="877" alt="image" src="https://github.com/user-attachments/assets/762b000d-7e26-43f9-a919-33399526efb3" />
 
 ### 個人成績
-<img width="323" height="565" alt="image" src="https://github.com/user-attachments/assets/0f0efc29-18e1-4dbb-9cab-464e62f58300" /><img width="325" height="583" alt="image" src="https://github.com/user-attachments/assets/4c51bf50-02a7-44df-b725-9d2160be66ab" /><img width="326" height="646" alt="image" src="https://github.com/user-attachments/assets/f31f357a-dc1c-4823-90e4-38f30f92b6f9" /><img width="323" height="165" alt="image" src="https://github.com/user-attachments/assets/8b3ba09e-97d2-4c64-901b-45c12b95b9ad" />
+<img width="406" height="876" alt="image" src="https://github.com/user-attachments/assets/ed3e3518-4aac-4fea-856e-d579648fa814" />
+<img width="404" height="687" alt="image" src="https://github.com/user-attachments/assets/7cfe209d-ab52-4945-9caf-cefda822f271" />
+<img width="405" height="337" alt="image" src="https://github.com/user-attachments/assets/022051dd-db50-4a7c-8c34-01064edd252e" />
+<img width="409" height="544" alt="image" src="https://github.com/user-attachments/assets/36b2624d-8992-4ac1-8579-6f67fd143527" />
+<img width="402" height="871" alt="image" src="https://github.com/user-attachments/assets/bfb9cdad-583b-4f6b-817c-7e81a472ed00" />
+<img width="410" height="275" alt="image" src="https://github.com/user-attachments/assets/796d1790-5a55-48bf-96f0-7e60e8f8983f" />
+
 
 #### 称号変更
-<img width="319" height="620" alt="image" src="https://github.com/user-attachments/assets/c0799558-9d14-4e21-838d-8a829c5e7513" />
+<img width="407" height="878" alt="image" src="https://github.com/user-attachments/assets/16189f38-bc1a-4aaf-a5df-f55cb95c35f0" />
 
 ### 成績登録
-<img width="321" height="522" alt="image" src="https://github.com/user-attachments/assets/e3feb77d-2de8-4515-8b95-51689b170c09" />
+<img width="407" height="879" alt="image" src="https://github.com/user-attachments/assets/820f6d6d-6aab-4eb0-b7b8-21f20faf6aba" />
+<img width="407" height="878" alt="image" src="https://github.com/user-attachments/assets/c949ee7d-5cee-486e-b306-33b9488f5f9b" />
 
 ### 成績履歴
-<img width="315" height="636" alt="image" src="https://github.com/user-attachments/assets/9adaa3ea-2010-405e-bbe9-f44c8d51c362" />
+<img width="405" height="880" alt="image" src="https://github.com/user-attachments/assets/62f8f54d-d5e3-4ce8-9088-4e38ddc939a7" />
+<img width="401" height="877" alt="image" src="https://github.com/user-attachments/assets/a1ef5ac0-748b-412a-a75f-aa91519d386e" />
 
-#### 成績個人履歴
-<img width="320" height="548" alt="image" src="https://github.com/user-attachments/assets/a1c7766e-41b9-4607-818e-2ac664cb0490" />
+### AI分析
+<img width="407" height="874" alt="image" src="https://github.com/user-attachments/assets/18dd36ad-866a-4fef-aa0a-ed71842df513" />
+<img width="404" height="874" alt="image" src="https://github.com/user-attachments/assets/fdf0f38a-4689-4249-868b-acf2a24df214" />
 
 ### Admin
 <img width="319" height="647" alt="image" src="https://github.com/user-attachments/assets/7b4c07b8-7f06-47f2-bf14-83a35493fee0" />
