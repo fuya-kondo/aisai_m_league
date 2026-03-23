@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const chartCanvas = document.getElementById('userPointsChart');
     const termScrollContainer = document.querySelector('.stats-term-selector__scroll');
     const activeTermButton = termScrollContainer?.querySelector('.stats-term-button.is-active');
+    const hideLegend = chartCanvas?.dataset.hideLegend === '1';
 
     if (termScrollContainer && activeTermButton) {
         const targetLeft = activeTermButton.offsetLeft - Math.max((termScrollContainer.clientWidth - activeTermButton.clientWidth) / 2, 0);
@@ -74,6 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 plugins: {
                     title: {
                         display: false,
+                    },
+                    legend: {
+                        display: !hideLegend,
+                        labels: hideLegend ? { generateLabels: () => [] } : undefined,
                     },
                 },
                 scales: chartConfig.scales,

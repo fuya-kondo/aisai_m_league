@@ -17,7 +17,11 @@
     <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/app.css">
     <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/pages/main-personal-stats.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
-    <?php renderExternalScriptTags(['https://cdn.jsdelivr.net/npm/chart.js']); ?>
+    <?php renderExternalScriptTags([
+        'https://cdn.jsdelivr.net/npm/chart.js',
+        'https://cdn.jsdelivr.net/npm/moment',
+        'https://cdn.jsdelivr.net/npm/chartjs-adapter-moment',
+    ]); ?>
     <title><?= h($title) ?></title>
 </head>
 <body>
@@ -54,6 +58,22 @@
         </div>
 
         <div class="profile-header">
+            <?php if (!empty($playerProfile['avatarUrl'])): ?>
+                <div
+                    class="profile-avatar-wrap"
+                    style="width:88px;height:88px;margin:0 auto 12px;overflow:hidden;border-radius:50%;"
+                >
+                    <img
+                        class="profile-avatar"
+                        src="<?= h($playerProfile['avatarUrl']) ?>"
+                        alt="<?= h(($playerProfile['displayName'] ?? '選手') . 'のアバター') ?>"
+                        width="88"
+                        height="88"
+                        loading="lazy"
+                        style="display:block;width:100%;height:100%;border-radius:50%;object-fit:cover;object-position:center;"
+                    >
+                </div>
+            <?php endif; ?>
             <div class="profile-meta-line">
                 <?php if (!empty($playerProfile['tierName'])): ?>
                     <div class="tier dynamic-color-text" data-color="<?= h($playerProfile['tierColor']) ?>">
@@ -74,6 +94,9 @@
         </div>
 
         <?php if ($playerStatsExists): ?>
+            <?php
+            $hasPersonalPointChart = $scoreDisplayFlag && !empty($personalPointChartData['datasets']);
+            ?>
             <div class="table-container">
                 <div class="table-wrapper">
                     <table class="score-table score-table--panel primary-stats">
@@ -90,6 +113,14 @@
             </div>
 
             <div class="charts-container container">
+                <?php if ($hasPersonalPointChart): ?>
+                    <div class="chart-card chart-card--point-trend">
+                        <h3>ポイント推移</h3>
+                        <div class="chart-wrapper chart-wrapper--point-trend">
+                            <canvas id="userPointsChart" data-hide-legend="1"></canvas>
+                        </div>
+                    </div>
+                <?php endif; ?>
                 <div class="chart-card">
                     <h3>着順分布</h3>
                     <div class="chart-wrapper">
@@ -106,6 +137,9 @@
 
             <script id="personal-stats-chart-data" type="application/json">
                 <?= json_encode($personalStatsChartData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+            </script>
+            <script id="stats-chart-data" type="application/json">
+                <?= json_encode($personalPointChartData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
             </script>
 
             <div class="table-container container">
@@ -184,6 +218,7 @@
 <?php renderScriptTags($baseUrl, [
     'resources/js/main/auto-submit.js',
     'resources/js/main/dynamic-colors.js',
+    'resources/js/main/stats-charts.js?v=2',
     'resources/js/main/personal-stats.js',
 ]); ?>
 </body>

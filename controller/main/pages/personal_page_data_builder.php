@@ -7,13 +7,16 @@ class PersonalStatsPageDataBuilder extends MainPageDataBuilder
 {
     public function build(string $selectedTerm, ?string $selectedPlayer): array
     {
+        $selectedTerm = $this->normalizeSelectedTerm($selectedTerm);
         $statsByTerm = $this->statsService->getStatsByTermList();
+        $chartByTerm = $this->statsService->getChartByTermList();
         $userList = $this->statsService->getUserList();
         $directionList = $this->getDirectionList();
         $scoreDisplayFlag = $this->isScoreDisplayEnabled($selectedTerm);
         $playerData = $this->findPlayerStats($statsByTerm, $selectedTerm, $selectedPlayer);
         $directionStats = $this->statsService->getRelativeScoreByDirection();
         $rankHistoryList = $this->statsService->getRankHistory();
+        $selectedTermLabel = $this->findSelectedTermLabel($selectedTerm);
 
         return $this->withTitle('個人成績', [
             'pageTabs' => [
@@ -25,6 +28,7 @@ class PersonalStatsPageDataBuilder extends MainPageDataBuilder
             'playerOptions' => $this->buildPlayerOptions($userList, $selectedTerm, $selectedPlayer),
             'termOptions' => $this->buildTermOptions($selectedPlayer, $selectedTerm),
             'playerProfile' => $this->buildPlayerProfile($selectedPlayer, $userList),
+            'scoreDisplayFlag' => $scoreDisplayFlag,
             'playerStatsExists' => $playerData !== null,
             'primaryStatsRows' => $playerData ? $this->buildPrimaryStatsRows($playerData, $scoreDisplayFlag) : [],
             'directionHeaders' => $this->buildDirectionHeaders($directionList),
@@ -32,7 +36,19 @@ class PersonalStatsPageDataBuilder extends MainPageDataBuilder
             'relationColumns' => $selectedPlayer ? $this->buildRelationColumns($selectedPlayer, $directionStats, $userList) : [],
             'rankHistoryItems' => $selectedPlayer ? $this->buildRankHistoryItems($selectedPlayer, $rankHistoryList) : [],
             'personalStatsChartData' => $playerData,
+            'personalPointChartData' => ($scoreDisplayFlag && $selectedPlayer !== null)
+                ? $this->buildPersonalPointChartData($chartByTerm, $userList, $selectedTerm, $selectedTermLabel, $selectedPlayer)
+                : $this->buildEmptyPointChartData($selectedTerm, $selectedTermLabel),
         ]);
+    }
+
+    private function normalizeSelectedTerm(string $selectedTerm): string
+    {
+        if ($selectedTerm === \App\Support\Constants\AppConstants::TODAY_TERM) {
+            return \App\Support\Constants\AppConstants::ALL_TERM_LABEL;
+        }
+
+        return $selectedTerm;
     }
 
     private function buildTermOptions(?string $selectedPlayer, string $selectedTerm): array
@@ -44,15 +60,6 @@ class PersonalStatsPageDataBuilder extends MainPageDataBuilder
             'active' => $selectedTerm === \App\Support\Constants\AppConstants::ALL_TERM_LABEL,
         ]];
 
-        if ($this->statsService->hasTodayStats()) {
-            $options[] = [
-                'value' => \App\Support\Constants\AppConstants::TODAY_TERM,
-                'label' => \App\Support\Constants\AppConstants::TODAY_TERM_LABEL,
-                'href' => $this->buildPersonalTabHref(\App\Support\Constants\AppConstants::TODAY_TERM, $selectedPlayer),
-                'active' => $selectedTerm === \App\Support\Constants\AppConstants::TODAY_TERM,
-            ];
-        }
-
         foreach ($this->statsService->getYearTerms() as $yearTerm) {
             $options[] = [
                 'value' => $yearTerm,
@@ -63,6 +70,15 @@ class PersonalStatsPageDataBuilder extends MainPageDataBuilder
         }
 
         return $options;
+    }
+
+    private function findSelectedTermLabel(string $selectedTerm): string
+    {
+        if ($selectedTerm === \App\Support\Constants\AppConstants::TODAY_TERM) {
+            return \App\Support\Constants\AppConstants::TODAY_TERM_LABEL;
+        }
+
+        return $selectedTerm;
     }
 
     private function buildPersonalTabHref(string $selectedTerm, ?string $selectedPlayer): string
@@ -97,12 +113,189 @@ class PersonalStatsPageDataBuilder extends MainPageDataBuilder
         }
 
         $player = $userList[$selectedPlayer];
+        $displayName = (string)($player['last_name'] ?? '') . (string)($player['first_name'] ?? '');
+
         return [
+            'displayName' => $displayName,
+            'avatarUrl' => $this->resolvePlayerAvatarUrl((string)$selectedPlayer),
             'tierName' => $player['tier']['name'] ?? null,
             'tierColor' => $player['tier']['color'] ?? null,
             'badgeName' => $player['badge']['name'] ?? null,
             'badgeUrl' => 'badge?userId=' . urlencode($selectedPlayer),
             'tierTargetId' => 'tier_history',
+        ];
+    }
+
+    private function resolvePlayerAvatarUrl(string $playerId): ?string
+    {
+        if ($playerId === '') {
+            return null;
+        }
+
+        $relativePath = 'resources/image/player_' . $playerId . '_avatar.png';
+        $absolutePath = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relativePath);
+
+        if (!is_file($absolutePath)) {
+            return null;
+        }
+
+        return \App\Support\AppConfig::assetUrl($relativePath);
+    }
+
+    private function buildPersonalPointChartData(
+        array $chartByTerm,
+        array $userList,
+        string $selectedTerm,
+        string $selectedTermLabel,
+        string $selectedPlayer
+    ): array {
+        if (empty($chartByTerm[$selectedTerm][$selectedPlayer])) {
+            return $this->buildEmptyPointChartData($selectedTerm, $selectedTermLabel);
+        }
+
+        if ($selectedTerm === \App\Support\Constants\AppConstants::TODAY_TERM) {
+            return $this->buildTodayPersonalPointChartData(
+                $chartByTerm[$selectedTerm][$selectedPlayer],
+                $userList,
+                $selectedTerm,
+                $selectedTermLabel,
+                $selectedPlayer
+            );
+        }
+
+        return $this->buildDateBasedPersonalPointChartData(
+            $chartByTerm[$selectedTerm][$selectedPlayer],
+            $userList,
+            $selectedTerm,
+            $selectedTermLabel,
+            $selectedPlayer
+        );
+    }
+
+    private function buildDateBasedPersonalPointChartData(
+        array $historyRows,
+        array $userList,
+        string $selectedTerm,
+        string $selectedTermLabel,
+        string $selectedPlayer
+    ): array {
+        $pointsByDate = [];
+        foreach ($historyRows as $historyRow) {
+            $playDate = date('Y-m-d', strtotime((string)($historyRow['play_date'] ?? '')));
+            $point = filter_var($historyRow['point'] ?? null, FILTER_VALIDATE_FLOAT);
+            if ($playDate === '1970-01-01') {
+                continue;
+            }
+            if ($point === false) {
+                $point = 0;
+            }
+
+            $pointsByDate[$playDate] = ($pointsByDate[$playDate] ?? 0) + $point;
+        }
+
+        if (empty($pointsByDate)) {
+            return $this->buildEmptyPointChartData($selectedTerm, $selectedTermLabel);
+        }
+
+        ksort($pointsByDate);
+        $dates = array_keys($pointsByDate);
+        $totalPoint = 0;
+        $dataPoints = [];
+        foreach ($dates as $date) {
+            $totalPoint += $pointsByDate[$date];
+            $dataPoints[] = ['x' => $date, 'y' => round($totalPoint, 1)];
+        }
+
+        return [
+            'datasets' => [[
+                'label' => '',
+                'data' => $dataPoints,
+                'borderColor' => '#009944',
+                'fill' => false,
+            ]],
+            'dates' => $dates,
+            'labels' => [],
+            'xAxisType' => 'date',
+            'selectedTerm' => $selectedTerm,
+            'selectedTermLabel' => $selectedTermLabel,
+        ];
+    }
+
+    private function buildTodayPersonalPointChartData(
+        array $historyRows,
+        array $userList,
+        string $selectedTerm,
+        string $selectedTermLabel,
+        string $selectedPlayer
+    ): array {
+        usort($historyRows, static function (array $left, array $right): int {
+            $leftGame = (int)($left['game'] ?? 0);
+            $rightGame = (int)($right['game'] ?? 0);
+            if ($leftGame !== $rightGame) {
+                return $leftGame <=> $rightGame;
+            }
+
+            $leftTimestamp = strtotime((string)($left['play_date'] ?? '')) ?: 0;
+            $rightTimestamp = strtotime((string)($right['play_date'] ?? '')) ?: 0;
+            if ($leftTimestamp !== $rightTimestamp) {
+                return $leftTimestamp <=> $rightTimestamp;
+            }
+
+            return (int)($left['u_game_history_id'] ?? 0) <=> (int)($right['u_game_history_id'] ?? 0);
+        });
+
+        $pointsByGame = [];
+        foreach ($historyRows as $historyRow) {
+            $gameNumber = (int)($historyRow['game'] ?? 0);
+            if ($gameNumber <= 0) {
+                continue;
+            }
+
+            $point = filter_var($historyRow['point'] ?? null, FILTER_VALIDATE_FLOAT);
+            if ($point === false) {
+                $point = 0;
+            }
+
+            $pointsByGame[$gameNumber] = ($pointsByGame[$gameNumber] ?? 0) + $point;
+        }
+
+        if (empty($pointsByGame)) {
+            return $this->buildEmptyPointChartData($selectedTerm, $selectedTermLabel);
+        }
+
+        ksort($pointsByGame);
+        $gameNumbers = array_keys($pointsByGame);
+        $dataPoints = [0];
+        $totalPoint = 0;
+        foreach ($gameNumbers as $gameNumber) {
+            $totalPoint += $pointsByGame[$gameNumber];
+            $dataPoints[] = round($totalPoint, 1);
+        }
+
+        return [
+            'datasets' => [[
+                'label' => '',
+                'data' => $dataPoints,
+                'borderColor' => '#009944',
+                'fill' => false,
+            ]],
+            'dates' => [],
+            'labels' => array_merge(['0'], array_map('strval', $gameNumbers)),
+            'xAxisType' => 'game',
+            'selectedTerm' => $selectedTerm,
+            'selectedTermLabel' => $selectedTermLabel,
+        ];
+    }
+
+    private function buildEmptyPointChartData(string $selectedTerm, string $selectedTermLabel): array
+    {
+        return [
+            'datasets' => [],
+            'dates' => [],
+            'labels' => [],
+            'xAxisType' => 'game',
+            'selectedTerm' => $selectedTerm,
+            'selectedTermLabel' => $selectedTermLabel,
         ];
     }
 
