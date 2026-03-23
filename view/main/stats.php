@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/master.css">
     <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/bottom_navigation.css">
     <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/app.css">
+    <link rel="stylesheet" href="<?= h($baseUrl) ?>/resources/css/pages/main-stats.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
     <title><?= h($title) ?></title>
 </head>
@@ -48,6 +49,22 @@
             ?>
         </div>
     </div>
+
+    <?php if (!empty($dailyAiCommentCard) && ($dailyAiCommentCard['status'] ?? '') === 'success'): ?>
+        <section class="table-container daily-ai-comment-section">
+            <h2 class="daily-ai-comment-title"><?= h($dailyAiCommentCard['title'] ?? '今日のAIコメント') ?></h2>
+            <div class="daily-ai-comment-list">
+                <?php foreach (($dailyAiCommentCard['cards'] ?? []) as $card): ?>
+                    <div class="daily-ai-comment-item">
+                        <div class="daily-ai-comment-name"><?= h($card['userName'] ?? '') ?></div>
+                        <div class="daily-ai-comment-text"><?= h($card['comment'] ?? '') ?></div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </section>
+    <?php elseif (!empty($dailyAiCommentCard) && ($dailyAiCommentCard['status'] ?? '') === 'failed'): ?>
+        <div class="table-container daily-ai-comment-error"><?= h($dailyAiCommentCard['message'] ?? 'AIコメントを取得できませんでした。') ?></div>
+    <?php endif; ?>
 
     <?php if ($scoreDisplayFlag): ?>
         <div class="points-chart-section">

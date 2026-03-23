@@ -22,6 +22,10 @@ class HistoryPageDataBuilder extends MainPageDataBuilder
             }
 
             if ($this->gameHistoryService->deleteBatch($tableId, $playDate, $game)) {
+                if ($this->isTodayYmd($playDate)) {
+                    $freshStatsService = $this->buildFreshStatsService();
+                    $this->dailyAiCommentService->rebuildForDateFromGame($freshStatsService, $playDate, $tableId, $game);
+                }
                 return ['redirectUrl' => 'history?view=overview', 'errorMessage' => null];
             }
 
@@ -34,7 +38,20 @@ class HistoryPageDataBuilder extends MainPageDataBuilder
 
         $historyId = (int)$postData['historyId'];
         $userId = (string)$postData['userId'];
+        $history = $this->gameHistoryService->find($historyId);
         if ($this->gameHistoryService->delete($historyId)) {
+            if ($history !== null) {
+                $playDate = date('Y-m-d', strtotime((string)($history['play_date'] ?? '')));
+                if ($this->isTodayYmd($playDate)) {
+                    $freshStatsService = $this->buildFreshStatsService();
+                    $this->dailyAiCommentService->rebuildForDateFromGame(
+                        $freshStatsService,
+                        $playDate,
+                        (int)($history['u_table_id'] ?? 0),
+                        (int)($history['game'] ?? 0)
+                    );
+                }
+            }
             return ['redirectUrl' => 'history?userId=' . urlencode($userId), 'errorMessage' => null];
         }
 

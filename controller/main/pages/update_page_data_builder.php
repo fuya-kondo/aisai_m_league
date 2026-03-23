@@ -32,6 +32,7 @@ class UpdatePageDataBuilder extends MainPageDataBuilder
             }
 
             $lockedUserId = (int)($existingHistory['u_user_id'] ?? 0);
+            $shouldRefreshDailyComment = $this->shouldRefreshDailyComment($existingHistory, $postData);
             $updated = $this->gameHistoryService->update($historyId, [
                 'userId' => $lockedUserId,
                 'tableId' => (int)$postData['tableId'],
@@ -44,6 +45,15 @@ class UpdatePageDataBuilder extends MainPageDataBuilder
             ]);
 
             if ($updated) {
+                if ($shouldRefreshDailyComment) {
+                    $freshStatsService = $this->buildFreshStatsService();
+                    $this->dailyAiCommentService->rebuildForDateFromGame(
+                        $freshStatsService,
+                        date('Y-m-d', strtotime((string)$existingHistory['play_date'])),
+                        (int)($existingHistory['u_table_id'] ?? 0),
+                        (int)($existingHistory['game'] ?? 0)
+                    );
+                }
                 $viewData['redirectUrl'] = 'history?userId=' . urlencode((string)$lockedUserId);
                 return $viewData;
             }
@@ -133,5 +143,16 @@ class UpdatePageDataBuilder extends MainPageDataBuilder
             ['label' => '一括登録', 'href' => 'bulk-add', 'active' => $activeTab === 'bulk'],
             ['label' => '個別登録', 'href' => 'add', 'active' => $activeTab === 'single'],
         ];
+    }
+
+    private function shouldRefreshDailyComment(array $existingHistory, array $postData): bool
+    {
+        $playDate = date('Y-m-d', strtotime((string)($existingHistory['play_date'] ?? '')));
+        if (!$this->isTodayYmd($playDate)) {
+            return false;
+        }
+
+        return (string)($existingHistory['rank'] ?? '') !== (string)($postData['rank'] ?? '')
+            || (int)($existingHistory['score'] ?? 0) !== (int)($postData['score'] ?? 0);
     }
 }

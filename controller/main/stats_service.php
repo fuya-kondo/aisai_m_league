@@ -302,9 +302,114 @@ class StatsService
         return in_array($term, $this->availableTerms, true);
     }
 
+    public function getDailyGameNumbers(string $playDate, int $tableId): array
+    {
+        $games = [];
+        foreach ($this->gameHistoryByUser as $historyRows) {
+            foreach ($historyRows as $historyRow) {
+                if (!$this->matchesPlayDateAndTable($historyRow, $playDate, $tableId)) {
+                    continue;
+                }
+
+                $game = (int)($historyRow['game'] ?? 0);
+                if ($game > 0) {
+                    $games[$game] = true;
+                }
+            }
+        }
+
+        $gameNumbers = array_map('intval', array_keys($games));
+        sort($gameNumbers, SORT_NUMERIC);
+        return $gameNumbers;
+    }
+
+    public function buildDailyAiCommentSource(string $playDate, int $tableId, int $game): ?array
+    {
+        if ($game < 1 || !$this->hasCompleteGamesUpToTarget($playDate, $tableId, $game)) {
+            return null;
+        }
+
+        $targetRows = $this->findRowsByPlayDateTableAndGame($playDate, $tableId, $game);
+        if (count($targetRows) !== \App\Support\Constants\AppConstants::PLAYER_COUNT) {
+            return null;
+        }
+
+        usort($targetRows, static function (array $left, array $right): int {
+            return (int)($left['m_direction_id'] ?? 0) <=> (int)($right['m_direction_id'] ?? 0);
+        });
+
+        $targetUserIds = array_map(static fn(array $row): int => (int)($row['u_user_id'] ?? 0), $targetRows);
+        $filteredHistoryByUser = [];
+        foreach ($targetUserIds as $userId) {
+            $filteredHistoryByUser[$userId] = $this->filterHistoryRowsForDailyComment($this->gameHistoryByUser[$userId] ?? [], $playDate, $tableId, $game);
+        }
+
+        $statsByUser = $this->calculateStatsForHistoryMap($filteredHistoryByUser);
+        $players = [];
+        foreach ($targetRows as $targetRow) {
+            $userId = (int)($targetRow['u_user_id'] ?? 0);
+            $userData = $this->userList[$userId] ?? null;
+            if ($userData === null) {
+                continue;
+            }
+
+            $todayHistory = array_map(
+                fn(array $historyRow): array => $this->normalizeAnalysisHistoryRow($historyRow),
+                $filteredHistoryByUser[$userId] ?? []
+            );
+            usort($todayHistory, static function (array $left, array $right): int {
+                $leftGame = (int)($left['game'] ?? 0);
+                $rightGame = (int)($right['game'] ?? 0);
+                if ($leftGame !== $rightGame) {
+                    return $leftGame <=> $rightGame;
+                }
+
+                return strcmp((string)($left['play_date'] ?? ''), (string)($right['play_date'] ?? ''));
+            });
+
+            $players[] = [
+                'user_id' => $userId,
+                'player_name' => (string)($userData['last_name'] ?? '') . (string)($userData['first_name'] ?? ''),
+                'direction' => $this->directionDefinitions[(int)($targetRow['m_direction_id'] ?? 0)]['name'] ?? '',
+                'current_game' => $this->normalizeAnalysisHistoryRow($targetRow),
+                'today_summary' => [
+                    'play_count' => (int)($statsByUser[$userId]['play_count'] ?? 0),
+                    'sum_point' => round((float)($statsByUser[$userId]['sum_point'] ?? 0), 1),
+                    'average_point' => round((float)($statsByUser[$userId]['average_point'] ?? 0), 1),
+                    'average_rank' => round((float)($statsByUser[$userId]['average_rank'] ?? 0), 1),
+                    'rank_count' => $statsByUser[$userId]['rank_count'] ?? [],
+                    'mistake_count' => (int)($statsByUser[$userId]['mistake_count'] ?? 0),
+                ],
+                'today_history' => $todayHistory,
+            ];
+        }
+
+        if (count($players) !== \App\Support\Constants\AppConstants::PLAYER_COUNT) {
+            return null;
+        }
+
+        return [
+            'play_date' => $playDate,
+            'game' => $game,
+            'table_id' => $tableId,
+            'completed_games' => $game,
+            'players' => $players,
+        ];
+    }
+
     private function calculateScoreStats(string $term, bool $today = false): array
     {
         return $this->scoreAggregator->calculate($this->userList, $this->gameHistoryByUser, $term, $today);
+    }
+
+    private function calculateStatsForHistoryMap(array $historyByUser): array
+    {
+        return $this->scoreAggregator->calculate(
+            $this->userList,
+            $historyByUser,
+            \App\Support\Constants\AppConstants::ALL_TERM_LABEL,
+            false
+        );
     }
 
     private function filterGameHistoryRowsByTerm(array $historyRows, string $term): array
@@ -334,6 +439,85 @@ class StatsService
             'point' => round((float)($historyRow['point'] ?? 0), 1),
             'mistake_count' => (int)($historyRow['mistake_count'] ?? 0),
         ];
+    }
+
+    private function filterHistoryRowsForDailyComment(array $historyRows, string $playDate, int $tableId, int $game): array
+    {
+        $filteredRows = array_values(array_filter($historyRows, function (array $historyRow) use ($playDate, $tableId, $game): bool {
+            if (!$this->matchesPlayDateAndTable($historyRow, $playDate, $tableId)) {
+                return false;
+            }
+
+            return (int)($historyRow['game'] ?? 0) <= $game;
+        }));
+
+        usort($filteredRows, static function (array $left, array $right): int {
+            $leftGame = (int)($left['game'] ?? 0);
+            $rightGame = (int)($right['game'] ?? 0);
+            if ($leftGame !== $rightGame) {
+                return $leftGame <=> $rightGame;
+            }
+
+            return (int)($left['u_game_history_id'] ?? 0) <=> (int)($right['u_game_history_id'] ?? 0);
+        });
+
+        return $filteredRows;
+    }
+
+    private function findRowsByPlayDateTableAndGame(string $playDate, int $tableId, int $game): array
+    {
+        $rows = [];
+        foreach ($this->gameHistoryByUser as $historyRows) {
+            foreach ($historyRows as $historyRow) {
+                if (!$this->matchesPlayDateAndTable($historyRow, $playDate, $tableId)) {
+                    continue;
+                }
+
+                if ((int)($historyRow['game'] ?? 0) === $game) {
+                    $rows[] = $historyRow;
+                }
+            }
+        }
+
+        return $rows;
+    }
+
+    private function hasCompleteGamesUpToTarget(string $playDate, int $tableId, int $targetGame): bool
+    {
+        $rowCountByGame = [];
+        foreach ($this->gameHistoryByUser as $historyRows) {
+            foreach ($historyRows as $historyRow) {
+                if (!$this->matchesPlayDateAndTable($historyRow, $playDate, $tableId)) {
+                    continue;
+                }
+
+                $game = (int)($historyRow['game'] ?? 0);
+                if ($game <= 0 || $game > $targetGame) {
+                    continue;
+                }
+
+                $rowCountByGame[$game] = ($rowCountByGame[$game] ?? 0) + 1;
+            }
+        }
+
+        for ($game = 1; $game <= $targetGame; $game++) {
+            if (($rowCountByGame[$game] ?? 0) !== \App\Support\Constants\AppConstants::PLAYER_COUNT) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function matchesPlayDateAndTable(array $historyRow, string $playDate, int $tableId): bool
+    {
+        $historyTimestamp = strtotime((string)($historyRow['play_date'] ?? ''));
+        if ($historyTimestamp === false) {
+            return false;
+        }
+
+        return date('Y-m-d', $historyTimestamp) === $playDate
+            && (int)($historyRow['u_table_id'] ?? 0) === $tableId;
     }
 
     private function initializeAvailableTerms(): void

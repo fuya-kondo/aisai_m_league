@@ -44,8 +44,19 @@ class BulkUpdatePageDataBuilder extends MainPageDataBuilder
 
             if (empty($errorMessages)) {
                 $playDate = sprintf('%s %s', $formData['play_date'], $formData['time_part']);
+                $shouldRefreshDailyComment = $this->isTodayYmd($formData['play_date'])
+                    && $this->hasRankOrScoreChanged($batchRows, $formData);
                 $result = $this->gameHistoryService->updateBatch($this->buildHistoryRecords($formData, $playDate));
                 if ($result) {
+                    if ($shouldRefreshDailyComment) {
+                        $freshStatsService = $this->buildFreshStatsService();
+                        $this->dailyAiCommentService->rebuildForDateFromGame(
+                            $freshStatsService,
+                            $formData['play_date'],
+                            (int)$formData['table_id'],
+                            (int)$formData['game']
+                        );
+                    }
                     $redirectUrl = 'history?view=overview';
                 } else {
                     $errorMessages[] = '更新処理中にエラーが発生しました。';
@@ -271,6 +282,24 @@ class BulkUpdatePageDataBuilder extends MainPageDataBuilder
             $sortedPattern = $pattern;
             sort($sortedPattern);
             if ($ranks === $sortedPattern) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hasRankOrScoreChanged(array $batchRows, array $formData): bool
+    {
+        for ($direction = 1; $direction <= \App\Support\Constants\AppConstants::PLAYER_COUNT; $direction++) {
+            $existingRow = $batchRows[$direction - 1] ?? null;
+            if ($existingRow === null) {
+                return false;
+            }
+
+            $newScore = (int)($formData['seats'][$direction]['score'] ?? 0) * \App\Support\Constants\AppConstants::SCORE_INPUT_MULTIPLIER;
+            $newRank = (string)($formData['seats'][$direction]['rank'] ?? '');
+            if ((int)($existingRow['score'] ?? 0) !== $newScore || (string)($existingRow['rank'] ?? '') !== $newRank) {
                 return true;
             }
         }

@@ -13,6 +13,11 @@ class AnalysisPageDataBuilder extends MainPageDataBuilder
         $selectedTerm = $this->resolveSelectedTerm($selectedTerm, $analysisTerms);
         $analysisResultHtml = null;
         $analysisError = null;
+        $analysisHistoryItems = [];
+
+        if ($selectedUser !== null && isset($userList[$selectedUser])) {
+            $analysisHistoryItems = $this->buildAnalysisHistoryItems((int)$selectedUser);
+        }
 
         if ($shouldRun) {
             if ($selectedUser === null || !isset($userList[$selectedUser])) {
@@ -34,11 +39,8 @@ class AnalysisPageDataBuilder extends MainPageDataBuilder
                         $directionList,
                         $statsNameConfig
                     );
-                    $apiKey = getenv('GEMINI_API_KEY') ?: '';
-                    $model = 'gemini-2.5-flash';
-                    $apiVersion = 'v1';
-                    $url = "https://generativelanguage.googleapis.com/{$apiVersion}/models/{$model}:generateContent?key={$apiKey}";
-                    $analysisResultHtml = $this->requestAnalysisHtml($analysisPrompt, $apiKey, $url, $analysisError);
+                    $analysisResultHtml = $this->requestAnalysisHtml((int)$selectedUser, $selectedTerm, $analysisPrompt, $analysisError);
+                    $analysisHistoryItems = $this->buildAnalysisHistoryItems((int)$selectedUser);
                 }
             }
         }
@@ -52,6 +54,7 @@ class AnalysisPageDataBuilder extends MainPageDataBuilder
             'userOptions' => $this->buildUserOptions($userList, $selectedUser),
             'analysisResultHtml' => $analysisResultHtml,
             'analysisError' => $analysisError,
+            'analysisHistoryItems' => $analysisHistoryItems,
             'selectedTermLabel' => $selectedTerm,
             'selectedUserName' => $selectedUser !== null && isset($userList[$selectedUser])
                 ? $userList[$selectedUser]['last_name'] . $userList[$selectedUser]['first_name']
@@ -246,39 +249,60 @@ EOT;
         return trim($sanitized);
     }
 
-    private function requestAnalysisHtml(string $analysisPrompt, string $apiKey, string $url, ?string &$errorMessage): ?string
+    private function requestAnalysisHtml(int $selectedUser, string $selectedTerm, string $analysisPrompt, ?string &$errorMessage): ?string
     {
-        if ($apiKey === '') {
-            $errorMessage = 'GEMINI_API_KEY が設定されていません。config/.env を確認してください。';
+        $responseText = $this->geminiTextGenerationService->generateText(
+            $analysisPrompt,
+            'gemini-2.5-flash',
+            $errorMessage
+        );
+        if ($responseText === null) {
+            $this->aiAnalysisHistoryService->saveFailure(
+                $selectedUser,
+                $selectedTerm,
+                'gemini-2.5-flash',
+                $analysisPrompt,
+                $errorMessage ?? 'AI分析に失敗しました。'
+            );
             return null;
         }
 
-        try {
-            $requestData = ['contents' => [['parts' => [['text' => $analysisPrompt]]]]];
-            $requestOptions = [
-                'http' => [
-                    'method' => 'POST',
-                    'header' => 'Content-Type: application/json',
-                    'content' => json_encode($requestData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-                ],
+        $sanitizedHtml = $this->sanitizeAnalysisHtml($responseText);
+        $this->aiAnalysisHistoryService->saveSuccess(
+            $selectedUser,
+            $selectedTerm,
+            'gemini-2.5-flash',
+            $analysisPrompt,
+            $sanitizedHtml
+        );
+
+        return $sanitizedHtml;
+    }
+
+    private function buildAnalysisHistoryItems(int $selectedUser): array
+    {
+        $items = [];
+        foreach ($this->aiAnalysisHistoryService->findRecentSuccessfulByUser($selectedUser, 3) as $historyRow) {
+            $items[] = [
+                'historyId' => (int)($historyRow['u_ai_analysis_history_id'] ?? 0),
+                'term' => (string)($historyRow['term'] ?? ''),
+                'statusLabel' => '成功',
+                'generatedAt' => $this->formatGeneratedAt((string)($historyRow['generated_at'] ?? '')),
+                'detailHref' => 'analysis-history?historyId=' . urlencode((string)($historyRow['u_ai_analysis_history_id'] ?? 0)) . '&userId=' . urlencode((string)$selectedUser),
             ];
-            $context = stream_context_create($requestOptions);
-            $response = file_get_contents($url, false, $context);
-            if ($response === false) {
-                throw new RuntimeException('AI へのリクエスト送信に失敗しました。');
-            }
-
-            $decodedResponse = json_decode($response, true);
-            if (!isset($decodedResponse['candidates'][0]['content']['parts'][0]['text'])) {
-                $errorMessage = 'AI から有効な応答を取得できませんでした。';
-                return null;
-            }
-
-            return $this->sanitizeAnalysisHtml((string)$decodedResponse['candidates'][0]['content']['parts'][0]['text']);
-        } catch (Exception $e) {
-            $errorMessage = 'エラーが発生しました: ' . $e->getMessage();
-            return null;
         }
+
+        return $items;
+    }
+
+    private function formatGeneratedAt(string $generatedAt): string
+    {
+        $timestamp = strtotime($generatedAt);
+        if ($timestamp === false) {
+            return $generatedAt;
+        }
+
+        return date('Y/m/d H:i', $timestamp);
     }
 }
 

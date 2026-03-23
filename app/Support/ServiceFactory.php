@@ -2,12 +2,17 @@
 namespace App\Support;
 
 use App\Repositories\GameHistoryRepository;
+use App\Repositories\AiAnalysisHistoryRepository;
+use App\Repositories\DailyAiCommentRepository;
 use App\Repositories\SettingRepository;
 use App\Repositories\TierHistoryRepository;
 use App\Repositories\TierRepository;
 use App\Repositories\UserRepository;
+use App\Services\DailyAiCommentService;
+use App\Services\AiAnalysisHistoryService;
 use App\Services\GameHistoryService;
 use App\Services\GamePointCalculator;
+use App\Services\GeminiTextGenerationService;
 use App\Services\MasterDataService;
 use App\Services\SettingService;
 use App\Services\TierHistoryService;
@@ -28,6 +33,24 @@ final class ServiceFactory
     public static function createGameHistoryService(): GameHistoryService
     {
         return new GameHistoryService(new GameHistoryRepository(), new GamePointCalculator());
+    }
+
+    public static function createGeminiTextGenerationService(): GeminiTextGenerationService
+    {
+        return new GeminiTextGenerationService();
+    }
+
+    public static function createDailyAiCommentService(): DailyAiCommentService
+    {
+        return new DailyAiCommentService(
+            new DailyAiCommentRepository(),
+            self::createGeminiTextGenerationService(),
+        );
+    }
+
+    public static function createAiAnalysisHistoryService(): AiAnalysisHistoryService
+    {
+        return new AiAnalysisHistoryService(new AiAnalysisHistoryRepository());
     }
 
     public static function createSettingService(): SettingService

@@ -18,6 +18,7 @@ class StatsPageDataBuilder extends MainPageDataBuilder
         $termOptions = $this->buildTermOptions($yearTerms, isset($statsByTerm[\App\Support\Constants\AppConstants::TODAY_TERM]));
         $selectedTermLabel = $this->findSelectedTermLabel($termOptions, $selectedTerm);
         $selectedYear = ctype_digit($selectedTerm) ? $selectedTerm : null;
+        $dailyAiCommentCard = $this->buildDailyAiCommentCard($selectedTerm, $selectedTermStats);
 
         return $this->withTitle('成績', [
             'pageTabs' => [
@@ -35,6 +36,7 @@ class StatsPageDataBuilder extends MainPageDataBuilder
             'scoreDisplayFlag' => $scoreDisplayFlag,
             'statsChartData' => $this->buildStatsChartData($userList, $chartByTerm, $selectedTerm, $selectedTermLabel),
             'titleHistoryItems' => $selectedYear !== null ? ($titleHolderList[$selectedYear] ?? []) : [],
+            'dailyAiCommentCard' => $dailyAiCommentCard,
         ]);
     }
 
@@ -335,6 +337,60 @@ class StatsPageDataBuilder extends MainPageDataBuilder
             'xAxisType' => 'game',
             'selectedTerm' => $selectedTerm,
             'selectedTermLabel' => $selectedTermLabel,
+        ];
+    }
+
+    private function buildDailyAiCommentCard(string $selectedTerm, array $selectedTermStats): ?array
+    {
+        if ($selectedTerm !== \App\Support\Constants\AppConstants::TODAY_TERM) {
+            return null;
+        }
+
+        $playDate = date('Y-m-d');
+        $tableId = \App\Support\Constants\AppConstants::AGGREGATE_TABLE_ID;
+        $latestGame = max($this->gameHistoryService->getNextGameNumberByDate($tableId, $playDate) - 1, 0);
+        if ($latestGame < 1) {
+            return null;
+        }
+
+        $commentRecord = $this->dailyAiCommentService->findByGame($tableId, $playDate, $latestGame);
+        if ($commentRecord === null) {
+            return null;
+        }
+
+        if (($commentRecord['status'] ?? '') === \App\Services\DailyAiCommentService::STATUS_FAILED) {
+            return [
+                'status' => 'failed',
+                'message' => 'AIコメントを取得できませんでした。',
+            ];
+        }
+
+        if (($commentRecord['status'] ?? '') !== \App\Services\DailyAiCommentService::STATUS_SUCCESS) {
+            return null;
+        }
+
+        $cards = [];
+        $comments = $commentRecord['comments'] ?? [];
+        foreach ($selectedTermStats as $statsRow) {
+            $userId = (string)($statsRow['u_user_id'] ?? '');
+            if ($userId === '' || !isset($comments[$userId])) {
+                continue;
+            }
+
+            $cards[] = [
+                'userName' => (string)($statsRow['name'] ?? ''),
+                'comment' => (string)$comments[$userId],
+            ];
+        }
+
+        if (empty($cards)) {
+            return null;
+        }
+
+        return [
+            'status' => 'success',
+            'title' => '今日のAIコメント',
+            'cards' => $cards,
         ];
     }
 }

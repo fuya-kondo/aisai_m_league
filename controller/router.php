@@ -47,6 +47,7 @@ class Router
             'history' => 'history',
             'personal' => 'personalStats',
             'analysis' => 'analysis',
+            'analysis-history' => 'analysisHistoryDetail',
             'setting' => 'setting',
             'rule' => 'rule',
             'badge' => 'badge',

@@ -86,6 +86,26 @@
         <?php else: ?>
             <div class="error analysis-message-card">分析結果を取得できませんでした。</div>
         <?php endif; ?>
+
+        <?php if ($selectedUser !== null): ?>
+            <div class="analysis-history-card">
+                <div class="analysis-history-title">過去の分析</div>
+                <?php if (!empty($analysisHistoryItems)): ?>
+                    <div class="analysis-history-list">
+                        <?php foreach ($analysisHistoryItems as $item): ?>
+                            <a class="analysis-history-item" href="<?= h($item['detailHref']) ?>">
+                                <div class="analysis-history-item__term"><?= h($item['term']) ?></div>
+                                <div class="analysis-history-item__status"><?= h($item['statusLabel'] ?? '') ?></div>
+                                <div class="analysis-history-item__date"><?= h($item['generatedAt']) ?></div>
+                                <div class="analysis-history-item__link">詳細を見る</div>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="analysis-message-card">過去の分析はまだありません。</div>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
     </div>
 </main>
 <script src="<?= h($baseUrl) ?>/resources/js/main/analysis.js"></script>

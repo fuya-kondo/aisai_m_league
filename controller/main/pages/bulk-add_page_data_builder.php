@@ -34,6 +34,15 @@ class BulkAddPageDataBuilder extends MainPageDataBuilder
             if (empty($errorMessages)) {
                 $result = $this->gameHistoryService->createBatch($this->buildHistoryRecords($formData, $playDateYmd));
                 if ($result) {
+                    if ($this->isTodayYmd($playDateYmd)) {
+                        $freshStatsService = $this->buildFreshStatsService();
+                        $this->dailyAiCommentService->generateAndSaveForGame(
+                            $freshStatsService,
+                            $playDateYmd,
+                            $aggregateTableId,
+                            (int)$formData['game']
+                        );
+                    }
                     $redirectUrl = 'history';
                 } else {
                     $errorMessages[] = '登録処理中にエラーが発生しました。';

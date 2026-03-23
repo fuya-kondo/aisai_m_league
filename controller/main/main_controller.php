@@ -12,6 +12,7 @@ class MainController extends BaseController
     private HistoryPageDataBuilder $historyPageDataBuilder;
     private PersonalStatsPageDataBuilder $personalStatsPageDataBuilder;
     private AnalysisPageDataBuilder $analysisPageDataBuilder;
+    private AnalysisHistoryDetailPageDataBuilder $analysisHistoryDetailPageDataBuilder;
     private AddPageDataBuilder $addPageDataBuilder;
     private BulkAddPageDataBuilder $bulkAddPageDataBuilder;
     private BulkUpdatePageDataBuilder $bulkUpdatePageDataBuilder;
@@ -70,6 +71,15 @@ class MainController extends BaseController
         $pageData = $this->analysisPageDataBuilder->build($selectedUser, $selectedTerm, $shouldRun);
         $pageData['pageTabs'] = $this->buildOtherPageTabs('analysis');
         $this->renderView(__DIR__ . '/../../view/main/analysis.php', $pageData);
+    }
+
+    public function analysisHistoryDetail(): void
+    {
+        $historyId = isset($_GET['historyId']) ? (int)$_GET['historyId'] : 0;
+        $selectedUser = isset($_GET['userId']) ? (string) $_GET['userId'] : null;
+        $pageData = $this->analysisHistoryDetailPageDataBuilder->build($historyId, $selectedUser);
+        $pageData['pageTabs'] = $this->buildOtherPageTabs('analysis');
+        $this->renderView(__DIR__ . '/../../view/main/analysis-history.php', $pageData);
     }
 
     public function setting(): void
@@ -253,6 +263,7 @@ class MainController extends BaseController
         $this->historyPageDataBuilder = new HistoryPageDataBuilder($this->statsService, $this->masterData, $this->statsColumn, $this->gameHistoryService);
         $this->personalStatsPageDataBuilder = new PersonalStatsPageDataBuilder($this->statsService, $this->masterData, $this->statsColumn, $this->gameHistoryService);
         $this->analysisPageDataBuilder = new AnalysisPageDataBuilder($this->statsService, $this->masterData, $this->statsColumn, $this->gameHistoryService);
+        $this->analysisHistoryDetailPageDataBuilder = new AnalysisHistoryDetailPageDataBuilder($this->statsService, $this->masterData, $this->statsColumn, $this->gameHistoryService);
         $this->addPageDataBuilder = new AddPageDataBuilder($this->statsService, $this->masterData, $this->statsColumn, $this->gameHistoryService);
         $this->bulkAddPageDataBuilder = new BulkAddPageDataBuilder($this->statsService, $this->masterData, $this->statsColumn, $this->gameHistoryService);
         $this->bulkUpdatePageDataBuilder = new BulkUpdatePageDataBuilder($this->statsService, $this->masterData, $this->statsColumn, $this->gameHistoryService);

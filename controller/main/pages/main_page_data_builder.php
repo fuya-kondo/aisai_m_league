@@ -9,6 +9,9 @@ abstract class MainPageDataBuilder
     protected array $masterData;
     protected array $statsColumn;
     protected \App\Services\GameHistoryService $gameHistoryService;
+    protected \App\Services\DailyAiCommentService $dailyAiCommentService;
+    protected \App\Services\AiAnalysisHistoryService $aiAnalysisHistoryService;
+    protected \App\Services\GeminiTextGenerationService $geminiTextGenerationService;
 
     public function __construct(StatsService $statsService, array $masterData, array $statsColumn, \App\Services\GameHistoryService $gameHistoryService)
     {
@@ -16,6 +19,9 @@ abstract class MainPageDataBuilder
         $this->masterData = $masterData;
         $this->statsColumn = $statsColumn;
         $this->gameHistoryService = $gameHistoryService;
+        $this->dailyAiCommentService = \App\Support\ServiceFactory::createDailyAiCommentService();
+        $this->aiAnalysisHistoryService = \App\Support\ServiceFactory::createAiAnalysisHistoryService();
+        $this->geminiTextGenerationService = \App\Support\ServiceFactory::createGeminiTextGenerationService();
     }
 
     protected function withTitle(string $title, array $pageData = []): array
@@ -86,5 +92,18 @@ abstract class MainPageDataBuilder
         }
 
         return $defaultValue;
+    }
+
+    protected function buildFreshStatsService(): StatsService
+    {
+        $freshMasterData = $this->masterData;
+        $freshMasterData['uGameHistoryList'] = $this->gameHistoryService->getGroupedHistory();
+
+        return \App\Support\StatsServiceFactory::create($freshMasterData);
+    }
+
+    protected function isTodayYmd(string $playDateYmd): bool
+    {
+        return $playDateYmd === date('Y-m-d');
     }
 }

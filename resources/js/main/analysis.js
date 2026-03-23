@@ -83,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
             syncActiveState('[data-analysis-term-button]', termInput.value);
             syncSubmitState();
             scrollButtonIntoView(button);
+            navigateForSelection();
         });
     });
 
@@ -97,8 +98,27 @@ document.addEventListener('DOMContentLoaded', () => {
             syncActiveState('[data-analysis-user-button]', userInput.value);
             syncSubmitState();
             scrollButtonIntoView(button);
+            navigateForSelection();
         });
     });
+
+    const navigateForSelection = () => {
+        const currentUrl = new URL(window.location.href);
+        if (termInput.value) {
+            currentUrl.searchParams.set('term', termInput.value);
+        } else {
+            currentUrl.searchParams.delete('term');
+        }
+
+        if (userInput.value) {
+            currentUrl.searchParams.set('userId', userInput.value);
+        } else {
+            currentUrl.searchParams.delete('userId');
+        }
+
+        currentUrl.searchParams.delete('run');
+        window.location.href = currentUrl.toString();
+    };
 
     form.addEventListener('submit', (event) => {
         if (isSubmitting) {
