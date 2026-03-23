@@ -102,7 +102,7 @@ for ($direction = 1; $direction <= 4; $direction++) {
                                             class="input score-input"
                                             type="text"
                                             name="score_<?= h($direction) ?>"
-                                            inputmode="numeric"
+                                            inputmode="text"
                                             pattern="-?[0-9]+"
                                             placeholder="250"
                                             required
